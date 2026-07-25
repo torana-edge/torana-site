@@ -1,0 +1,32 @@
+/* Hallmark · macrostructure: Workbench / Ecosystem Index · H2 hero knobs: ratio=7/5, proof=live-config, divider=hairline
+ * theme: studied-DNA (primary: Distil, secondary-axis: Hyperlane) · vibe: "technical night, candid, local-first"
+ * paper: oklch(13% 0.018 220) · accent: oklch(78% 0.14 195) · display: Inter Tight · body: Geist
+ * axes: dark / display-heavy / cool · studied: yes · context: user-provided · v0.8.0
+ */
+
+:root {
+  color-scheme: dark;
+  --paper: oklch(13% 0.018 220);
+  --paper-2: oklch(17% 0.02 220);
+  --paper-3: oklch(22% 0.022 220);
+  --ink: oklch(95% 0.01 205);
+  --ink-2: oklch(76% 0.015 210);
+  --muted: oklch(58% 0.016 215);
+  --rule: oklch(29% 0.022 215);
+  --rule-strong: oklch(39% 0.03 210);
+  --accent: oklch(78% 0.14 195);
+  --accent-dim: oklch(78% 0.14 195 / 0.12);
+  --accent-ink: oklch(14% 0.025 220);
+  --danger: oklch(70% 0.17 28);
+  --success: oklch(76% 0.13 150);
+  --font-display: "Inter Tight", "Arial Narrow", sans-serif;
+  --font-body: "Geist", "Avenir Next", sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  --display: clamp(3.25rem, 9vw, 8.25rem);
+  --h2: clamp(2.2rem, 5vw, 4.8rem);
+  --gutter: clamp(1rem, 4vw, 3.25rem);
+  --page: 78rem;
+  --section: clamp(5rem, 11vw, 10rem);
+  --radius: 0.55rem;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}

@@ -1,0 +1,106 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { plugins } from "../data/plugins";
+const install = "go install github.com/torana-edge/torana-edge/cmd/torana@latest";
+const configExample = `<span class="key">{
+  "listen"</span>: "127.0.0.1:8080",
+  <span class="key">"providers"</span>: {
+    "deepseek": {
+      "base_url": "https://api.deepseek.com"
+    }
+  },
+  <span class="key">"plugins"</span>: [
+    "pii", "otel", "intent"
+  ]
+}
+
+$ export OPENAI_BASE_URL=\\
+  http://127.0.0.1:8080/provider/deepseek/v1`;
+---
+
+<Layout>
+  <section class="frame hero">
+    <div>
+      <p class="eyebrow" data-reveal style="--i:0">Local-first · WASM-extensible · provider-neutral</p>
+      <h1 class="display" data-reveal style="--i:1">A programmable proxy for <span>coding agents.</span></h1>
+      <p class="lede" data-reveal style="--i:2">Torana sits between your harness and your provider. Routing, failover, telemetry, and context policy run as sandboxed plugins you can write in any language that compiles to WASI.</p>
+      <div class="actions" data-reveal style="--i:3">
+        <a class="button primary" href="/quickstart/">Get started <span aria-hidden="true">→</span></a>
+        <a class="button" href="/blog/context-compaction-negative-result/">Read the negative result</a>
+      </div>
+    </div>
+    <div class="proof" data-reveal style="--i:2" aria-label="Torana configuration example">
+      <div class="proof-head"><span>config.json</span><span class="ok">● localhost:8080</span></div>
+      <pre><code set:html={configExample}></code></pre>
+    </div>
+  </section>
+
+  <div class="lifecycle">
+    <div class="life"><b>01 / POINT</b>Your existing harness at Torana.</div>
+    <div class="life"><b>02 / NORMALIZE</b>One canonical IR across providers.</div>
+    <div class="life"><b>03 / RUN</b>Only explicitly granted plugin capabilities.</div>
+    <div class="life"><b>04 / FORWARD</b>Route locally or to the provider you chose.</div>
+  </div>
+
+  <section class="rule-section">
+    <div class="frame">
+      <div class="section-head">
+        <p class="eyebrow">The data path</p>
+        <div>
+          <h2 class="display">One boundary. Four jobs.</h2>
+          <p>Torana does not ask you to replace the agent or the model. It owns the narrow place where requests already cross a process boundary.</p>
+        </div>
+      </div>
+      <div class="flow">
+        <article><code>harness/*</code><div><h3>Accept familiar APIs.</h3><p>OpenAI, Anthropic, Gemini, and Bedrock formats enter through provider-scoped routes.</p></div></article>
+        <article><code>torana.IR</code><div><h3>Normalize once.</h3><p>Plugins receive protobuf messages instead of provider-specific raw JSON.</p></div></article>
+        <article><code>plugin.wasm</code><div><h3>Change what you own.</h3><p>Observe, redact, route, veto, or rewrite with declared capabilities and failure policy.</p></div></article>
+        <article><code>provider/*</code><div><h3>Measure the outcome.</h3><p>Forward traffic with failover and local per-provider token and cost telemetry.</p></div></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="rule-section">
+    <div class="frame">
+      <div class="catalog-head">
+        <div><p class="eyebrow">Official plugins · install individually</p><h2>Start from working source.</h2></div>
+        <a class="button" href="/plugins/">Browse registry →</a>
+      </div>
+      <div class="catalog">
+        {plugins.slice(0, 6).map((plugin) => (
+          <article class="plugin">
+            <h3>{plugin.name}</h3>
+            <p>{plugin.description}</p>
+            <span class="tag">{plugin.kind}</span>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="rule-section quick">
+    <div class="frame quick-grid">
+      <div>
+        <p class="eyebrow">Quickstart</p>
+        <h2 class="display">One binary. One local port.</h2>
+        <p>Install Torana, add a provider, then point any base-URL-aware coding harness at it. No hosted control plane and no account.</p>
+      </div>
+      <div class="command">
+        <pre><code>$ <strong>{install}</strong>
+$ torana init
+$ torana serve</code></pre>
+        <button class="copy" type="button" data-copy={install}>Copy install command</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="rule-section">
+    <div class="frame honest">
+      <div><p class="eyebrow">The honest part</p></div>
+      <blockquote>
+        We built context compaction to cut spend. Across 75 paired sessions, its 95% confidence interval crossed zero. Torana’s economic gate refused to run the paid summarizer.
+        <footer>That refusal is the feature: missing evidence or non-positive expected net means content passes through untouched. <a href="/blog/context-compaction-negative-result/">Read the experiment →</a></footer>
+      </blockquote>
+    </div>
+  </section>
+</Layout>

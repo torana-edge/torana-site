@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-26T00:00:00Z",
+  "plugins": [
+    { "id": "torana/auth", "latest": "0.1.0", "capabilities": ["env.request.headers.read", "env.request.headers.write"], "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/auth" },
+    { "id": "torana/pii", "latest": "0.1.0", "capabilities": ["env.request.body.read", "env.request.body.write"], "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii" },
+    { "id": "torana/otel", "latest": "0.1.0", "capabilities": ["env.log"], "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/otel" },
+    { "id": "torana/intent", "latest": "0.1.0", "capabilities": ["env.request.body.read", "env.request.body.write"], "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/intent" },
+    { "id": "torana/compactor", "latest": "0.1.0", "capabilities": ["env.request.body.read", "env.request.body.write", "env.offload"], "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/compactor" },
+    { "id": "torana/keyword-compactor", "latest": "0.1.0", "capabilities": ["env.request.body.read", "env.request.body.write"], "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/keyword_compactor" },
+    { "id": "torana/schema-translator", "latest": "0.1.0", "capabilities": ["env.request.body.read", "env.request.body.write"], "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/schema_translator" }
+  ]
+}

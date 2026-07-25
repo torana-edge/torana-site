@@ -1,0 +1,23 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { plugins } from "../../data/plugins";
+---
+<Layout title="Plugin registry — Torana" description="Curated Torana plugins and their requested capability classes.">
+  <section class="frame prose" style="max-width:var(--page)">
+    <p class="eyebrow">Registry v1 · curated</p>
+    <h1 class="display">Install behavior, not a starter pack.</h1>
+    <p>Official plugins are installed individually. Each release bundle carries a manifest, schema, source link, license, and SHA-256 digest. Capabilities are approved against that digest and reviewed again when an update changes permissions or failure behavior.</p>
+    <div class="catalog">
+      {plugins.map((plugin) => (
+        <article class="plugin">
+          <h3>torana/{plugin.name}</h3>
+          <p>{plugin.description}</p>
+          <span class="tag">{plugin.kind}</span>
+        </article>
+      ))}
+    </div>
+    <h2>Registry API</h2>
+    <pre><code>GET https://torana.sh/registry/v1/index.json</code></pre>
+    <p>The registry is intentionally curated for v1. Local-file installation remains available for your own plugins and development builds.</p>
+  </section>
+</Layout>

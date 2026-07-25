@@ -1,0 +1,23 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+<Layout title="The context compaction negative result — Torana" description="75 paired sessions and a confidence interval that crosses zero.">
+  <article class="frame prose">
+    <p class="eyebrow">Negative result · 26 July 2026</p>
+    <h1 class="display">I built a context compactor, then built the accounting that told me not to ship it.</h1>
+    <p>Coding agents resend their visible conversation on every turn. A large tool result can remain in that history long after its useful moment, so replacing it with a smaller representation looks like an obvious saving.</p>
+    <p>I built that transformation as a Torana plugin. Then I measured it.</p>
+    <h2>The result</h2>
+    <p>Across 75 paired agent sessions, the compactor removed 4.81 MB of tool output from the wire and produced a median saving of $0.0005. The 95% confidence interval was −$0.0037 to +$0.0037. It crosses zero.</p>
+    <p>On that provider, with its cache-read pricing, the paid summarizer did not justify its own cost. Torana’s economic gate refused to run it a single time.</p>
+    <h2>Why the obvious model is wrong</h2>
+    <p>A rewrite changes more than the removed tokens. It can invalidate a byte-identical prompt-cache prefix, it has its own summarizer cost, and it can erase information a harness expects to recover later. “Fewer tokens” and “lower bill” are not interchangeable claims.</p>
+    <h2>The break-even condition</h2>
+    <p>Let <code>N</code> be future turns, <code>R</code> the rewritten cached span, <code>W</code> the provider’s write/input rate, <code>C</code> its cache-read rate, <code>D</code> tokens removed per future turn, and <code>S</code> the summarizer cost. Compaction needs:</p>
+    <pre><code>N &gt; (R × (W − C) + S) / (D × C)</code></pre>
+    <p>All token quantities and rates must use matching units. If pricing, provider-reported usage, or an expected positive net is missing, the safe default is pass-through.</p>
+    <h2>What shipped instead</h2>
+    <p>The accounting. The gate. The refusal path. Context optimization remains opt-in and off by default. The result is less exciting than a savings claim and much more useful than one we could not support.</p>
+    <p><a href="https://github.com/torana-edge/torana-edge/blob/main/docs/DOGFOOD_166_RESULTS.md">Read the raw dogfood results ↗</a></p>
+  </article>
+</Layout>
