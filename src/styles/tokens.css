@@ -1,7 +1,9 @@
-/* Hallmark · macrostructure: Workbench / Ecosystem Index · H2 hero knobs: ratio=7/5, proof=live-config, divider=hairline
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5
+ * macrostructure: Workbench / Ecosystem Index · H2 hero knobs: ratio=7/5, proof=live-config, divider=hairline
  * theme: studied-DNA (primary: Distil, secondary-axis: Hyperlane) · vibe: "technical night, candid, local-first"
- * paper: oklch(13% 0.018 220) · accent: oklch(78% 0.14 195) · display: Inter Tight · body: Geist
+ * paper: oklch(13% 0.018 220) · accent: oklch(78% 0.14 195) · display: Bricolage Grotesque · body: Geist
  * axes: dark / display-heavy / cool · studied: yes · context: user-provided · v0.8.0
+ * contrast: pass (40–41) · nav: N1b · footer: Ft5 · slop: pass (42–49) · mobile: pass (34, 49–57)
  */
 
 :root {
@@ -19,7 +21,8 @@
   --accent-ink: oklch(14% 0.025 220);
   --danger: oklch(70% 0.17 28);
   --success: oklch(76% 0.13 150);
-  --font-display: "Inter Tight", "Arial Narrow", sans-serif;
+  --quick-muted: oklch(30% 0.02 220);
+  --font-display: "Bricolage Grotesque", "Arial Narrow", sans-serif;
   --font-body: "Geist", "Avenir Next", sans-serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
   --display: clamp(3.25rem, 9vw, 8.25rem);
@@ -29,4 +32,12 @@
   --section: clamp(5rem, 11vw, 10rem);
   --radius: 0.55rem;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --space-1: .25rem;
+  --space-2: .5rem;
+  --space-3: .75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 5rem;
 }
