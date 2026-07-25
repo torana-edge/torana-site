@@ -26,11 +26,10 @@ code, pre, kbd { font-family: var(--font-mono); }
 .button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .button.primary:hover { background: var(--ink); border-color: var(--ink); color: var(--paper); }
 .nav { position: sticky; top: 0; z-index: 50; border-bottom: 1px solid var(--rule); background: color-mix(in oklch, var(--paper) 88%, transparent); backdrop-filter: blur(18px); }
-.nav-inner { min-height: 4.25rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--space-6); }
+.nav-inner { min-height: 4.25rem; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--space-6); }
 .brand { display: inline-flex; align-items: center; gap: var(--space-2); font: 750 1.05rem/1 var(--font-display); letter-spacing: -.03em; }
-.mark { display: inline-grid; gap: var(--space-1); width: 1rem; }
-.mark i { display: block; height: 2px; background: var(--accent); border-radius: 2px; }
-.mark i:nth-child(2) { width: 70%; }.mark i:nth-child(3) { width: 40%; }
+.brand:hover { color: var(--accent); }
+.brand-mark { width: 1.55rem; height: 1.55rem; flex: none; }
 .nav-links { display: flex; gap: var(--space-5); color: var(--ink-2); font-size: .9rem; }
 .nav-links a:hover { color: var(--accent); }
 .nav-action { justify-self: end; font: 500 .78rem/1 var(--font-mono); color: var(--accent); }
