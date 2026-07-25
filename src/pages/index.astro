@@ -3,15 +3,18 @@ import Layout from "../layouts/Layout.astro";
 import { plugins } from "../data/plugins";
 const install = "go install github.com/torana-edge/torana-edge/cmd/torana@latest";
 const configExample = `<span class="key">{
-  "listen"</span>: "127.0.0.1:8080",
+  "port"</span>: 8080,
   <span class="key">"providers"</span>: {
     "deepseek": {
-      "base_url": "https://api.deepseek.com"
+      "url": "https://api.deepseek.com/beta",
+      "format": "openai"
     }
   },
-  <span class="key">"plugins"</span>: [
-    "pii", "otel", "intent"
-  ]
+  <span class="key">"plugins"</span>: {
+    "dir": "./plugins",
+    "order": [],
+    "approvals": {}
+  }
 }
 
 $ export OPENAI_BASE_URL=\\
@@ -42,10 +45,9 @@ $ export OPENAI_BASE_URL=\\
     <div class="life"><b>04 / FORWARD</b>Route locally or to the provider you chose.</div>
   </div>
 
-  <section class="rule-section">
+  <section class="rule-section compact">
     <div class="frame">
       <div class="section-head">
-        <p class="eyebrow">The data path</p>
         <div>
           <h2 class="display">One boundary. Four jobs.</h2>
           <p>Torana does not ask you to replace the agent or the model. It owns the narrow place where requests already cross a process boundary.</p>
@@ -60,7 +62,7 @@ $ export OPENAI_BASE_URL=\\
     </div>
   </section>
 
-  <section class="rule-section">
+  <section class="rule-section compact">
     <div class="frame">
       <div class="catalog-head">
         <div><p class="eyebrow">Official plugins · install individually</p><h2>Start from working source.</h2></div>
@@ -81,14 +83,13 @@ $ export OPENAI_BASE_URL=\\
   <section class="rule-section quick">
     <div class="frame quick-grid">
       <div>
-        <p class="eyebrow">Quickstart</p>
         <h2 class="display">One binary. One local port.</h2>
         <p>Install Torana, add a provider, then point any base-URL-aware coding harness at it. No hosted control plane and no account.</p>
       </div>
       <div class="command">
         <pre><code>$ <strong>{install}</strong>
-$ torana init
-$ torana serve</code></pre>
+$ torana serve
+# open http://127.0.0.1:8080/_torana/</code></pre>
         <button class="copy" type="button" data-copy={install}>Copy install command</button>
       </div>
     </div>
@@ -96,7 +97,7 @@ $ torana serve</code></pre>
 
   <section class="rule-section">
     <div class="frame honest">
-      <div><p class="eyebrow">The honest part</p></div>
+      <div><p class="muted">The honest part</p></div>
       <blockquote>
         We built context compaction to cut spend. Across 75 paired sessions, its 95% confidence interval crossed zero. Torana’s economic gate refused to run the paid summarizer.
         <footer>That refusal is the feature: missing evidence or non-positive expected net means content passes through untouched. <a href="/blog/context-compaction-negative-result/">Read the experiment →</a></footer>

@@ -19,3 +19,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline './dist/**/*.html'
+          fail: true

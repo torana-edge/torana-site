@@ -30,6 +30,11 @@
   --gutter: clamp(1rem, 4vw, 3.25rem);
   --page: 78rem;
   --section: clamp(5rem, 11vw, 10rem);
+  --section-compact: clamp(3rem, 7vw, 6rem);
+  --hero-gap: clamp(2rem, 7vw, 7rem);
+  --hero-pad-start: clamp(3rem, 7vw, 5rem);
+  --hero-pad-end: clamp(5rem, 10vw, 8rem);
+  --footer-pad: clamp(4rem, 9vw, 7rem);
   --radius: 0.55rem;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --space-1: .25rem;
@@ -40,4 +45,5 @@
   --space-6: 2rem;
   --space-7: 3rem;
   --space-8: 5rem;
+  --space-9: 7rem;
 }
