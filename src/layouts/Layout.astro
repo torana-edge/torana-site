@@ -1,0 +1,86 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Torana — a programmable proxy for coding agents",
+  description = "A local-first reverse proxy with sandboxed WASM plugins for routing, failover, telemetry, policy, and context experiments.",
+} = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="oklch(13% 0.018 220)" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="nav">
+      <div class="frame nav-inner">
+        <a class="brand" href="/" aria-label="Torana home">
+          <img class="brand-mark" src="/torana-logo.svg" alt="" width="28" height="28" />
+          Torana
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="/quickstart/">Quickstart</a>
+          <a href="/docs/">Docs</a>
+          <a href="/plugins/">Plugins</a>
+          <a href="/blog/">Blog</a>
+        </nav>
+        <a class="nav-action" href="https://github.com/torana-edge/torana-edge">GitHub ↗</a>
+      </div>
+    </header>
+    <main id="main"><slot /></main>
+    <footer class="foot">
+      <div class="frame">
+        <p class="foot-line">Your agent traffic. <span>Your machine.</span> Your rules.</p>
+        <div class="foot-meta">
+          <span>Torana · pre-1.0 · plugin ABI evolving</span>
+          <span><a href="/docs/">Docs</a> · <a href="/plugins/">Registry</a> · <a href="https://github.com/torana-edge">GitHub</a></span>
+          <span>Open source · 2026</span>
+        </div>
+      </div>
+    </footer>
+    <p class="sr-only" id="copy-status" aria-live="polite"></p>
+    <script>
+      const status = document.querySelector<HTMLElement>("#copy-status");
+      for (const button of document.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
+        button.addEventListener("click", async () => {
+          const value = button.dataset.copy;
+          if (!value) return;
+          const previous = button.textContent;
+          button.disabled = true;
+          button.setAttribute("aria-busy", "true");
+          try {
+            await navigator.clipboard.writeText(value);
+            button.textContent = "Copied";
+            if (status) status.textContent = "Install command copied to clipboard.";
+          } catch {
+            button.textContent = "Copy failed — select the command";
+            if (status) status.textContent = "Clipboard access failed. Select and copy the command manually.";
+          } finally {
+            button.removeAttribute("aria-busy");
+            window.setTimeout(() => {
+              button.textContent = previous;
+              button.disabled = false;
+            }, 2400);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

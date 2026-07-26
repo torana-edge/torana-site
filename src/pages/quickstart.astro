@@ -1,0 +1,23 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+<Layout title="Quickstart — Torana" description="Install Torana and route a coding agent through your local proxy.">
+  <article class="frame prose">
+    <p class="eyebrow">Quickstart · local machine</p>
+    <h1 class="display">Traffic through Torana in five minutes.</h1>
+    <p>Torana is pre-1.0. Use it on a development machine first, keep the listener on loopback, and review each plugin’s requested capabilities before enabling it.</p>
+    <h2>1. Install</h2>
+    <pre><code>go install github.com/torana-edge/torana-edge/cmd/torana@latest</code></pre>
+    <h2>2. Create local configuration</h2>
+    <pre><code>torana serve</code></pre>
+    <p>On first run Torana uses its built-in provider defaults and creates managed state in your user configuration directory. Open <code>http://127.0.0.1:8080/_torana/</code> to edit providers. The listener and control plane default to loopback.</p>
+    <h2>3. Point your harness at it</h2>
+    <pre><code>export OPENAI_BASE_URL=http://127.0.0.1:8080/provider/deepseek/v1</code></pre>
+    <p>Replace <code>deepseek</code> with the provider name in your configuration. Harnesses that support an OpenAI-compatible base URL require no other integration.</p>
+    <h2>4. Explore plugins</h2>
+    <pre><code>git clone https://github.com/torana-edge/torana-plugins.git
+cd torana-plugins
+./scripts/build.sh</code></pre>
+    <p>The curated registry currently indexes source projects while release bundles and lifecycle commands are being finalized. Review a plugin’s manifest, build it from source, and explicitly approve the resulting SHA-256 digest and capabilities before adding it to <code>plugins.order</code>.</p>
+  </article>
+</Layout>
