@@ -13,11 +13,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: torana-edge/torana-plugins
+          path: _sources/torana-plugins
+      - uses: actions/checkout@v4
+        with:
+          repository: torana-edge/torana-edge
+          path: _sources/torana-edge
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm run registry:check -- _sources/torana-plugins
+      - run: npm run owned-content:check -- _sources/torana-edge
       - run: npm run build
       - uses: lycheeverse/lychee-action@v2
         with:
