@@ -56,31 +56,6 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       </div>
     </footer>
     <p class="sr-only" id="copy-status" aria-live="polite"></p>
-    <script>
-      const status = document.querySelector<HTMLElement>("#copy-status");
-      for (const button of document.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
-        button.addEventListener("click", async () => {
-          const value = button.dataset.copy;
-          if (!value) return;
-          const previous = button.textContent;
-          button.disabled = true;
-          button.setAttribute("aria-busy", "true");
-          try {
-            await navigator.clipboard.writeText(value);
-            button.textContent = "Copied";
-            if (status) status.textContent = "Install command copied to clipboard.";
-          } catch {
-            button.textContent = "Copy failed — select the command";
-            if (status) status.textContent = "Clipboard access failed. Select and copy the command manually.";
-          } finally {
-            button.removeAttribute("aria-busy");
-            window.setTimeout(() => {
-              button.textContent = previous;
-              button.disabled = false;
-            }, 2400);
-          }
-        });
-      }
-    </script>
+    <script is:inline src="/copy.js"></script>
   </body>
 </html>
