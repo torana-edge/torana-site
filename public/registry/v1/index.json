@@ -1,48 +1,133 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-26T00:00:00Z",
+  "generated_from": "torana-plugins/plugins/*/plugin.json",
   "status": "source-preview",
   "plugins": [
     {
-      "id": "torana/pii",
-      "latest": "0.1.0",
-      "failure_mode": "block",
-      "capabilities": ["env.cache_get", "env.cache_set", "env.host_call.torana_offload_completion", "env.block_request", "env.plugin_config", "env.log"],
-      "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii"
-    },
-    {
-      "id": "torana/otel",
-      "latest": "0.5.0",
-      "failure_mode": "pass",
-      "capabilities": ["env.emit_metric", "env.log", "env.serve_http"],
-      "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/otel"
-    },
-    {
-      "id": "torana/intent",
+      "id": "torana/cache_tier_selector",
       "latest": "0.1.0",
       "failure_mode": "pass",
-      "capabilities": ["env.cache_get", "env.cache_set", "env.plugin_config", "env.meta_get", "env.meta_set", "env.emit_metric", "env.log"],
-      "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/intent"
+      "capabilities": [
+        "env.host_call.torana_cache_pricing",
+        "env.host_call.torana_plugin_counter",
+        "env.log",
+        "env.now",
+        "env.plugin_config",
+        "env.state_get",
+        "env.state_keys",
+        "env.state_set",
+        "ir.cache_control.write"
+      ],
+      "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/cache_tier_selector"
+    },
+    {
+      "id": "torana/cache_warmer",
+      "latest": "0.1.0",
+      "failure_mode": "pass",
+      "capabilities": [
+        "env.background_tick",
+        "env.host_call.torana_cache_pricing",
+        "env.host_call.torana_send_request",
+        "env.now",
+        "env.plugin_config",
+        "env.state_get",
+        "env.state_keys",
+        "env.state_set"
+      ],
+      "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/cache_warmer"
     },
     {
       "id": "torana/compactor",
       "latest": "0.5.0",
       "failure_mode": "pass",
-      "capabilities": ["env.cache_get", "env.cache_set", "env.host_call.torana_offload_completion", "env.host_call.torana_evaluate_compaction", "env.host_call.torana_record_savings", "env.emit_metric", "env.plugin_config", "env.log"],
+      "capabilities": [
+        "env.cache_get",
+        "env.cache_set",
+        "env.emit_metric",
+        "env.host_call.torana_evaluate_compaction",
+        "env.host_call.torana_offload_completion",
+        "env.host_call.torana_record_savings",
+        "env.plugin_config",
+        "env.shared_cache_get",
+        "ir.tool_results.write"
+      ],
       "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/compactor"
+    },
+    {
+      "id": "torana/intent",
+      "latest": "0.1.0",
+      "failure_mode": "pass",
+      "capabilities": [
+        "env.cache_get",
+        "env.cache_set",
+        "env.emit_metric",
+        "env.log",
+        "env.meta_get",
+        "env.meta_set",
+        "env.plugin_config",
+        "env.shared_cache_set",
+        "ir.cache_control.write",
+        "ir.messages.write.assistant",
+        "ir.messages.write.developer",
+        "ir.messages.write.other",
+        "ir.messages.write.system",
+        "ir.messages.write.tool",
+        "ir.messages.write.user",
+        "ir.stream.write",
+        "ir.tool_results.write",
+        "ir.tools.write"
+      ],
+      "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/intent"
     },
     {
       "id": "torana/keyword_compactor",
       "latest": "0.6.0",
       "failure_mode": "pass",
-      "capabilities": ["env.cache_get", "env.cache_set", "env.host_call.torana_record_savings", "env.emit_metric", "env.plugin_config", "env.log"],
+      "capabilities": [
+        "env.cache_get",
+        "env.cache_set",
+        "env.emit_metric",
+        "env.host_call.torana_record_savings",
+        "env.plugin_config",
+        "env.shared_cache_get",
+        "ir.tool_results.write"
+      ],
       "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/keyword_compactor"
+    },
+    {
+      "id": "torana/otel",
+      "latest": "0.5.0",
+      "failure_mode": "pass",
+      "capabilities": [
+        "env.emit_metric",
+        "env.serve_http"
+      ],
+      "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/otel"
+    },
+    {
+      "id": "torana/pii",
+      "latest": "0.1.0",
+      "failure_mode": "block",
+      "capabilities": [
+        "env.block_request",
+        "env.cache_get",
+        "env.cache_set",
+        "env.host_call.torana_offload_completion",
+        "env.plugin_config"
+      ],
+      "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii"
     },
     {
       "id": "torana/schema_translator",
       "latest": "0.3.0",
       "failure_mode": "pass",
-      "capabilities": ["env.meta_get", "env.meta_set", "env.log"],
+      "capabilities": [
+        "env.meta_get",
+        "env.meta_set",
+        "ir.messages.write.assistant",
+        "ir.stream.write",
+        "ir.tools.write"
+      ],
       "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/schema_translator"
     }
   ]

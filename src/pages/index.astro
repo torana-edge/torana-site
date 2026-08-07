@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { plugins } from "../data/plugins";
-const install = "go install github.com/torana-edge/torana-edge/cmd/torana@latest";
+import { installCommand } from "../data/install";
 const configExample = `<span class="key">{
   "port"</span>: 8080,
   <span class="key">"providers"</span>: {
@@ -87,10 +87,10 @@ $ export OPENAI_BASE_URL=\\
         <p>Install Torana, add a provider, then point any base-URL-aware coding harness at it. No hosted control plane and no account.</p>
       </div>
       <div class="command">
-        <pre><code>$ <strong>{install}</strong>
+        <pre><code>$ <strong>{installCommand}</strong>
 $ torana serve
 # open http://127.0.0.1:8080/_torana/</code></pre>
-        <button class="copy" type="button" data-copy={install}>Copy install command</button>
+        <button class="copy" type="button" data-copy={installCommand}>Copy install command</button>
       </div>
     </div>
   </section>

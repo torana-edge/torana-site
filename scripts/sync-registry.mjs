@@ -1,0 +1,52 @@
+import fs from "node:fs";
+import path from "node:path";
+
+const args = process.argv.slice(2);
+const check = args[0] === "--check";
+const pluginsRoot = path.resolve(check ? args[1] : args[0]);
+if (!pluginsRoot || !fs.existsSync(pluginsRoot)) {
+  throw new Error("usage: sync-registry.mjs [--check] <torana-plugins checkout>");
+}
+
+const pluginRoot = path.join(pluginsRoot, "plugins");
+const manifests = fs.readdirSync(pluginRoot, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => {
+    const file = path.join(pluginRoot, entry.name, "plugin.json");
+    if (!fs.existsSync(file)) throw new Error(`plugin directory has no manifest: ${entry.name}`);
+    const manifest = JSON.parse(fs.readFileSync(file, "utf8"));
+    return { directory: entry.name, manifest };
+  });
+
+const excluded = manifests.filter(({ manifest }) =>
+  manifest.description?.includes("NOT published to the public plugin registry"));
+if (excluded.length !== 1 || excluded[0].manifest.id !== "torana/auth") {
+  throw new Error(`expected the manifest-declared auth reference to be the sole exclusion; got ${excluded.map((p) => p.manifest.id)}`);
+}
+
+const plugins = manifests
+  .filter(({ manifest }) => !manifest.description?.includes("NOT published to the public plugin registry"))
+  .map(({ directory, manifest }) => ({
+    id: manifest.id,
+    latest: manifest.version,
+    failure_mode: manifest.failure_mode,
+    capabilities: [...manifest.permissions.map(({ name }) => name)].sort(),
+    source: `https://github.com/torana-edge/torana-plugins/tree/main/plugins/${directory}`,
+  }))
+  .sort((a, b) => a.id.localeCompare(b.id));
+
+const rendered = `${JSON.stringify({
+  schema_version: 1,
+  generated_from: "torana-plugins/plugins/*/plugin.json",
+  status: "source-preview",
+  plugins,
+}, null, 2)}\n`;
+const target = path.resolve("public/registry/v1/index.json");
+if (check) {
+  const current = fs.readFileSync(target, "utf8");
+  if (current !== rendered) {
+    throw new Error("public registry differs from plugin manifests; run npm run registry:sync -- <plugins checkout>");
+  }
+} else {
+  fs.writeFileSync(target, rendered);
+}

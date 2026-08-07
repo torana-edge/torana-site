@@ -7,7 +7,10 @@
     "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
     "check:security": "node scripts/check-security-headers.mjs",
     "build": "npm run check:security && ASTRO_TELEMETRY_DISABLED=1 astro check && ASTRO_TELEMETRY_DISABLED=1 astro build",
-    "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview"
+    "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview",
+    "registry:sync": "node scripts/sync-registry.mjs",
+    "registry:check": "node scripts/sync-registry.mjs --check",
+    "owned-content:check": "node scripts/check-owned-content.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
