@@ -48,6 +48,7 @@
         "env.host_call.torana_offload_completion",
         "env.host_call.torana_record_savings",
         "env.plugin_config",
+        "env.shared_cache_get",
         "ir.tool_results.write"
       ],
       "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/compactor"
@@ -64,6 +65,7 @@
         "env.meta_get",
         "env.meta_set",
         "env.plugin_config",
+        "env.shared_cache_set",
         "ir.cache_control.write",
         "ir.messages.write.assistant",
         "ir.messages.write.developer",
@@ -87,6 +89,7 @@
         "env.emit_metric",
         "env.host_call.torana_record_savings",
         "env.plugin_config",
+        "env.shared_cache_get",
         "ir.tool_results.write"
       ],
       "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/keyword_compactor"
