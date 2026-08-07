@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
-    "build": "ASTRO_TELEMETRY_DISABLED=1 astro check && ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "check:security": "node scripts/check-security-headers.mjs",
+    "build": "npm run check:security && ASTRO_TELEMETRY_DISABLED=1 astro check && ASTRO_TELEMETRY_DISABLED=1 astro build",
     "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview",
     "registry:sync": "node scripts/sync-registry.mjs",
     "registry:check": "node scripts/sync-registry.mjs --check",
