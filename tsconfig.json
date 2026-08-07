@@ -1,3 +1,5 @@
 {
-  "extends": "astro/tsconfigs/strict"
+  "extends": "astro/tsconfigs/strict",
+  "//": "CI checks torana-plugins and torana-edge out into _sources/ so the registry and owned-content checks can read them. That puts foreign source inside the Astro project, and `astro check` type-checks the whole project — torana-edge ships AssemblyScript fixtures whose builtins (usize, u32, changetype, __free) are not TypeScript, so the site build fails on code the site does not own. Exclude the checkout root; nothing under it is site source.",
+  "exclude": ["dist", "_sources"]
 }
