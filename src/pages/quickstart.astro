@@ -12,11 +12,20 @@ import { installCommand } from "../data/install";
     <p>Torana is intentionally unversioned today. For a reproducible deployment, replace <code>main</code> with a reviewed commit SHA.</p>
     <h2>2. Create local configuration</h2>
     <pre><code>torana serve</code></pre>
-    <p>On first run Torana uses its built-in provider defaults and creates managed state in your user configuration directory. Open <code>http://127.0.0.1:8080/_torana/</code> to edit providers. The listener and control plane default to loopback.</p>
-    <h2>3. Point your harness at it</h2>
+    <p>On first run Torana uses its built-in provider defaults and creates managed state in your user configuration directory. Open <code>http://127.0.0.1:8080/_torana/</code> to edit providers. The listener and control plane default to loopback. Leave the server running, then verify it from another terminal:</p>
+    <pre><code>curl --fail-with-body --silent http://127.0.0.1:8080/health</code></pre>
+    <p>A healthy process returns <code>{`{"status":"ok"}`}</code>. A failed plugin reload keeps the last known-good pipeline serving but reports a degraded health status.</p>
+    <h2>3. Send one inference request</h2>
+    <pre><code>{`curl --fail-with-body --silent \\
+  http://127.0.0.1:8080/provider/deepseek/v1/chat/completions \\
+  -H "Authorization: Bearer $DEEPSEEK_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"model":"deepseek-v4-flash","messages":[{"role":"user","content":"Reply with: torana is ready"}]}'`}</code></pre>
+    <p>This uses the built-in DeepSeek route and forwards your caller credential only to that selected provider. Configure a different provider in the control plane if you do not use DeepSeek.</p>
+    <h2>4. Point your harness at it</h2>
     <pre><code>export OPENAI_BASE_URL=http://127.0.0.1:8080/provider/deepseek/v1</code></pre>
-    <p>Replace <code>deepseek</code> with the provider name in your configuration. Harnesses that support an OpenAI-compatible base URL require no other integration.</p>
-    <h2>4. Explore plugins</h2>
+    <p>Replace <code>deepseek</code> with the provider name in your configuration. The harness must speak that provider’s supported wire format; see the <a href="/docs/support/">exact endpoint and harness matrix</a>. Auxiliary provider endpoints pass through without entering the plugin pipeline.</p>
+    <h2>5. Explore plugins</h2>
     <pre><code>torana plugin install --official</code></pre>
     <p>Torana clones the official source, builds each selected plugin locally, and prints its digest. Installation does not approve or enable anything: inspect the exact manifest and capability set in the control plane, approve that digest, then add the plugin to the ordered pipeline.</p>
   </article>

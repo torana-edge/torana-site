@@ -5,8 +5,15 @@
   "plugins": [
     {
       "id": "torana/cache_tier_selector",
+      "name": "cache_tier_selector",
       "latest": "0.1.0",
+      "description": "Buys the cheapest prompt-cache lifetime for a conversation based on how long it actually goes idle. Keeps each decision fixed until the provider cache tier expires, because changing a live breakpoint marker would invalidate the entry it is protecting.",
       "failure_mode": "pass",
+      "requires_upstream": false,
+      "hooks": [
+        "run_before_request"
+      ],
+      "conflicts_with": [],
       "capabilities": [
         "env.host_call.torana_cache_pricing",
         "env.host_call.torana_plugin_counter",
@@ -22,8 +29,16 @@
     },
     {
       "id": "torana/cache_warmer",
+      "name": "cache_warmer",
       "latest": "0.1.0",
+      "description": "Keeps a chosen conversation's prompt cache alive across an idle gap. Opt-in per conversation and bounded by a deadline and a break-even refresh budget, because refreshing forever costs more than the cache miss it avoids.",
       "failure_mode": "pass",
+      "requires_upstream": false,
+      "hooks": [
+        "run_before_request",
+        "run_on_tick"
+      ],
+      "conflicts_with": [],
       "capabilities": [
         "env.background_tick",
         "env.host_call.torana_cache_pricing",
@@ -38,8 +53,17 @@
     },
     {
       "id": "torana/compactor",
+      "name": "compactor",
       "latest": "0.5.0",
+      "description": "Economically gated cheap-model tool-result compaction; uses cached intent when available and a bounded local fallback otherwise. Alternative to keyword_compactor — run ONE of the two; running after intent improves relevance.",
       "failure_mode": "pass",
+      "requires_upstream": false,
+      "hooks": [
+        "run_before_request"
+      ],
+      "conflicts_with": [
+        "torana/keyword_compactor"
+      ],
       "capabilities": [
         "env.cache_get",
         "env.cache_set",
@@ -55,8 +79,16 @@
     },
     {
       "id": "torana/intent",
+      "name": "intent",
       "latest": "0.1.0",
+      "description": "Captures WHY each tool call is made: injects the required 'i' field into tool schemas (plus a system-prompt example), extracts it from streamed tool calls into the shared cache, and strips it before the harness sees it. On later requests it rehydrates cached intents onto history tool calls (bridging them to the request's tool_call_ids for the compactors) and heuristically fills never-captured ones so no tool establishes an 'i'-less precedent. Run before keyword_compactor OR compactor — both consume the intent cache.",
       "failure_mode": "pass",
+      "requires_upstream": false,
+      "hooks": [
+        "run_before_request",
+        "run_on_stream_chunk"
+      ],
+      "conflicts_with": [],
       "capabilities": [
         "env.cache_get",
         "env.cache_set",
@@ -81,8 +113,17 @@
     },
     {
       "id": "torana/keyword_compactor",
+      "name": "keyword_compactor",
       "latest": "0.6.0",
+      "description": "Deterministic keyword-based tool-result compaction; uses cached intent when available and a bounded local fallback otherwise. Alternative to compactor — run ONE of the two; running after intent improves relevance.",
       "failure_mode": "pass",
+      "requires_upstream": false,
+      "hooks": [
+        "run_before_request"
+      ],
+      "conflicts_with": [
+        "torana/compactor"
+      ],
       "capabilities": [
         "env.cache_get",
         "env.cache_set",
@@ -96,8 +137,17 @@
     },
     {
       "id": "torana/otel",
+      "name": "otel",
       "latest": "0.5.0",
+      "description": "OpenTelemetry per-request metrics: request shape on the way in; latency, status class, and token usage on the way out",
       "failure_mode": "pass",
+      "requires_upstream": false,
+      "hooks": [
+        "run_before_request",
+        "run_after_response",
+        "run_on_http_request"
+      ],
+      "conflicts_with": [],
       "capabilities": [
         "env.emit_metric",
         "env.serve_http"
@@ -106,8 +156,15 @@
     },
     {
       "id": "torana/pii",
+      "name": "pii",
       "latest": "0.1.0",
+      "description": "Scans tool results through a local model + regex pre-filter and blocks the request if PII is detected",
       "failure_mode": "block",
+      "requires_upstream": false,
+      "hooks": [
+        "run_before_request"
+      ],
+      "conflicts_with": [],
       "capabilities": [
         "env.block_request",
         "env.cache_get",
@@ -119,8 +176,16 @@
     },
     {
       "id": "torana/schema_translator",
+      "name": "schema_translator",
       "latest": "0.3.0",
+      "description": "KV-array schema translation: converts additionalProperties maps to arrays on the way in and reverses on the stream",
       "failure_mode": "pass",
+      "requires_upstream": false,
+      "hooks": [
+        "run_before_request",
+        "run_on_stream_chunk"
+      ],
+      "conflicts_with": [],
       "capabilities": [
         "env.meta_get",
         "env.meta_set",
@@ -129,6 +194,24 @@
         "ir.tools.write"
       ],
       "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/schema_translator"
+    },
+    {
+      "id": "torana/tool_governor",
+      "name": "tool_governor",
+      "latest": "0.1.0",
+      "description": "Restricts or replaces the tool definitions advertised to the model",
+      "failure_mode": "block",
+      "requires_upstream": false,
+      "hooks": [
+        "run_before_request"
+      ],
+      "conflicts_with": [],
+      "capabilities": [
+        "env.plugin_config",
+        "ir.cache_control.write",
+        "ir.tools.write"
+      ],
+      "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/tool_governor"
     }
   ]
 }
