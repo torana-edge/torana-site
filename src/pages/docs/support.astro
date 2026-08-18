@@ -1,0 +1,55 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+<Layout
+  title="Support matrix — Torana"
+  description="The exact provider endpoints, streaming and tool coverage, prompt-cache behavior, harness paths, and plugin SDK maturity Torana supports."
+>
+  <article class="frame prose" style="max-width:var(--page)">
+    <p class="eyebrow">Support matrix · pre-release</p>
+    <h1 class="display">Specific wires, not provider logos.</h1>
+    <p>Torana only sends recognized inference endpoints through its canonical IR and plugin pipeline. Other provider endpoints remain transparent reverse-proxy traffic. “Preserved” below means executable fixtures cover the wire behavior; it does not claim that every model or account enables the provider feature.</p>
+
+    <h2>Provider formats</h2>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="Provider support matrix">
+      <table>
+        <thead><tr><th>Format</th><th>Inference endpoints</th><th>Streaming</th><th>Tools</th><th>Prompt-cache behavior</th><th>Known boundary</th></tr></thead>
+        <tbody>
+          <tr><th>OpenAI</th><td><code>POST …/chat/completions</code><br/><code>POST …/responses</code></td><td>SSE</td><td>Preserved and mutable under explicit grants</td><td>Automatic-prefix fields and usage preserved; Responses compaction is opt-in</td><td>Provider-owned history behind <code>previous_response_id</code> is not rewritten</td></tr>
+          <tr><th>Anthropic</th><td><code>POST …/messages</code></td><td>SSE</td><td>Structured use/results and signatures preserved</td><td>Ordered <code>cache_control</code> breakpoints preserved</td><td>Both string and block-array system prompts are accepted</td></tr>
+          <tr><th>Bedrock</th><td><code>POST …/converse</code><br/><code>POST …/converse-stream</code></td><td>ConverseStream</td><td>Converse tool blocks preserved</td><td>Ordered <code>cachePoint</code> elements preserved</td><td>Automated conformance is green; a credentialed real-AWS multi-tool validation remains open</td></tr>
+          <tr><th>Gemini / Vertex AI</th><td><code>POST …:generateContent</code><br/><code>POST …:streamGenerateContent</code></td><td>SSE</td><td>Function calls/results, metadata, and signatures preserved</td><td><code>cachedContent</code> references and usage preserved; Torana does not manage cache resources</td><td>Caller-supplied API key or bearer auth; ADC/service-account minting is not built in</td></tr>
+          <tr><th>Gemini Code Assist</th><td><code>POST …:generateContent</code><br/><code>POST …:streamGenerateContent</code></td><td>SSE</td><td>Function calls/results and signed parts preserved</td><td>Provider cache references and usage preserved</td><td>Clients without a base-URL setting require Torana’s optional, explicitly configured MITM ingress</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Selective interception</h2>
+    <p>Model-list, token-counting, account, quota, status, telemetry, update, MCP, and unknown auxiliary paths do not enter IR and do not run request or response plugins. Real-proxy tests cover auxiliary pass-through for all five formats, including method, path, query, body, permitted headers, upstream status, and response bytes.</p>
+
+    <h2>Coding harnesses</h2>
+    <div class="table-scroll" tabindex="0" role="region" aria-label="Coding harness support matrix">
+      <table>
+        <thead><tr><th>Harness path</th><th>Torana format</th><th>Automated contract</th><th>Manual status</th></tr></thead>
+        <tbody>
+          <tr><th>Claude Code via <code>ANTHROPIC_BASE_URL</code></th><td>Anthropic Messages</td><td>System prompts, streaming tool use/results, cache markers, signatures, and auxiliary pass-through</td><td>Credentialed normal/tool/resume smoke remains a release gate</td></tr>
+          <tr><th>Codex custom provider</th><td>OpenAI Responses</td><td>Responses layout, opaque input items, streaming tools, and model-list pass-through</td><td>Credentialed normal/tool/resume smoke remains a release gate</td></tr>
+          <tr><th>OpenCode / Aider base URL</th><td>OpenAI or Anthropic</td><td>The selected provider wire has automated coverage</td><td>Credentialed client smoke remains a release gate</td></tr>
+          <tr><th>Antigravity / Code Assist</th><td>Gemini Code Assist</td><td>Wrapper data, signed parts, cache facts, stream framing, and auxiliary pass-through</td><td>Credentialed client smoke remains a release gate</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Plugin SDKs</h2>
+    <table><tbody>
+      <tr><th>Go</th><td>ABI v2 SDK, helpers, test harness, official plugins, and host conformance.</td></tr>
+      <tr><th>Rust</th><td>ABI v2 bindings and safe wrappers. A clean Rust guest has built, installed, been digest-approved, and executed through the real host path. The <code>0.3.0</code> crate is prepared but not yet published.</td></tr>
+      <tr><th>TypeScript / AssemblyScript</th><td>No supported SDK today. WASI alone is insufficient: a guest must also implement Torana’s protobuf ABI, allocator, framed host calls, and hook contract.</td></tr>
+      <tr><th>Other WASI languages</th><td>Possible through the documented raw ABI, but not advertised as supported until a maintained SDK and host-conformance guest exist.</td></tr>
+    </tbody></table>
+
+    <h2>Release meaning</h2>
+    <p>This matrix describes the current pre-release source contract. It is deliberately narrower than “supports provider X.” The owner’s clean customer journey and credentialed harness checks remain mandatory before the first Edge release.</p>
+    <p>Implementation evidence: <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/HARNESS_COMPATIBILITY.md">harness boundary ↗</a> · <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/PROMPT_CACHING.md">prompt caching ↗</a> · <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/BENCHMARKS.md">benchmarks ↗</a></p>
+  </article>
+</Layout>
