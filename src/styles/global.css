@@ -56,6 +56,7 @@ code, pre, kbd { font-family: var(--font-mono); }
 .plugin { padding: var(--space-5) 0; border-bottom: 1px solid var(--rule); display: grid; grid-template-columns: 3fr 5fr auto; gap: var(--space-4); align-items: start; }
 .plugin:nth-child(odd) { padding-right: var(--space-5); border-right: 1px solid var(--rule); }.plugin:nth-child(even) { padding-left: var(--space-5); }
 .plugin h3 { margin: 0; font-size: 1.1rem; }.plugin p { margin: 0; color: var(--muted); font-size: .9rem; }.tag { color: var(--accent); font: .7rem/1 var(--font-mono); }
+.catalog-preview .plugin p { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
 .quick { background: var(--ink); color: var(--paper); }
 .quick-grid { display: grid; grid-template-columns: 5fr 7fr; gap: var(--space-8); align-items: center; }
 .quick h2 { margin: var(--space-4) 0; font-size: var(--h2); }.quick p { color: var(--quick-muted); }

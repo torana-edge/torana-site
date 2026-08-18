@@ -68,12 +68,12 @@ $ export OPENAI_BASE_URL=\\
         <div><p class="eyebrow">Official plugins · install individually</p><h2>Start from working source.</h2></div>
         <a class="button" href="/plugins/">Browse registry →</a>
       </div>
-      <div class="catalog">
-        {plugins.slice(0, 6).map((plugin) => (
+      <div class="catalog catalog-preview">
+        {plugins.map((plugin) => (
           <article class="plugin">
             <h3>{plugin.name}</h3>
             <p>{plugin.description}</p>
-            <span class="tag">{plugin.kind}</span>
+            <span class="tag">failure: {plugin.failureMode}</span>
           </article>
         ))}
       </div>
