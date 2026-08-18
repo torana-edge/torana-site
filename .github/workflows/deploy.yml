@@ -1,4 +1,4 @@
-name: Deploy to Cloudflare Pages
+name: Verify site and deploy when configured
 
 on:
   push:
@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
+  verify-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -25,7 +25,14 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - name: Check Cloudflare deployment credentials
+        id: cloudflare
+        run: ./scripts/cloudflare-deploy-ready.sh
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       - name: Deploy
+        if: steps.cloudflare.outputs.configured == 'true'
         run: npx --no-install wrangler pages deploy dist --project-name torana-site
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
