@@ -212,6 +212,22 @@
         "ir.tools.write"
       ],
       "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/tool_governor"
+    },
+    {
+      "id": "torana/usage_logger",
+      "name": "usage_logger",
+      "latest": "0.1.0",
+      "description": "Write content-free request, latency, and token usage records to a rotating private JSONL file",
+      "failure_mode": "pass",
+      "requires_upstream": false,
+      "hooks": [
+        "run_after_response"
+      ],
+      "conflicts_with": [],
+      "capabilities": [
+        "env.file_append"
+      ],
+      "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/usage_logger"
     }
   ]
 }
