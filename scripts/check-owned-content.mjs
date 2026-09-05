@@ -5,13 +5,13 @@ const edgeRoot = path.resolve(process.argv[2]);
 if (!fs.existsSync(edgeRoot)) throw new Error("usage: check-owned-content.mjs <torana-edge checkout>");
 
 const quickstart = fs.readFileSync(path.join(edgeRoot, "docs/QUICKSTART.md"), "utf8");
-const canonical = quickstart.match(/go install github\.com\/torana-edge\/torana-edge\/cmd\/torana@[^\s`]+/)?.[0];
-if (!canonical) throw new Error("canonical install command not found in Edge quickstart");
+const canonical = quickstart.match(/## Install the current pre-release\s+```bash\n([\s\S]*?)\n```/)?.[1]?.trim();
+if (!canonical) throw new Error("canonical pre-release install block not found in Edge quickstart");
 
 const siteSource = fs.readFileSync("src/data/install.ts", "utf8");
-const site = siteSource.match(/export const installCommand = "([^"]+)"/)?.[1];
+const site = siteSource.match(/export const installCommand = `([\s\S]*?)`;/)?.[1]?.trim();
 if (site !== canonical) {
-  throw new Error(`site install command ${JSON.stringify(site)} differs from Edge ${JSON.stringify(canonical)}`);
+  throw new Error(`site install block ${JSON.stringify(site)} differs from Edge ${JSON.stringify(canonical)}`);
 }
 
 const support = fs.readFileSync("src/pages/docs/support.astro", "utf8");

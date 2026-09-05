@@ -45,5 +45,10 @@ export const plugins = [
     "name": "tool_governor",
     "description": "Restricts or replaces the tool definitions advertised to the model",
     "failureMode": "block"
+  },
+  {
+    "name": "usage_logger",
+    "description": "Write content-free request, latency, and token usage records to a rotating private JSONL file",
+    "failureMode": "pass"
   }
 ] as const;
