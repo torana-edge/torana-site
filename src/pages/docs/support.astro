@@ -17,7 +17,6 @@ import Layout from "../../layouts/Layout.astro";
         <tbody>
           <tr><th>OpenAI</th><td><code>POST …/chat/completions</code><br/><code>POST …/responses</code></td><td>SSE</td><td>Preserved and mutable under explicit grants</td><td><code>prompt_cache_key</code>, <code>prompt_cache_retention</code>, and usage preserved; Responses compaction is opt-in</td><td>Provider-owned history behind <code>previous_response_id</code> is not rewritten</td></tr>
           <tr><th>Anthropic</th><td><code>POST …/messages</code></td><td>SSE</td><td>Structured use/results and signatures preserved</td><td>Ordered <code>cache_control</code> breakpoints preserved</td><td>Both string and block-array system prompts are accepted</td></tr>
-          <tr><th>Bedrock</th><td><code>POST …/converse</code><br/><code>POST …/converse-stream</code></td><td>ConverseStream</td><td>Converse tool blocks preserved</td><td>Ordered <code>cachePoint</code> elements preserved</td><td>Automated conformance is green; a credentialed real-AWS multi-tool validation remains open</td></tr>
           <tr><th>Gemini / Vertex AI</th><td><code>POST …:generateContent</code><br/><code>POST …:streamGenerateContent</code></td><td>SSE</td><td>Function calls/results, metadata, and signatures preserved</td><td><code>cachedContent</code> references and usage preserved; Torana does not manage cache resources</td><td>Caller-supplied API key or bearer auth; ADC/service-account minting is not built in</td></tr>
           <tr><th>Gemini Code Assist</th><td><code>POST …:generateContent</code><br/><code>POST …:streamGenerateContent</code></td><td>SSE</td><td>Function calls/results and signed parts preserved</td><td>Provider cache references and usage preserved</td><td>Clients without a base-URL setting require Torana’s optional, explicitly configured MITM ingress</td></tr>
         </tbody>
@@ -25,7 +24,7 @@ import Layout from "../../layouts/Layout.astro";
     </div>
 
     <h2>Selective interception</h2>
-    <p>Model-list, token-counting, account, quota, status, telemetry, update, MCP, and unknown auxiliary paths do not enter IR and do not run request or response plugins. Real-proxy tests cover auxiliary pass-through for all five formats, including method, path, query, body, permitted headers, upstream status, and response bytes.</p>
+    <p>Model-list, token-counting, account, quota, status, telemetry, update, MCP, and unknown auxiliary paths do not enter IR and do not run request or response plugins. Real-proxy tests cover auxiliary pass-through for all four formats, including method, path, query, body, permitted headers, upstream status, and response bytes.</p>
 
     <h2>Coding harnesses</h2>
     <div class="table-scroll" tabindex="0" role="region" aria-label="Coding harness support matrix">
@@ -42,8 +41,8 @@ import Layout from "../../layouts/Layout.astro";
 
     <h2>Plugin SDKs</h2>
     <table><tbody>
-      <tr><th>Go</th><td>ABI v2 SDK, helpers, test harness, official plugins, and host conformance.</td></tr>
-      <tr><th>Rust</th><td>ABI v2 bindings and safe wrappers. A clean Rust guest has built, installed, been digest-approved, and executed through the real host path. The <code>0.3.0</code> crate is prepared but not yet published.</td></tr>
+      <tr><th>Go</th><td>ABI v1 SDK, helpers, test harness, official plugins, and host conformance.</td></tr>
+      <tr><th>Rust</th><td>ABI v1 bindings and safe wrappers. A clean Rust guest has built, installed, been digest-approved, and executed through the real host path. <code>v0.3.0</code> is tagged and published as a Go module; the crate is not yet on crates.io, so a Rust guest builds from the tag.</td></tr>
       <tr><th>TypeScript / AssemblyScript</th><td>No supported SDK today. WASI alone is insufficient: a guest must also implement Torana’s protobuf ABI, allocator, framed host calls, and hook contract.</td></tr>
       <tr><th>Other WASI languages</th><td>Possible through the documented raw ABI, but not advertised as supported until a maintained SDK and host-conformance guest exist.</td></tr>
     </tbody></table>
