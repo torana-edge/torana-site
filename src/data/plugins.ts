@@ -33,7 +33,7 @@ export const plugins = [
   },
   {
     "name": "pii",
-    "description": "Scans tool results through a local model + regex pre-filter and blocks the request if PII is detected",
+    "description": "Scans tool results through an operator-bound model plus a regex pre-filter and blocks the request if PII is detected",
     "failureMode": "block"
   },
   {
