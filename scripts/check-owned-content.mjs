@@ -18,12 +18,19 @@ const support = fs.readFileSync("src/pages/docs/support.astro", "utf8");
 const harness = fs.readFileSync(path.join(edgeRoot, "docs/HARNESS_COMPATIBILITY.md"), "utf8");
 const caching = fs.readFileSync(path.join(edgeRoot, "docs/PROMPT_CACHING.md"), "utf8");
 
+// The inference endpoints the platform decodes, in both directions: the Edge
+// contract must still name each one, and the site matrix must not omit it.
+//
+// /converse and /converse-stream were Bedrock's and are gone with the adapter
+// (torana-edge#344). They are removed here in lockstep — left in place, this
+// list would have FORCED the site to keep advertising a format the platform no
+// longer speaks, and would then have failed on the Edge side too once the
+// removal landed. A hardcoded vocabulary that outlives what it describes stops
+// being a guard and becomes an obstacle.
 for (const endpoint of [
   "chat/completions",
   "/responses",
   "/messages",
-  "/converse",
-  "/converse-stream",
   ":generateContent",
   ":streamGenerateContent",
 ]) {
@@ -31,7 +38,8 @@ for (const endpoint of [
   if (!support.includes(endpoint)) throw new Error(`site support matrix omits ${endpoint}`);
 }
 
-for (const cacheField of ["cache_control", "cachePoint", "prompt_cache_key", "prompt_cache_retention", "cachedContent"]) {
+// cachePoint was Bedrock's marker and goes with the same removal.
+for (const cacheField of ["cache_control", "prompt_cache_key", "prompt_cache_retention", "cachedContent"]) {
   if (!caching.includes(cacheField)) throw new Error(`Edge prompt-cache contract no longer contains ${cacheField}`);
   if (!support.includes(cacheField)) throw new Error(`site support matrix omits ${cacheField}`);
 }
