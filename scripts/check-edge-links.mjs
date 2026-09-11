@@ -9,19 +9,36 @@
 //
 //   node scripts/check-edge-links.mjs _sources/torana-edge
 //
-// Without that directory the check SKIPS rather than passes, because a check
-// that silently succeeds when it cannot see its subject is worse than none.
+// A supplied path that is not there is an ERROR, not a skip: a check that
+// exits 0 when it cannot see its subject is worse than none, because it
+// reports success for work it did not do. Pass --optional to skip instead;
+// CI does not, and must not.
 import fs from "node:fs";
 import path from "node:path";
 
-const edgeRoot = process.argv[2];
+const args = process.argv.slice(2);
+const optional = args.includes("--optional");
+const edgeRoot = args.find((a) => !a.startsWith("--"));
+
 if (!edgeRoot) {
-  console.error("usage: check-edge-links.mjs <path to a torana-edge checkout>");
+  console.error("usage: check-edge-links.mjs [--optional] <path to a torana-edge checkout>");
   process.exit(2);
 }
 if (!fs.existsSync(edgeRoot)) {
-  console.error(`skipping: no torana-edge checkout at ${edgeRoot}`);
-  process.exit(0);
+  // A path was supplied and is not there. That is a FAILURE, not a skip:
+  // exiting 0 would be a green CI step reporting nothing, which is the exact
+  // silent hole this check exists to close. If the checkout step is renamed
+  // or removed, the build must say so.
+  //
+  // --optional exists for running this locally without a sibling checkout.
+  // CI does not pass it, and must not.
+  const message = `no torana-edge checkout at ${edgeRoot}`;
+  if (optional) {
+    console.error(`skipping (--optional): ${message}`);
+    process.exit(0);
+  }
+  console.error(`cannot verify torana-edge links: ${message}`);
+  process.exit(1);
 }
 
 // A deep link into a file on torana-edge's default branch.
