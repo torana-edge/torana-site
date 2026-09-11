@@ -16,7 +16,9 @@
     "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview",
     "registry:sync": "node scripts/sync-registry.mjs",
     "registry:check": "node scripts/sync-registry.mjs --check",
-    "owned-content:check": "node scripts/check-owned-content.mjs"
+    "owned-content:check": "node scripts/check-owned-content.mjs",
+    "edge-links:check": "node scripts/check-edge-links.mjs",
+    "edge-links:test": "./scripts/test-check-edge-links.sh"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
