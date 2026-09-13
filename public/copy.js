@@ -11,7 +11,7 @@ for (const button of document.querySelectorAll("[data-copy]")) {
     try {
       await navigator.clipboard.writeText(value);
       button.textContent = "Copied";
-      if (copyStatus) copyStatus.textContent = "Install command copied to clipboard.";
+      if (copyStatus) copyStatus.textContent = button.dataset.copyLabel || "Command copied to clipboard.";
     } catch {
       button.textContent = "Copy failed — select the command";
       if (copyStatus) copyStatus.textContent = "Clipboard access failed. Select and copy the command manually.";

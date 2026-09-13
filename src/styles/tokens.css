@@ -1,29 +1,33 @@
-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5
- * macrostructure: Workbench / Ecosystem Index · H2 hero knobs: ratio=7/5, proof=live-config, divider=hairline
+/* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4
+ * macrostructure: Workbench / Ecosystem Index · H2 hero knobs: ratio=7/5, proof=request-path, divider=hairline
  * theme: studied-DNA (primary: Distil, secondary-axis: Hyperlane) · vibe: "technical night, candid, local-first"
  * paper: oklch(13% 0.018 220) · accent: oklch(78% 0.14 195) · display: Bricolage Grotesque · body: Geist
  * axes: dark / display-heavy / cool · studied: yes · context: user-provided · v0.8.0
- * contrast: pass (40–41) · nav: N1b · footer: Ft5 · slop: pass (42–49) · mobile: pass (34, 49–57)
+ * refinement: system/light/dark · nav: N1b + native mobile disclosure · footer: Ft5
+ * QA: 320/375/414/768/1280 px; inverse CTA hover contrast measured in both themes.
  */
 
 :root {
-  color-scheme: dark;
-  --paper: oklch(13% 0.018 220);
-  --paper-2: oklch(17% 0.02 220);
-  --paper-3: oklch(22% 0.022 220);
-  --ink: oklch(95% 0.01 205);
-  --ink-2: oklch(76% 0.015 210);
-  --muted: oklch(58% 0.016 215);
-  --rule: oklch(29% 0.022 215);
-  --rule-strong: oklch(39% 0.03 210);
-  --accent: oklch(78% 0.14 195);
-  --accent-dim: oklch(78% 0.14 195 / 0.12);
-  --accent-ink: oklch(14% 0.025 220);
-  --danger: oklch(70% 0.17 28);
-  --success: oklch(76% 0.13 150);
-  --quick-muted: oklch(30% 0.02 220);
-  --font-display: "Bricolage Grotesque", "Arial Narrow", sans-serif;
-  --font-body: "Geist", "Avenir Next", sans-serif;
+  color-scheme: light dark;
+  --paper: light-dark(oklch(98% 0.008 205), oklch(13% 0.018 220));
+  --paper-2: light-dark(oklch(95% 0.012 205), oklch(17% 0.02 220));
+  --paper-3: light-dark(oklch(91% 0.014 205), oklch(22% 0.022 220));
+  --ink: light-dark(oklch(21% 0.022 220), oklch(95% 0.01 205));
+  --ink-2: light-dark(oklch(36% 0.02 220), oklch(76% 0.015 210));
+  --muted: light-dark(oklch(44% 0.022 215), oklch(70% 0.016 215));
+  --rule: light-dark(oklch(82% 0.018 215), oklch(29% 0.022 215));
+  --rule-strong: light-dark(oklch(55% 0.025 210), oklch(39% 0.03 210));
+  --accent: light-dark(oklch(43% 0.075 195), oklch(78% 0.14 195));
+  --accent-dim: light-dark(oklch(43% 0.075 195 / 0.10), oklch(78% 0.14 195 / 0.12));
+  --accent-ink: light-dark(oklch(98% 0.008 205), oklch(14% 0.025 220));
+  --danger: light-dark(oklch(44% 0.15 28), oklch(70% 0.17 28));
+  --success: light-dark(oklch(42% 0.1 150), oklch(76% 0.13 150));
+  --quick-muted: light-dark(oklch(78% 0.015 210), oklch(30% 0.02 220));
+  --quick-paper: light-dark(oklch(21% 0.022 220), oklch(95% 0.01 205));
+  --quick-ink: light-dark(oklch(95% 0.01 205), oklch(13% 0.018 220));
+  --quick-accent: light-dark(oklch(82% 0.11 195), oklch(43% 0.075 195));
+  --font-display: "Bricolage Grotesque", Arial, sans-serif;
+  --font-body: "Geist", Arial, sans-serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
   --display: clamp(3.25rem, 9vw, 8.25rem);
   --h2: clamp(2.2rem, 5vw, 4.8rem);
@@ -47,3 +51,7 @@
   --space-8: 5rem;
   --space-9: 7rem;
 }
+
+/* Same identity in daylight. CSS follows the system even without JavaScript. */
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }

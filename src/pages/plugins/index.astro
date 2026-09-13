@@ -1,24 +1,35 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { plugins } from "../../data/plugins";
+import registry from "../../../public/registry/v1/index.json";
+const plugins = registry.plugins;
 ---
 <Layout title="Plugin registry — Torana" description="Curated Torana plugins and their requested capability classes.">
   <section class="frame prose" style="max-width:var(--page)">
-    <p class="eyebrow">Registry v1 · curated</p>
-    <h1 class="display">Install behavior, not a starter pack.</h1>
-    <p>Official plugins are adopted individually. The current registry indexes reviewed source projects and their requested capability classes. Torana binds operator approvals to the locally built WASM digest, so an artifact or permission change requires approval again.</p>
-    <div class="catalog">
+    <h1 class="display">Pick a plugin. Make it yours.</h1>
+    <p>Start with the <a href="#usage_logger">usage logger</a>, change the tools your model sees, or experiment with context. Install only what you need. Each entry includes its source, requested capabilities, and an install command.</p>
+    <p>Run commands from your Torana checkout after the <a href="/quickstart/">quickstart</a>. Installation builds source code; it does not approve or enable the plugin. Review the source first, then approve and enable the built bundle in the local control plane. <a href="/docs/plugin-installation/">How installation and approval work →</a></p>
+    <div>
       {plugins.map((plugin) => (
-        <article class="plugin">
-          <h3>torana/{plugin.name}</h3>
+        <article class="plugin-detail" id={plugin.name}>
+          <h2><a href={plugin.source}>{plugin.name}</a></h2>
           <p>{plugin.description}</p>
-          <span class="tag">failure: {plugin.failureMode}</span>
+          <p class="article-meta">On plugin failure: {plugin.failure_mode === "block" ? "block the request" : "let the request continue"}.</p>
+          {plugin.conflicts_with.length > 0 && <p>Use separately from: {plugin.conflicts_with.join(", ")}.</p>}
+          <details>
+            <summary>Requested capabilities ({plugin.capabilities.length})</summary>
+            <ul class="capabilities">{plugin.capabilities.map(capability => <li>{capability}</li>)}</ul>
+            <p>These are the manifest’s requests, not automatic grants. Review resource bindings and the exact built digest in the control plane.</p>
+          </details>
+          <div class="command">
+            <pre><code>{`./torana plugin install ${plugin.source}`}</code></pre>
+            <button class="copy" type="button" data-copy={`./torana plugin install ${plugin.source}`} data-copy-label={`${plugin.name} install command copied.`} aria-label={`Copy install command for ${plugin.name}`}>Copy install command</button>
+          </div>
+          <div class="actions"><a class="button" href={plugin.source}>Source &amp; docs ↗</a><a class="button" href="/docs/plugin-installation/">Installation help →</a></div>
         </article>
       ))}
     </div>
     <h2>Registry API</h2>
     <pre><code>GET https://torana.sh/registry/v1/index.json</code></pre>
-    <p>The registry is intentionally curated for v1. Automated release-bundle installation is not available yet; build official or personal plugins from source and configure the resulting local bundle explicitly.</p>
-    <p><strong>The registry deliberately publishes no digests.</strong> Official plugin builds are proven path-independent: the same source is built from differently named directories and must produce identical bytes. The remaining uncontrolled variable is the local Go toolchain. Torana deliberately sets <code>GOTOOLCHAIN=local</code> when compiling untrusted plugin source so a repository cannot make Go download and execute a toolchain of its choice; consequently two operators using different Go patch versions are not yet promised byte-identical artifacts. Publishing a digest before that cross-toolchain contract is settled would train you to skip the comparison that matters. The digest you approve is the one <em>your</em> machine produced from source you can read — compare it against what the control plane shows, not against a number from this page.</p>
+    <p>This <a href="/registry/v1/index.json">source registry</a> lists official plugins and their manifest declarations. It does not distribute prebuilt release bundles. <a href="/docs/plugin-installation/#digests">Why approval uses your local build’s digest →</a></p>
   </section>
 </Layout>

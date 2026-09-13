@@ -2,62 +2,51 @@
 import Layout from "../layouts/Layout.astro";
 import { plugins } from "../data/plugins";
 import { installCommand } from "../data/install";
-const configExample = `<span class="key">{
-  "port"</span>: 8080,
-  <span class="key">"providers"</span>: {
-    "deepseek": {
-      "url": "https://api.deepseek.com/beta",
-      "format": "openai"
-    }
-  },
-  <span class="key">"plugins"</span>: {
-    "dir": "./plugins",
-    "order": [],
-    "approvals": {}
-  }
-}
-
-$ export OPENAI_BASE_URL=\\
-  http://127.0.0.1:8080/provider/deepseek/v1`;
+const featuredPlugins = ["usage_logger", "tool_governor", "keyword_compactor"]
+  .map(name => plugins.find(plugin => plugin.name === name)!);
+const requestPath = `YOUR CODING AGENT
+      ↓  a local provider route
+TORANA · ON YOUR MACHINE
+      Observe request activity
+      Run the plugins you approved
+      Apply your traffic policy
+      ↓
+YOUR CONFIGURED MODEL PROVIDER
+      ↓
+Response back to your agent`;
 ---
 
 <Layout>
   <section class="frame hero">
     <div>
-      <p class="eyebrow" data-reveal style="--i:0">Local-first · WASM-extensible · provider-neutral</p>
+      <p class="eyebrow" data-reveal style="--i:0">Local-first · open source · WASM-extensible</p>
       <h1 class="display" data-reveal style="--i:1">A programmable proxy for coding agents<span>.</span></h1>
-      <p class="lede" data-reveal style="--i:2">Torana sits between your harness and your provider. Routing, failover, telemetry, and context policy run as capability-scoped WASM plugins, with supported SDKs for Go and Rust.</p>
+      <p class="lede" data-reveal style="--i:2">Keep your agent and your model. See request activity locally, apply your own traffic policy, and extend it with Go or Rust plugins. Torana runs between your coding agent and its configured provider.</p>
       <div class="actions" data-reveal style="--i:3">
-        <a class="button primary" href="/quickstart/">Get started <span aria-hidden="true">→</span></a>
-        <a class="button" href="/blog/context-compaction-negative-result/">Read the negative result</a>
+        <a class="button primary" href="/quickstart/">Try Torana locally <span aria-hidden="true">→</span></a>
+        <a class="button" href="https://github.com/torana-edge/torana-edge">Explore the source ↗</a>
       </div>
+      <p class="muted">No Torana account. Currently built from source. <a href="/docs/support/">Check your harness and endpoint →</a></p>
     </div>
-    <div class="proof" data-reveal style="--i:2" aria-label="Torana configuration example">
-      <div class="proof-head"><span>config.json</span><span class="ok">● localhost:8080</span></div>
-      <pre><code set:html={configExample}></code></pre>
+    <div class="proof" data-reveal style="--i:2" aria-label="How requests move through Torana">
+      <div class="proof-head"><span>How it works</span><span>agent → proxy → provider</span></div>
+      <pre><code>{requestPath}</code></pre>
     </div>
   </section>
-
-  <div class="lifecycle">
-    <div class="life"><b>01 / POINT</b>Your existing harness at Torana.</div>
-    <div class="life"><b>02 / NORMALIZE</b>One canonical IR across providers.</div>
-    <div class="life"><b>03 / RUN</b>Only explicitly granted plugin capabilities.</div>
-    <div class="life"><b>04 / FORWARD</b>Route locally or to the provider you chose.</div>
-  </div>
 
   <section class="rule-section compact">
     <div class="frame">
       <div class="section-head">
         <div>
-          <h2 class="display">One boundary. Four jobs.</h2>
-          <p>Torana does not ask you to replace the agent or the model. It owns the narrow place where requests already cross a process boundary.</p>
+          <h2 class="display">Start with a request you can see.</h2>
+          <p>Route one request, open the local feed, then enable one useful plugin. You do not need to write a plugin to get started.</p>
         </div>
       </div>
       <div class="flow">
-        <article><code>harness/*</code><div><h3>Accept familiar APIs.</h3><p>OpenAI, Anthropic, and Gemini formats enter through provider-scoped routes.</p></div></article>
-        <article><code>torana.IR</code><div><h3>Normalize once.</h3><p>Plugins receive protobuf messages instead of provider-specific raw JSON.</p></div></article>
-        <article><code>plugin.wasm</code><div><h3>Change what you own.</h3><p>Observe, redact, route, veto, or rewrite with declared capabilities and failure policy.</p></div></article>
-        <article><code>provider/*</code><div><h3>Measure the outcome.</h3><p>Forward traffic with failover and local per-provider token and cost telemetry.</p></div></article>
+        <article><div><h3>See what crossed the proxy.</h3><p>Inspect model, latency, status, and reported token usage in the local feed. Add usage_logger to keep a rotating log without prompts or responses.</p></div></article>
+        <article><div><h3>Choose what the model sees.</h3><p>Use tool_governor to change the tool definitions advertised to the model. Your coding agent still owns tool execution and its approvals.</p></div></article>
+        <article><div><h3>Try a different context policy.</h3><p>Experiment with smaller tool results and explicit retention rules. Keep what helps your tasks; switch off what doesn’t.</p></div></article>
+        <article><div><h3>Take your tools with you.</h3><p>Built a workflow hack for one coding harness? Bring the reusable logic into a Go or Rust plugin. Keep it in Torana and reuse it across compatible harnesses.</p></div></article>
       </div>
     </div>
   </section>
@@ -65,15 +54,15 @@ $ export OPENAI_BASE_URL=\\
   <section class="rule-section compact">
     <div class="frame">
       <div class="catalog-head">
-        <div><p class="eyebrow">Official plugins · install individually</p><h2>Start from working source.</h2></div>
+        <div><h2>Pick a plugin. Make it yours.</h2></div>
         <a class="button" href="/plugins/">Browse registry →</a>
       </div>
       <div class="catalog catalog-preview">
-        {plugins.map((plugin) => (
+        {featuredPlugins.map((plugin) => (
           <article class="plugin">
-            <h3>{plugin.name}</h3>
+            <h3><a href={`/plugins/#${plugin.name}`}>{plugin.name}</a></h3>
             <p>{plugin.description}</p>
-            <span class="tag">failure: {plugin.failureMode}</span>
+            <a class="tag" href={`/plugins/#${plugin.name}`}>Details →</a>
           </article>
         ))}
       </div>
@@ -84,24 +73,29 @@ $ export OPENAI_BASE_URL=\\
     <div class="frame quick-grid">
       <div>
         <h2 class="display">One binary. One local port.</h2>
-        <p>Install Torana, add a provider, then point any base-URL-aware coding harness at it. No hosted control plane and no account.</p>
+        <p>You need Git, Go 1.26.6 or newer, and a provider credential. Start with no plugins, then add the usage logger. The walkthrough includes how to switch back.</p>
+        <a class="button" href="/quickstart/">Open the walkthrough →</a>
       </div>
       <div class="command">
-        <pre><code><strong>{installCommand}</strong>
-$ ./torana --debug
-# open http://127.0.0.1:8080/_torana/</code></pre>
-        <button class="copy" type="button" data-copy={installCommand}>Copy install commands</button>
+        <pre><code><strong>{installCommand}</strong></code></pre>
+        <button class="copy" type="button" data-copy={installCommand}>Copy build commands</button>
       </div>
     </div>
   </section>
 
   <section class="rule-section">
-    <div class="frame honest">
-      <div><p class="muted">The honest part</p></div>
-      <blockquote>
-        We built context compaction to cut spend. Across 75 paired sessions, its 95% confidence interval crossed zero. Torana’s economic gate refused to run the paid summarizer.
-        <footer>That refusal is the feature: missing evidence or non-positive expected net means content passes through untouched. <a href="/blog/context-compaction-negative-result/">Read the experiment →</a></footer>
-      </blockquote>
+    <div class="frame story">
+      <h2 class="display">This was supposed to be a compactor.</h2>
+      <p>I wanted cheaper AI chats. Somehow, I ended up building a WASM plugin runtime.</p>
+      <p>I’m Aniket. Torana grew out of an experiment, a questionable amount of scope creep, and a genuine love of building systems. The compactor didn’t establish the savings I hoped for. The proxy became the project.</p>
+      <a class="text-link" href="/blog/why-torana/">How I got here →</a>
+    </div>
+  </section>
+  <section class="rule-section compact">
+    <div class="frame">
+      <div class="section-head"><h2 class="display">Make it part of your workflow.</h2><p>Try Torana on a coding task. Hack together a plugin for your own use case—a context policy, a tool integration, or that bit of glue you keep rebuilding. Share what you make.</p></div>
+      <div class="actions"><a class="button primary" href="/quickstart/">Try your first session →</a><a class="button" href="https://github.com/torana-edge/torana-edge/issues">Share feedback ↗</a><a class="button" href="https://github.com/torana-edge/torana-edge/blob/main/CONTRIBUTING.md">Contribute ↗</a></div>
+      <p class="muted">Torana runs locally; your requests still reach the provider you choose. <a class="text-link" href="/docs/support/">Check compatibility</a> before trying your agent.</p>
     </div>
   </section>
 </Layout>

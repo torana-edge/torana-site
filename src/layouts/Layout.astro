@@ -4,11 +4,17 @@ import "../styles/global.css";
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
+  imageAlt?: string;
+  article?: boolean;
 }
 
 const {
   title = "Torana — a programmable proxy for coding agents",
-  description = "A local-first reverse proxy with sandboxed WASM plugins for routing, failover, telemetry, policy, and context experiments.",
+  description = "Keep your coding agent and model. Observe traffic locally, apply your own policy, and build Go or Rust plugins with Torana, an open-source reverse proxy.",
+  image = "/social/torana.png",
+  imageAlt = "Torana — a programmable proxy for coding agents. Local-first. Open source.",
+  article = false,
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
@@ -19,7 +25,19 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={article ? "article" : "website"} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL(image, Astro.site)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={new URL(image, Astro.site)} />
+    <meta name="twitter:image:alt" content={imageAlt} />
     <meta name="theme-color" content="oklch(13% 0.018 220)" />
+    <script is:inline src="/theme.js"></script>
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -41,7 +59,26 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
           <a href="/plugins/">Plugins</a>
           <a href="/blog/">Blog</a>
         </nav>
-        <a class="nav-action" href="https://github.com/torana-edge/torana-edge">GitHub ↗</a>
+        <div class="nav-tools">
+          <a class="nav-action" href="https://github.com/torana-edge/torana-edge">GitHub ↗</a>
+          <label class="theme-control" hidden><span class="sr-only">Theme</span>
+            <select id="theme-choice" aria-label="Color theme">
+              <option value="system">System</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </label>
+          <details class="mobile-menu">
+            <summary>Menu</summary>
+            <nav aria-label="Mobile">
+              <a href="/quickstart/">Quickstart</a>
+              <a href="/docs/">Docs</a>
+              <a href="/plugins/">Plugins</a>
+              <a href="/blog/">Blog</a>
+              <a href="https://github.com/torana-edge/torana-edge">GitHub ↗</a>
+            </nav>
+          </details>
+        </div>
       </div>
     </header>
     <main id="main"><slot /></main>
@@ -49,8 +86,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       <div class="frame">
         <p class="foot-line">Your agent traffic. <span>Your machine.</span> Your rules.</p>
         <div class="foot-meta">
-          <span>Torana · pre-1.0 · plugin ABI evolving</span>
-          <span><a href="/docs/">Docs</a> · <a href="/plugins/">Registry</a> · <a href="https://github.com/torana-edge">GitHub</a></span>
+          <span>Built by <a href="https://github.com/projectescape">Aniket</a> · open to contributors</span>
+          <span><a href="/docs/">Docs</a> · <a href="/plugins/">Plugins</a> · <a href="/blog/">Blog</a> · <a href="https://github.com/torana-edge">GitHub</a></span>
           <span>Open source · 2026</span>
         </div>
       </div>

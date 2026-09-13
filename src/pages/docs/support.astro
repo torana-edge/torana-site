@@ -6,8 +6,8 @@ import Layout from "../../layouts/Layout.astro";
   description="The exact provider endpoints, streaming and tool coverage, prompt-cache behavior, harness paths, and plugin SDK maturity Torana supports."
 >
   <article class="frame prose" style="max-width:var(--page)">
-    <p class="eyebrow">Support matrix · pre-release</p>
-    <h1 class="display">Specific wires, not provider logos.</h1>
+    <p class="eyebrow">Support matrix · formats and harnesses</p>
+    <h1 class="display">What works with Torana.</h1>
     <p>Torana only sends recognized inference endpoints through its canonical IR and plugin pipeline. Other provider endpoints remain transparent reverse-proxy traffic. “Preserved” below means executable fixtures cover the wire behavior; it does not claim that every model or account enables the provider feature.</p>
 
     <h2>Provider formats</h2>
@@ -47,8 +47,8 @@ import Layout from "../../layouts/Layout.astro";
       <tr><th>Other WASI languages</th><td>Possible through the documented raw ABI, but not advertised as supported until a maintained SDK and host-conformance guest exist.</td></tr>
     </tbody></table>
 
-    <h2>Release meaning</h2>
-    <p>This matrix describes the current pre-release source contract. It is deliberately narrower than “supports provider X.” The owner’s clean customer journey and credentialed harness checks remain mandatory before the first Edge release.</p>
+    <h2>How to read this matrix</h2>
+    <p>Coverage is endpoint-specific: matching a provider name alone is not enough. Use the format and harness rows above to choose your route and distinguish automated wire tests from credentialed client checks.</p>
     <p>Implementation evidence: <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/HARNESS_COMPATIBILITY.md">harness boundary ↗</a> · <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/PROMPT_CACHING.md">prompt caching ↗</a> · <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/BENCHMARKS.md">benchmarks ↗</a></p>
   </article>
 </Layout>
