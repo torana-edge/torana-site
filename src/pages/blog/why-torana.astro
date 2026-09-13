@@ -33,12 +33,13 @@ import Layout from "../../layouts/Layout.astro";
       <li><strong>Try an idea as a plugin.</strong> Write Go or Rust against the shared request model, declare the capabilities you need, and approve the built plugin before enabling it.</li>
     </ul>
     <p>Local-first means the proxy runs on your machine. Requests still go to your configured model provider, and plugins can use external services when you explicitly configure and approve them.</p>
-    <p>The <a href="/docs/support/">compatibility page</a> describes the supported formats and what has been tested. It’s an early project, and manual testing is still finding things worth fixing.</p>
+    <p>The <a href="/docs/support/">compatibility page</a> describes supported formats, harness connections, and the checks behind them.</p>
 
     <h2>I want to see what other people put in the middle.</h2>
     <p>The direction I’m excited about is a place to share small, useful changes to coding-agent workflows: a context policy for a particular kind of task, an adapter for an awkward tool schema, or a bit of observability that answers a question you keep having.</p>
-    <p>I don’t know which of those will matter most to people. That is part of why I want to get Torana into other hands.</p>
-    <p>Try it on a normal coding task. Tell me where the setup is confusing, which request broke, or what plugin you wish existed. Contributions don’t have to start with a runtime feature—a clear bug report or a better first-run explanation is useful too.</p>
+    <p>Maybe you’ve already built a tool or workflow hack for your favourite harness. I’d love to see you bring its reusable logic into a Torana plugin, so the next time you switch harnesses, you can take that work with you.</p>
+    <p>Request plugins work on Torana’s shared representation across compatible provider routes. Plugins can also expose <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/AGENT_CONTROL_PLANE.md">discoverable local HTTP operations</a> for tools and automation. Connect your harness to those operations through its supported invocation mechanism; the shared implementation lives in the plugin.</p>
+    <p>Try it on a coding task, or hack together a plugin for your own use case. Share what worked and what you built. Contributions don’t have to start with a runtime feature—a clear bug report or a better first-run explanation is useful too.</p>
     <p><a href="/quickstart/">Try Torana locally →</a> · <a href="/plugins/">Browse the plugins →</a> · <a href="https://github.com/torana-edge/torana-edge">Read the source →</a></p>
   </article>
 </Layout>
