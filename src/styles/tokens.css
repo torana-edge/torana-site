@@ -26,8 +26,8 @@
   --quick-paper: light-dark(oklch(21% 0.022 220), oklch(95% 0.01 205));
   --quick-ink: light-dark(oklch(95% 0.01 205), oklch(13% 0.018 220));
   --quick-accent: light-dark(oklch(82% 0.11 195), oklch(43% 0.075 195));
-  --font-display: "Bricolage Grotesque", "Arial Narrow", sans-serif;
-  --font-body: "Geist", "Avenir Next", sans-serif;
+  --font-display: "Bricolage Grotesque", Arial, sans-serif;
+  --font-body: "Geist", Arial, sans-serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
   --display: clamp(3.25rem, 9vw, 8.25rem);
   --h2: clamp(2.2rem, 5vw, 4.8rem);
