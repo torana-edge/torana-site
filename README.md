@@ -12,12 +12,16 @@ npm run dev
 ## Verify changes
 
 ```sh
-npm run build
 npm test
 npm run registry:check -- ../torana-plugins
 npm run owned-content:check -- ../torana-edge
 npm run edge-links:check -- ../torana-edge
 ```
+
+`npm test` runs the unit tests, builds the site, then checks built pages. For a
+quick theme/menu check use `npm run test:unit`; `npm run test:built` checks an
+existing build. Each palette token uses one `light-dark()` pair, selected by
+the system preference or the header control.
 
 The theme helper runs as a same-origin external script before body paint, retaining
 the CSP restriction against inline scripts. System / Light / Dark is available in
