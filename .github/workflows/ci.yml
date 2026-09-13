@@ -38,6 +38,7 @@ jobs:
       - run: npm run edge-links:test
       - run: npm run edge-links:check -- _sources/torana-edge
       - run: npm run build
+      - run: npm test
       - uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2
         with:
           args: --offline --root-dir './dist' './dist/**/*.html'

@@ -1,9 +1,10 @@
-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5
- * macrostructure: Workbench / Ecosystem Index · H2 hero knobs: ratio=7/5, proof=live-config, divider=hairline
+/* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4
+ * macrostructure: Workbench / Ecosystem Index · H2 hero knobs: ratio=7/5, proof=request-path, divider=hairline
  * theme: studied-DNA (primary: Distil, secondary-axis: Hyperlane) · vibe: "technical night, candid, local-first"
  * paper: oklch(13% 0.018 220) · accent: oklch(78% 0.14 195) · display: Bricolage Grotesque · body: Geist
  * axes: dark / display-heavy / cool · studied: yes · context: user-provided · v0.8.0
- * contrast: pass (40–41) · nav: N1b · footer: Ft5 · slop: pass (42–49) · mobile: pass (34, 49–57)
+ * refinement: system/light/dark · nav: N1b + native mobile disclosure · footer: Ft5
+ * QA: 320/375/414/768/1280 px; inverse CTA hover contrast measured in both themes.
  */
 
 :root {
@@ -13,7 +14,7 @@
   --paper-3: oklch(22% 0.022 220);
   --ink: oklch(95% 0.01 205);
   --ink-2: oklch(76% 0.015 210);
-  --muted: oklch(58% 0.016 215);
+  --muted: oklch(70% 0.016 215);
   --rule: oklch(29% 0.022 215);
   --rule-strong: oklch(39% 0.03 210);
   --accent: oklch(78% 0.14 195);
@@ -22,6 +23,9 @@
   --danger: oklch(70% 0.17 28);
   --success: oklch(76% 0.13 150);
   --quick-muted: oklch(30% 0.02 220);
+  --quick-paper: oklch(95% 0.01 205);
+  --quick-ink: oklch(13% 0.018 220);
+  --quick-accent: oklch(43% 0.075 195);
   --font-display: "Bricolage Grotesque", "Arial Narrow", sans-serif;
   --font-body: "Geist", "Avenir Next", sans-serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
@@ -46,4 +50,48 @@
   --space-7: 3rem;
   --space-8: 5rem;
   --space-9: 7rem;
+}
+
+/* Same identity in daylight. CSS follows the system even without JavaScript. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+  color-scheme: light;
+  --paper: oklch(98% 0.008 205);
+  --paper-2: oklch(95% 0.012 205);
+  --paper-3: oklch(91% 0.014 205);
+  --ink: oklch(21% 0.022 220);
+  --ink-2: oklch(36% 0.02 220);
+  --muted: oklch(44% 0.022 215);
+  --rule: oklch(82% 0.018 215);
+  --rule-strong: oklch(55% 0.025 210);
+  --accent: oklch(43% 0.075 195);
+  --accent-dim: oklch(43% 0.075 195 / 0.10);
+  --accent-ink: oklch(98% 0.008 205);
+  --danger: oklch(44% 0.15 28);
+  --success: oklch(42% 0.1 150);
+  --quick-paper: oklch(21% 0.022 220);
+  --quick-ink: oklch(95% 0.01 205);
+  --quick-muted: oklch(78% 0.015 210);
+  --quick-accent: oklch(82% 0.11 195);
+  }
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --paper: oklch(98% 0.008 205);
+  --paper-2: oklch(95% 0.012 205);
+  --paper-3: oklch(91% 0.014 205);
+  --ink: oklch(21% 0.022 220);
+  --ink-2: oklch(36% 0.02 220);
+  --muted: oklch(44% 0.022 215);
+  --rule: oklch(82% 0.018 215);
+  --rule-strong: oklch(55% 0.025 210);
+  --accent: oklch(43% 0.075 195);
+  --accent-dim: oklch(43% 0.075 195 / 0.10);
+  --accent-ink: oklch(98% 0.008 205);
+  --danger: oklch(44% 0.15 28);
+  --success: oklch(42% 0.1 150);
+  --quick-paper: oklch(21% 0.022 220);
+  --quick-ink: oklch(95% 0.01 205);
+  --quick-muted: oklch(78% 0.015 210);
+  --quick-accent: oklch(82% 0.11 195);
 }

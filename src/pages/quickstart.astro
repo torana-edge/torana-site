@@ -5,28 +5,40 @@ import { installCommand } from "../data/install";
 <Layout title="Quickstart — Torana" description="Install Torana and route a coding agent through your local proxy.">
   <article class="frame prose">
     <p class="eyebrow">Quickstart · local machine</p>
-    <h1 class="display">Traffic through Torana in five minutes.</h1>
+    <h1 class="display">Your first session through Torana.</h1>
+    <p>You need Git, Go 1.26.6 or newer, and a provider API credential. This example uses DeepSeek; your normal provider usage is still billed by your provider.</p>
     <p>Torana is pre-1.0. Use it on a development machine first, keep the listener on loopback, and review each plugin’s requested capabilities before enabling it.</p>
     <h2>1. Install</h2>
     <pre><code>{installCommand}</code></pre>
-    <p>Torana is intentionally unversioned today. For a reproducible deployment, replace <code>main</code> with a reviewed commit SHA.</p>
-    <h2>2. Create local configuration</h2>
-    <pre><code>./torana --debug</code></pre>
-    <p>On first run Torana imports <code>config.json</code> into managed state in your user configuration directory. Open <code>http://127.0.0.1:8080/_torana/</code> to edit providers. The listener and control plane default to loopback. Leave the server running, then verify it from another terminal:</p>
+    <p>This walkthrough currently builds the development source. To reproduce a particular revision, check out its reviewed commit SHA before building. The first tagged release will get its own verified install instructions.</p>
+    <h2>2. Start without plugins</h2>
+    <pre><code>{`export TORANA_DATA_DIR="$PWD/.torana-data"
+./torana --debug`}</code></pre>
+    <p>This keeps evaluation state in <code>.torana-data</code> inside the checkout. On first run Torana imports <code>config.json</code>; later changes belong in the local control plane, not the seed file. This directory can contain credentials and plugin files: keep it private. Open <code>http://127.0.0.1:8080/_torana/</code> to inspect activity or edit providers. The listener and control plane default to loopback. Leave the server running, then verify it from another terminal:</p>
     <pre><code>curl --fail-with-body --silent http://127.0.0.1:8080/health</code></pre>
     <p>A healthy process returns <code>{`{"status":"ok"}`}</code>. A failed plugin reload keeps the last known-good pipeline serving but reports a degraded health status.</p>
     <h2>3. Send one inference request</h2>
-    <pre><code>{`curl --fail-with-body --silent \\
+    <pre><code>{`export DEEPSEEK_API_KEY='replace-with-your-deepseek-key'
+
+curl --fail-with-body --silent \\
   http://127.0.0.1:8080/provider/deepseek/v1/chat/completions \\
   -H "Authorization: Bearer $DEEPSEEK_API_KEY" \\
   -H "Content-Type: application/json" \\
-  -d '{"model":"deepseek-v4-flash","messages":[{"role":"user","content":"Reply with: torana is ready"}]}'`}</code></pre>
+  -d '{"model":"deepseek-flash","messages":[{"role":"user","content":"Reply with exactly: Torana works"}]}'`}</code></pre>
     <p>This uses the built-in DeepSeek route and forwards your caller credential only to that selected provider. Configure a different provider in the control plane if you do not use DeepSeek.</p>
     <h2>4. Point your harness at it</h2>
     <pre><code>export OPENAI_BASE_URL=http://127.0.0.1:8080/provider/deepseek/v1</code></pre>
     <p>Replace <code>deepseek</code> with the provider name in your configuration. The harness must speak that provider’s supported wire format; see the <a href="/docs/support/">exact endpoint and harness matrix</a>. Auxiliary provider endpoints pass through without entering the plugin pipeline.</p>
-    <h2>5. Explore plugins</h2>
-    <pre><code>./torana plugin install --official</code></pre>
-    <p>Torana clones the official source, builds each selected plugin locally, and prints its digest. Installation does not approve or enable anything: inspect the exact manifest and capability set in the control plane, approve that digest, then add the plugin to the ordered pipeline.</p>
+    <h2>5. Add one useful plugin</h2>
+    <p>In a second terminal, from your Torana checkout, install the usage logger:</p>
+    <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/usage_logger</code></pre>
+    <p>Installation builds the plugin but does not approve or enable it. In the local control plane, inspect its requested capabilities and private-file budget, approve and enable it, and verify it is in the active pipeline. Send another request, then read the result:</p>
+    <pre><code>{`tail -F "$(./torana plugin file path usage_logger usage.jsonl)"`}</code></pre>
+    <p>Each JSONL record includes provider, model, latency, status, and reported input/output/cache token counts. It does not contain prompts, responses, or headers. You now have a concrete check that requests are reaching Torana and the plugin is running.</p>
+    <p>Next, <a href="/plugins/">explore the other plugins</a> or <a href="https://github.com/torana-edge/torana-plugin-sdk">write your own</a>.</p>
+    <h2>Switch back whenever you want</h2>
+    <p>Restore your harness’s previous provider/base-URL configuration and restart the harness. If <code>OPENAI_BASE_URL</code> was previously unset, use <code>unset OPENAI_BASE_URL</code> in that shell. Once your agent connects directly again, stop Torana with Ctrl+C. The evaluation directory remains on disk until you remove it.</p>
+    <h2>Help improve the next release</h2>
+    <p><a href="https://github.com/torana-edge/torana-edge/issues">Tell us how your session went</a>: your Torana and harness versions, provider/endpoint, whether streaming and tool calls worked, and the first confusing step. Keep credentials, private source, and sensitive prompts out of your report.</p>
   </article>
 </Layout>

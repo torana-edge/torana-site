@@ -3,6 +3,10 @@ import { readFile } from "node:fs/promises";
 const headers = await readFile(new URL("../public/_headers", import.meta.url), "utf8");
 const layout = await readFile(new URL("../src/layouts/Layout.astro", import.meta.url), "utf8");
 await readFile(new URL("../public/copy.js", import.meta.url), "utf8");
+await readFile(new URL("../public/theme.js", import.meta.url), "utf8");
+if (!layout.includes('<script is:inline src="/theme.js"></script>')) {
+  throw new Error("Layout must load the same-origin theme initializer before body paint");
+}
 
 const csp = headers.split("\n").find((line) => line.includes("Content-Security-Policy:"));
 if (!csp) throw new Error("public/_headers is missing Content-Security-Policy");

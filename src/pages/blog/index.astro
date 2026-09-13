@@ -4,9 +4,19 @@ import Layout from "../../layouts/Layout.astro";
 <Layout title="Blog — Torana">
   <article class="frame prose">
     <p class="eyebrow">Field notes</p>
-    <h1 class="display">Failures, wire contracts, and the proxy in between.</h1>
+    <h1 class="display">Things I learned building Torana.</h1>
+    <p>Experiments, architectural detours, and the occasional “how did this become a plugin runtime?”</p>
+    <ul class="article-list">
+    <li>
+      <h2><a href="/blog/why-torana/">I wanted cheaper AI chats. I built a proxy instead.</a></h2>
+      <p>How a compaction experiment became a local-first, programmable proxy—and what I want to build with it.</p>
+      <p class="article-meta">By Aniket · the origin story</p>
+    </li>
+    <li>
     <h2><a href="/blog/context-compaction-negative-result/">I built a context compactor, then built the accounting that told me not to ship it</a></h2>
-    <p>75 paired sessions, 4.81 MB removed from the wire, and a confidence interval that crosses zero. Why Torana now has an economic gate.</p>
+    <p>75 sessions across three arms, 4.81 MB removed by deterministic compaction, and a paired cost interval that crosses zero. A provider-specific experiment in context compaction.</p>
     <p class="muted">26 July 2026 · context · prompt caching · negative result</p>
+    </li>
+    </ul>
   </article>
 </Layout>

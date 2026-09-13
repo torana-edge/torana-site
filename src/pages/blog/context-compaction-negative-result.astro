@@ -1,23 +1,27 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 ---
-<Layout title="The context compaction negative result — Torana" description="75 paired sessions and a confidence interval that crosses zero.">
+<Layout title="The context compaction negative result — Torana" description="75 sessions across three arms: a DeepSeek compaction experiment that did not establish reliable savings." article image="/social/compaction.png" imageAlt="Fewer tokens. A smaller bill? Torana's compaction experiment.">
   <article class="frame prose">
     <p class="eyebrow">Negative result · 26 July 2026</p>
     <h1 class="display">I built a context compactor, then built the accounting that told me not to ship it.</h1>
-    <p>Coding agents resend their visible conversation on every turn. A large tool result can remain in that history long after its useful moment, so replacing it with a smaller representation looks like an obvious saving.</p>
+    <p>Many coding-agent workflows resend visible conversation history on successive requests. A large tool result can remain in that history long after its useful moment, so replacing it with a smaller representation looks like an obvious saving. Provider-managed history and native compaction are different cases.</p>
     <p>I built that transformation as a Torana plugin. Then I measured it.</p>
     <h2>The result</h2>
-    <p>Across 75 paired agent sessions, the compactor removed 4.81 MB of tool output from the wire and produced a median saving of $0.0005. The 95% confidence interval was −$0.0037 to +$0.0037. It crosses zero.</p>
-    <p>On that provider, with its cache-read pricing, the paid summarizer did not justify its own cost. Torana’s economic gate refused to run it a single time.</p>
+    <p>The 21 July 2026 experiment used OMP with DeepSeek V4 Pro: five tasks, five repetitions, and three randomized arms per repetition, for 75 sessions. Costs were calculated from provider-reported usage and the historical prices used for that run.</p>
+    <p>The deterministic arm removed 4.81 MB from repeated history. Its paired median cost reduction was $0.000524 per session, with a bootstrap 95% interval of −$0.003714 to +$0.003725. Mean savings were slightly negative. The result did not establish reliable savings.</p>
+    <p>The separate model-gated arm had a paired median reduction of $0.000478, with a 95% interval of −$0.000998 to +$0.004973. It made zero paid summarizer calls; its few transformations used deterministic policy. These are not measurements of paid-summary savings.</p>
     <h2>Why the obvious model is wrong</h2>
     <p>A rewrite changes more than the removed tokens. It can invalidate a byte-identical prompt-cache prefix, it has its own summarizer cost, and it can erase information a harness expects to recover later. “Fewer tokens” and “lower bill” are not interchangeable claims.</p>
     <h2>The break-even condition</h2>
     <p>Let <code>N</code> be future turns, <code>R</code> the rewritten cached span, <code>W</code> the provider’s write/input rate, <code>C</code> its cache-read rate, <code>D</code> tokens removed per future turn, and <code>S</code> the summarizer cost. Compaction needs:</p>
-    <pre><code>N &gt; (R × (W − C) + S) / (D × C)</code></pre>
-    <p>All token quantities and rates must use matching units. If pricing, provider-reported usage, or an expected positive net is missing, the safe default is pass-through.</p>
-    <h2>What shipped instead</h2>
-    <p>The accounting. The gate. The refusal path. Context optimization remains opt-in and off by default. The result is less exciting than a savings claim and much more useful than one we could not support.</p>
-    <p><a href="https://github.com/torana-edge/torana-edge/blob/main/docs/DOGFOOD_COMPACTION_RESULTS.md">Read the raw dogfood results ↗</a></p>
+    <pre><code>N &gt; (R × max(0, W − C) + S) / (D × C)</code></pre>
+    <p>This simplified model assumes positive <code>D × C</code> and matching units: rates per token when <code>S</code> is in dollars. It does not model every provider’s caching rules or changes in agent behavior. Missing economic inputs or non-positive expected net prevents economically gated compaction.</p>
+    <h2>What happened next</h2>
+    <p>I stopped treating guaranteed savings as the product. By then, the infrastructure around the experiment had become a local proxy with a shared request model and a WASM plugin runtime. That was the part I wanted to keep building.</p>
+    <p>Compaction is still an opt-in experiment inside Torana. It is no longer the reason the whole project exists. You can use the proxy to observe request activity, change model-facing tool definitions, or try your own plugin without enabling compaction at all.</p>
+    <p><a href="/blog/why-torana/">Read the story of the pivot →</a></p>
+    <p>This was one provider and workload. Completion varied across arms; safety-task outputs were manually reviewed, and the quality evaluation does not establish general non-inferiority. Historical prices are not current price guidance.</p>
+    <p><a href="https://github.com/torana-edge/torana-edge/blob/main/docs/DOGFOOD_COMPACTION_RESULTS.md">Read the published method and results ↗</a></p>
   </article>
 </Layout>

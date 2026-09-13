@@ -1,0 +1,22 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+<Layout title="Install a plugin — Torana" description="Build a Torana plugin from source, review its requested capabilities, and approve the exact bundle on your machine.">
+  <article class="frame prose">
+    <h1 class="display">Install a plugin you can inspect.</h1>
+    <p>After the <a href="/quickstart/">quickstart</a>, choose a plugin in the <a href="/plugins/">registry</a>. Open its source and documentation before running the install command.</p>
+    <h2>Build, approve, enable.</h2>
+    <p>Run the command from the checkout containing your Torana binary. Use the same <code>TORANA_DATA_DIR</code> as the running server so installation and the control plane see the same state.</p>
+    <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/usage_logger</code></pre>
+    <p>The command builds and installs the bundle. It does not approve its permissions or enable it. Open <code>http://127.0.0.1:8080/_torana/</code>, review the plugin’s requested capabilities and resource bindings, then approve and enable it. Check that it appears in the active pipeline and send another request.</p>
+    <p>For the usage logger, the <a href="/quickstart/">quickstart includes a command to follow the JSONL output</a>. Other plugins may need settings or bound resources first; use their source documentation.</p>
+    <h2>The build is outside the sandbox.</h2>
+    <p>WASM isolates the running guest. That does not make building arbitrary source code safe. In particular, Cargo build scripts can execute native code before there is a WASM artifact to approve. Torana refuses remote Rust source builds; clone and review a Rust project before building it locally.</p>
+    <h2 id="digests">Why the registry has no published digests.</h2>
+    <p>Torana binds approval to the digest of the locally built WASM artifact. An artifact or permission change requires approval again. The registry lists source rather than promising that every local toolchain will produce identical bytes.</p>
+    <p>Official Go plugin builds are checked for path independence. That is narrower than reproducibility across every toolchain version. Torana uses <code>GOTOOLCHAIN=local</code> when compiling plugin source, so the source cannot silently select and download another Go toolchain.</p>
+    <p>The digest identifies what you approved. It is not an independent security review or a reason to skip reading source and permissions.</p>
+    <h2>Turn it off when you’re done.</h2>
+    <p>Disable the plugin in the control plane and save and apply the pipeline change. Verify the active pipeline before continuing. To stop using the proxy entirely, restore your coding agent’s previous provider configuration as described in the quickstart.</p>
+  </article>
+</Layout>

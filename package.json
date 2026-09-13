@@ -12,6 +12,7 @@
     "check:contract": "node scripts/check-current-contract.mjs",
     "check:deploy": "./scripts/test-cloudflare-deploy-ready.sh",
     "check:security": "node scripts/check-security-headers.mjs",
+    "test": "node --test scripts/test-theme.mjs scripts/test-site.mjs",
     "build": "npm run check:security && npm run check:contract && npm run check:deploy && ASTRO_TELEMETRY_DISABLED=1 astro check && ASTRO_TELEMETRY_DISABLED=1 astro build",
     "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview",
     "registry:sync": "node scripts/sync-registry.mjs",
