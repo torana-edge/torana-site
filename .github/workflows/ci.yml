@@ -46,6 +46,11 @@ jobs:
       - run: npm run edge-links:check -- _sources/torana-edge
       - run: npm test
       - run: npm run source-links:check -- _sources/torana-edge _sources/torana-plugin-sdk
+      - name: Check the analytics-enabled fixture build
+        run: npm run build && npm run test:built
+        env:
+          PUBLIC_ANALYTICS_ENABLED: "true"
+          PUBLIC_UMAMI_WEBSITE_ID: "00000000-0000-4000-8000-000000000001"
       - uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2
         with:
           args: --offline --root-dir './dist' './dist/**/*.html'

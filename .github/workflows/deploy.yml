@@ -30,6 +30,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+        env:
+          PUBLIC_ANALYTICS_ENABLED: ${{ vars.PUBLIC_ANALYTICS_ENABLED }}
+          PUBLIC_UMAMI_WEBSITE_ID: ${{ vars.PUBLIC_UMAMI_WEBSITE_ID }}
       - name: Publish to Cloudflare Pages production
         run: npx --no-install wrangler pages deploy --branch main --commit-hash "$GITHUB_SHA"
         env:

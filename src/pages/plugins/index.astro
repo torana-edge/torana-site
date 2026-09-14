@@ -23,7 +23,7 @@ const plugins = registry.plugins;
           </details>
           <div class="command">
             <pre><code>{`./torana plugin install ${plugin.source}`}</code></pre>
-            <button class="copy" type="button" data-copy={`./torana plugin install ${plugin.source}`} data-copy-label={`${plugin.name} install command copied.`} aria-label={`Copy install command for ${plugin.name}`}>Copy install command</button>
+            <button class="copy" type="button" data-copy={`./torana plugin install ${plugin.source}`} data-copy-label={`${plugin.name} install command copied.`} data-analytics-copy="plugin-install" aria-label={`Copy install command for ${plugin.name}`}>Copy install command</button>
           </div>
           <div class="actions"><a class="button" href={plugin.source}>Source &amp; docs ↗</a><a class="button" href="/docs/plugin-installation/">Installation help →</a></div>
         </article>
