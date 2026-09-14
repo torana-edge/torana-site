@@ -1,0 +1,68 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import sdk from "../../data/sdk.json";
+const rustDependency = `torana-plugin-sdk = { git = "https://github.com/torana-edge/torana-plugin-sdk", rev = "${sdk.revision}" }`;
+const scenario = `{
+  "request": {
+    "model": "example",
+    "messages": [{"role": "user", "blocks": [{"text": {"text": "hello"}}]}]
+  },
+  "expected_request": {
+    "model": "example",
+    "messages": [{"role": "user", "blocks": [{"text": {"text": "hello"}}]}]
+  },
+  "expected_verdicts": {}
+}`;
+---
+<Layout title="Write a plugin — Torana" description={`Scaffold a Go or Rust plugin with SDK ${sdk.version}, build its WASM bundle, test it against local scenarios, and approve it in Torana.`}>
+  <article class="frame prose">
+    <p class="eyebrow">Plugin authoring · Go and Rust</p>
+    <h1 class="display">Start with one hook.</h1>
+    <p>A Torana plugin receives a <a href="/docs/support/#shared-format">shared request or response format</a> and returns a typed result. Start with the generated request hook, make one change, and test the compiled bundle before adding it to your pipeline.</p>
+    <p>First <a href="/quickstart/">build Torana from source</a>. Run the commands below from that Edge checkout, where <code>./torana</code> is the binary you built. The example plugin directories sit beside the checkout and can become their own repositories.</p>
+
+    <h2 id="versions">Keep the SDK and host together.</h2>
+    <p>SDK <code>{sdk.version}</code> implements ABI major {sdk.abiMajor}, contract revision {sdk.contractRevision}. The SDK package version, plugin ABI, and Edge binary release are separate version numbers. The manifest declares <code>"abi_version": "v1"</code>; the SDK exports the exact contract value that the host checks when loading the bundle.</p>
+    <p><code>plugin new</code> pins the SDK used by the Edge build that generates your project. Current Go scaffolds use module tag <code>{sdk.version}</code>. Current Rust scaffolds include this dependency in <code>Cargo.toml</code>:</p>
+    <pre><code>{rustDependency}</code></pre>
+    <p>This Git revision is the SDK {sdk.version} source used by the host. Keep the exact <code>git</code> and <code>rev</code> pin; this authoring path does not depend on crates.io availability.</p>
+
+    <h2 id="go">Create a Go plugin.</h2>
+    <p>The Go SDK requires Go 1.25 or newer; the Go toolchain used to build Edge also satisfies that requirement. Choose a new or empty destination directory:</p>
+    <pre><code>{`./torana plugin new ../my-go-plugin --language go
+(cd ../my-go-plugin && go test ./...)
+./torana plugin lint ../my-go-plugin
+./torana plugin build ../my-go-plugin`}</code></pre>
+    <p>The scaffold creates the module and dependency checksums, <code>plugin.wasm.go</code>, a native test, <code>plugin.json</code>, and <code>schema.json</code>. Its request hook passes through unchanged. Register Go hooks in <code>init()</code>: the WASM reactor does not call <code>main()</code>.</p>
+    <p><code>plugin lint</code> checks Go source and manifest declarations, including hook registration and attributable capability use. <code>plugin build</code> runs that Go lint step and compiles <code>plugin.wasm</code> in the plugin directory with the required <code>-buildmode=c-shared</code> reactor mode.</p>
+
+    <h2 id="rust">Create a Rust plugin.</h2>
+    <p>Install Rust 1.85 or newer, Cargo, and the Protocol Buffers compiler <code>protoc</code>. Add the WASI target, then generate and test the project:</p>
+    <pre><code>{`rustup target add wasm32-wasip1
+./torana plugin new ../my-rust-plugin --language rust
+cargo test --manifest-path ../my-rust-plugin/Cargo.toml
+./torana plugin build ../my-rust-plugin`}</code></pre>
+    <p>The scaffold creates <code>Cargo.toml</code>, <code>src/lib.rs</code> with a typed request hook and native test, <code>plugin.json</code>, and a README. The hook logs the model name and passes the request through; its manifest requests <code>env.log</code>. The build command compiles for <code>wasm32-wasip1</code> and places <code>plugin.wasm</code> in the plugin directory.</p>
+    <p>The source linter is Go-only. For Rust, use native <code>cargo test</code> checks and the compiled-bundle scenario below. Review and keep the <code>Cargo.lock</code> produced by Cargo before installation, which builds with <code>--locked</code>. Cargo build scripts execute native code during compilation; <a href="/docs/plugin-installation/#community">clone and review remote Rust projects before installing a local path</a>.</p>
+
+    <h2 id="scenarios">Test the compiled bundle.</h2>
+    <p>Create <code>../my-go-plugin/scenario.json</code> yourself; scaffolding does not generate scenario files. This first case asserts that the starter hook preserves the request and produces no block, synthetic-response, route, or identity verdict:</p>
+    <pre><code>{scenario}</code></pre>
+    <pre><code>{`./torana plugin test ../my-go-plugin
+./torana plugin test ../my-go-plugin --scenario ../my-go-plugin/scenario.json`}</code></pre>
+    <p>These are equivalent commands: <code>scenario.json</code> inside the plugin directory is the default. For the Rust starter, save the same case in <code>../my-rust-plugin/scenario.json</code> and run <code>./torana plugin test ../my-rust-plugin</code>. Rebuild the bundle after editing plugin code.</p>
+    <p>The scenario runs the compiled WASM through the production runtime and hook validation without contacting a provider. It uses the shared protobuf JSON format, so request messages contain ordered <code>blocks</code>. Update the input and expected output for your plugin’s behavior; an omitted expectation makes no assertion.</p>
+    <p>Scenarios can also cover responses, streams, HTTP hooks, ticks, and deterministic host-service fixtures. The test runtime approves the test bundle and grants its manifest’s requested permissions for that run. This does not approve your installed copy. See the <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/PLUGIN_TESTING.md">scenario format and service fixtures ↗</a>.</p>
+
+    <h2 id="permissions">Declare what the hook needs.</h2>
+    <p>Use typed pass-through or replacement results and handle helper errors. Declare every host call and the narrow <code>ir.*.write</code> permissions your changes exercise in <code>plugin.json</code>. Resource access also needs manifest declarations and operator bindings; the host checks those permissions when the plugin runs.</p>
+    <p>Keep request mutations deterministic and use the SDK’s provenance-aware helpers when changing content. Ordered blocks, signed content, tool results, and prompt-cache markers have preservation rules. The SDK’s <a href="https://github.com/torana-edge/torana-plugin-sdk/blob/main/docs/WRITING_A_PLUGIN.md">author guide ↗</a> and <a href="https://github.com/torana-edge/torana-plugin-sdk/blob/main/docs/PLUGIN_SEMANTICS.md">plugin semantics ↗</a> explain those rules.</p>
+
+    <h2 id="install">Install and try it in your pipeline.</h2>
+    <p>With your native and compiled-bundle checks passing, install the local project:</p>
+    <pre><code>./torana plugin install ../my-go-plugin</code></pre>
+    <p>Use <code>../my-rust-plugin</code> for the Rust project. Follow the <a href="/docs/plugin-installation/">installation guide</a> to select the running instance’s plugin directory, review the built bundle’s permissions, approve its digest, and enable it in the control plane. Then send a request through the provider endpoint and harness you intend to support.</p>
+    <p>When updating to this SDK contract, rebuild every plugin with the SDK used by your target Edge build, including official bundles, and approve each new digest. The host rejects incompatible bundles at load time. Keep the previous host and its approved bundles together if you need to roll back.</p>
+    <p>Document the SDK and Edge revisions, permissions, configuration, and harnesses you tested. Keep your source in your own repository and <a href="/plugins/submit/">request a catalogue listing</a> when you want to share it.</p>
+  </article>
+</Layout>

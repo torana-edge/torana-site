@@ -1,0 +1,71 @@
+<figure class="architecture" aria-labelledby="architecture-title" aria-describedby="architecture-description">
+  <figcaption id="architecture-title">A request through Torana</figcaption>
+  <p id="architecture-description" class="sr-only">Your coding harness and Torana run on your machine. Requests pass from the harness through Torana’s approved plugins to the configured model provider. Responses return through Torana to the harness. The local UI and agent API inspect and configure Torana. A remote provider is shown; a supported local endpoint can also be used.</p>
+  <div class="architecture-path">
+    <div class="local-boundary">
+      <p class="boundary-name">On your machine</p>
+      <div class="local-path">
+        <div class="node harness-node">
+          <strong>Coding harness</strong>
+          <span>Conversation, tools,<br />and tool approvals</span>
+        </div>
+        <div class="connector" aria-hidden="true">
+          <svg viewBox="0 0 44 48" width="44" height="48" fill="none"><path d="M14 4v38m-5-5 5 5 5-5M30 44V6m-5 5 5-5 5 5" /></svg>
+        </div>
+        <div class="node edge-node">
+          <strong>Torana Edge</strong>
+          <span>Local reverse proxy</span>
+          <p>Parse, run approved hooks,<br />validate, forward</p>
+        </div>
+        <div class="control-node">
+          <svg aria-hidden="true" viewBox="0 0 24 28" width="24" height="28" fill="none"><path d="M7 2v24m-3-3 3 3 3-3M17 26V2m-3 3 3-3 3 3" /></svg>
+          <strong>Local UI + agent API</strong>
+          <span>Inspect activity and configure Torana</span>
+        </div>
+      </div>
+    </div>
+    <div class="connector upstream-connector" aria-hidden="true">
+      <svg viewBox="0 0 44 48" width="44" height="48" fill="none"><path d="M14 4v38m-5-5 5 5 5-5M30 44V6m-5 5 5-5 5 5" /></svg>
+    </div>
+    <div class="node upstream-node">
+      <strong>Model provider</strong>
+      <span>The endpoint<br />you configured</span>
+      <p>Remote in this example</p>
+    </div>
+  </div>
+  <p class="diagram-note">Requests travel toward the provider; responses travel back. Approved plugin HTTP or model calls may also leave your machine.</p>
+</figure>
+
+<style>
+  /* Hallmark · technical request diagram · existing studied-DNA tokens
+   * pre-emit critique: P5 H4 E4 S5 R5 V4 · contrast: pass (40–41)
+   * HTML labels + SVG connections · no motion · local boundary is explicit
+   */
+  .architecture { margin: var(--space-7) 0; min-width: 0; }
+  figcaption { color: var(--ink-2); font-size: .875rem; margin-bottom: var(--space-3); }
+  .architecture-path, .local-path { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; }
+  .local-boundary { border: 1px solid var(--rule-strong); border-radius: var(--radius); padding: var(--space-4); min-width: 0; }
+  .boundary-name { margin: 0 0 var(--space-4); font-size: .875rem; color: var(--muted); }
+  .node { min-width: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+  .node strong { font: 700 1.125rem/1.25 var(--font-display); }
+  .node span, .node p, .control-node span { color: var(--ink-2); font-size: .875rem; line-height: 1.5; }
+  .node p { margin: var(--space-2) 0 0; }
+  .edge-node { padding: var(--space-4); background: var(--paper-2); border-radius: var(--radius); }
+  .edge-node strong { color: var(--accent); }
+  .connector { display: flex; align-items: center; justify-content: center; }
+  svg { stroke: var(--accent); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .control-node { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+  .control-node strong { font-size: .875rem; font-weight: 600; }
+  .control-node svg { stroke: var(--muted); margin-inline-start: var(--space-4); }
+  .upstream-node { padding: var(--space-4); border: 1px solid var(--rule-strong); border-radius: var(--radius); }
+  .diagram-note { margin: var(--space-3) 0 0; color: var(--muted); font-size: .875rem; line-height: 1.6; }
+  @media (min-width: 42rem) {
+    .architecture-path { grid-template-columns: minmax(0, 3fr) 3rem minmax(0, 1fr); align-items: start; }
+    .local-path { grid-template-columns: minmax(0, 1fr) 3rem minmax(0, 1.4fr); align-items: center; }
+    .connector svg { transform: rotate(-90deg); }
+    .control-node { grid-column: 3; }
+    .upstream-connector { margin-top: var(--space-8); }
+    .upstream-node { margin-top: var(--space-7); }
+    .node strong { overflow-wrap: anywhere; }
+  }
+</style>

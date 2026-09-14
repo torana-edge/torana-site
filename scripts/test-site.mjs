@@ -99,6 +99,60 @@ test("homepage request diagram retains accessible labels and visual flow nodes",
   assert.doesNotMatch(diagram, /<pre\b/);
 });
 
+test("technical overview is discoverable and its request diagram has a local boundary", () => {
+  const html = readFileSync(path.join(root, "how-it-works/index.html"), "utf8");
+  const diagram = html.match(/<figure class="architecture"[\s\S]*?<\/figure>/)?.[0];
+  assert.ok(diagram, "The architecture must be available in static HTML");
+  assert.match(diagram, /aria-labelledby="architecture-title"/);
+  assert.match(diagram, /aria-describedby="architecture-description"/);
+  for (const id of ["architecture-title", "architecture-description"]) {
+    assert.match(diagram, new RegExp(`<[^>]+\\bid="${id}"[^>]*>[^<]*\\S[^<]*<`));
+  }
+  for (const node of ["local-boundary", "harness-node", "edge-node", "control-node", "upstream-node"]) {
+    assert.match(diagram, new RegExp(`class="[^"]*\\b${node}\\b`));
+  }
+  assert.match(diagram, /<svg\b/);
+  assert.doesNotMatch(diagram, /<canvas\b|<pre\b/);
+  for (const route of ["index.html", "docs/index.html", "how-it-works/index.html"]) {
+    const source = readFileSync(path.join(root, route), "utf8");
+    for (const label of ["Primary", "Mobile"]) {
+      const nav = source.match(new RegExp(`<nav[^>]*aria-label="${label}"[\\s\\S]*?<\\/nav>`))?.[0];
+      assert.match(nav || "", /href="\/how-it-works\/"/);
+    }
+    if (route !== "how-it-works/index.html") {
+      assert.match(source.match(/<main\b[\s\S]*?<\/main>/)?.[0] || "", /href="\/how-it-works\/"/);
+    }
+  }
+});
+
+test("technical overview explains consequential routing, stream and permission boundaries", () => {
+  const html = readFileSync(path.join(root, "how-it-works/index.html"), "utf8");
+  const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+  for (const hook of ["run_before_request", "run_on_stream_chunk", "run_after_response", "run_on_http_request", "run_on_tick"]) {
+    assert.ok(text.includes(hook), `Missing hook: ${hook}`);
+  }
+  assert.match(text, /same configured format/);
+  assert.match(text, /auxiliary paths pass through/);
+  assert.match(text, /mutable=false.*no assembled message body/);
+  assert.match(text, /already-sent bytes cannot be rewritten/);
+  assert.match(text, /last accepted state/);
+  assert.match(text, /terminates the stream/);
+  assert.match(text, /signed-stream violation.*even in pass mode/);
+  assert.match(text, /SHA-256 digest/);
+  assert.match(text, /Every requested permission must be approved/);
+  assert.match(text, /no ambient filesystem or network access/);
+  assert.match(text, /System clocks are available/);
+  assert.match(text, /approved HTTP and model host calls can send/i);
+  assert.match(text, /Redis.*OpenTelemetry/);
+  assert.match(text, /loopback-only/);
+  assert.match(text, /cache hit into a miss/);
+  assert.match(text, /stale signature/);
+  assert.match(text, /inspected Edge and SDK source snapshots/);
+  assert.match(text, /does not automatically track later changes on main/);
+  assert.doesNotMatch(text, /nothing leaves your machine|guaranteed savings|any language/i);
+  assert.doesNotMatch(html, /curl[^<]*\|[^<]*sh|torana (?:start|stop|status)/);
+});
+
 test("plugin sharing has a real issue form and leaves installation permissioned", () => {
   const html = readFileSync(path.join(root, "plugins/submit/index.html"), "utf8");
   const templateName = "plugin-listing.yml";
@@ -120,6 +174,28 @@ test("plugin sharing has a real issue form and leaves installation permissioned"
   assert.match(installation, /TORANA_DATA_DIR<\/code> alone does not select the plugin directory/);
   assert.match(installation, /refuses remote Rust source builds/);
   assert.match(installation, /does not approve its permissions or enable it/);
+});
+
+test("plugin authoring documents the current SDK pins and an explicit scenario workflow", () => {
+  const sdk = JSON.parse(readFileSync(new URL("../src/data/sdk.json", import.meta.url), "utf8"));
+  const authoring = readFileSync(path.join(root, "docs/plugin-authoring/index.html"), "utf8");
+  const support = readFileSync(path.join(root, "docs/support/index.html"), "utf8");
+  for (const html of [authoring, support]) {
+    assert.ok(html.includes(`<code>${sdk.version}</code>`));
+    assert.ok(html.includes(`ABI major ${sdk.abiMajor}, contract revision ${sdk.contractRevision}`));
+    assert.match(html, /does not depend on crates\.io availability/);
+    assert.doesNotMatch(html, /v0\.3\.0/);
+  }
+  assert.ok(authoring.includes(sdk.revision));
+  assert.match(authoring, /\.\/torana plugin new \.\.\/my-go-plugin --language go/);
+  assert.match(authoring, /\.\/torana plugin new \.\.\/my-rust-plugin --language rust/);
+  assert.match(authoring, /source linter is Go-only/);
+  assert.match(authoring, /scaffolding does not generate scenario files/);
+  assert.match(authoring, /\.\/torana plugin test \.\.\/my-go-plugin --scenario/);
+  assert.match(authoring, /This does not approve your installed copy/);
+  for (const page of ["docs/index.html", "plugins/submit/index.html", "docs/support/index.html"]) {
+    assert.ok(readFileSync(path.join(root, page), "utf8").includes('href="/docs/plugin-authoring/"'), `${page} must link to plugin authoring`);
+  }
 });
 
 test("community listing policy limits review to a revision and allows removal", () => {
