@@ -62,6 +62,10 @@ Do not use `wrangler deploy` or add a Worker entry point for this site.
    exist, create it with
    `npx --no-install wrangler pages project create torana-site --production-branch main`.
    Use the intended Cloudflare account; do not replace an existing project.
+   Wrangler 4.131 can redirect a new project to Workers when run by an agent.
+   If that happens, `--force` on this one-time **project create** command selects
+   the Pages API; it does not overwrite a project. Existing Pages projects do
+   not need that flag for subsequent deployments.
 3. For GitHub deployment, create an API token with **Account → Cloudflare Pages →
    Edit**, restricted to that account. Add `CLOUDFLARE_API_TOKEN` and
    `CLOUDFLARE_ACCOUNT_ID` in the repository's **Settings → Secrets and variables →
