@@ -1,0 +1,28 @@
+---
+import Layout from "../../layouts/Layout.astro";
+const submissionURL = "https://github.com/torana-edge/torana-site/issues/new?template=plugin-listing.yml";
+---
+<Layout title="Share a plugin — Torana" description="Build a Torana plugin for your workflow, keep it in your own repository, and request a listing in the plugin catalogue.">
+  <article class="frame prose">
+    <h1 class="display">Your workflow hack could help someone else.</h1>
+    <p>A small plugin that solves one annoying problem is a good place to start. Try moving a harness-specific tool or policy into Torana so you can reuse it across compatible setups. It does not need to cover everyone’s workflow.</p>
+    <h2>Build it where you like.</h2>
+    <p>The <a href="https://github.com/torana-edge/torana-plugin-sdk">Go and Rust SDKs</a> provide plugin helpers and examples. Your source can stay in your own repository. People can <a href="/docs/plugin-installation/#community">install it from source</a> without a central publishing step or a catalogue listing.</p>
+    <p>Plugins work with a <a href="/docs/support/#shared-format">shared request format</a>, but compatibility still depends on the fields and capabilities they use. Document the harnesses, endpoints, and versions you have actually tried.</p>
+    <h2>Request a place in the catalogue.</h2>
+    <p>Open a listing request in the website repository. Include:</p>
+    <ul>
+      <li>The problem it solves and a small example of it working.</li>
+      <li>A public source link, license, and the tag or commit to review.</li>
+      <li>Build and installation instructions, plus any configuration it needs.</li>
+      <li>Requested permissions and resources, including where data goes if it uses network access.</li>
+      <li>The Torana and SDK versions, harnesses, and provider endpoints you tested.</li>
+    </ul>
+    <p><a href={submissionURL}>Request a listing ↗</a></p>
+    <p>Maintainers review requests before adding a listing and may ask for changes or more information. Keep credentials, private prompts, and customer data out of the issue and examples.</p>
+    <h2>A listing helps people find it.</h2>
+    <p>It is not a security certification, automatic approval, or inclusion in <code>plugin install --official</code>. People still review the source, build it locally, and approve the permissions of the exact bundle they run.</p>
+    <p>Not looking for a listing? Share your repository directly. The install path works the same way.</p>
+    <p><a href="/plugins/">Browse existing plugins →</a></p>
+  </article>
+</Layout>

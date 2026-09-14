@@ -6,10 +6,15 @@ import Layout from "../../layouts/Layout.astro";
     <h1 class="display">Install a plugin you can inspect.</h1>
     <p>After the <a href="/quickstart/">quickstart</a>, choose a plugin in the <a href="/plugins/">registry</a>. Open its source and documentation before running the install command.</p>
     <h2>Build, approve, enable.</h2>
-    <p>Run the command from the checkout containing your Torana binary. Use the same <code>TORANA_DATA_DIR</code> as the running server so installation and the control plane see the same state.</p>
+    <p>With the default quickstart setup, run the command from the same Torana checkout you used to start the server. Plugins install into <code>./plugins</code>, relative to your working directory. If you configured a different plugin directory, pass <code>--dir</code> with the absolute path to that directory to the install command. Setting <code>TORANA_DATA_DIR</code> alone does not select the plugin directory.</p>
     <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/usage_logger</code></pre>
     <p>The command builds and installs the bundle. It does not approve its permissions or enable it. Open <code>http://127.0.0.1:8080/_torana/</code>, review the plugin’s requested capabilities and resource bindings, then approve and enable it. Check that it appears in the active pipeline and send another request.</p>
     <p>For the usage logger, the <a href="/quickstart/">quickstart includes a command to follow the JSONL output</a>. Other plugins may need settings or bound resources first; use their source documentation.</p>
+    <h2 id="community">Install from any plugin repository.</h2>
+    <p>You do not need a registry listing to install a plugin. For a Go plugin, use its repository URL and plugin path, following the author’s installation instructions. Prefer a tag or commit you have reviewed over a moving branch.</p>
+    <p>For a local Go or Rust project, pass its directory instead. This example assumes you have already cloned and reviewed a plugin in <code>../my-plugin</code>:</p>
+    <pre><code>./torana plugin install ../my-plugin</code></pre>
+    <p>The same build, approval, and enablement steps apply to plugins from your own repository and someone else’s. A catalogue entry is not an automatic permission grant. <a href="/plugins/submit/">Want to share a plugin you made? →</a></p>
     <h2>The build is outside the sandbox.</h2>
     <p>WASM isolates the running guest. That does not make building arbitrary source code safe. In particular, Cargo build scripts can execute native code before there is a WASM artifact to approve. Torana refuses remote Rust source builds; clone and review a Rust project before building it locally.</p>
     <h2 id="digests">Why the registry has no published digests.</h2>

@@ -13,7 +13,7 @@
     "check:deploy": "./scripts/test-cloudflare-deploy-ready.sh && node --test scripts/test-cloudflare-deployment.mjs",
     "check:security": "node scripts/check-security-headers.mjs",
     "test": "npm run test:unit && npm run build && npm run test:built",
-    "test:unit": "node --test scripts/test-theme.mjs scripts/test-social-cards.mjs",
+    "test:unit": "node --test scripts/test-theme.mjs scripts/test-social-cards.mjs scripts/test-edge-links.mjs",
     "test:built": "node --test scripts/test-site.mjs",
     "build": "npm run check:security && npm run check:contract && npm run check:deploy && npm run social:check && ASTRO_TELEMETRY_DISABLED=1 astro check && ASTRO_TELEMETRY_DISABLED=1 astro build",
     "social:build": "node scripts/social-cards.mjs",
@@ -32,7 +32,11 @@
   },
   "devDependencies": {
     "@resvg/resvg-wasm": "2.6.2",
-    "wrangler": "^4.123.0"
+    "github-slugger": "2.0.0",
+    "mdast-util-from-markdown": "2.0.3",
+    "mdast-util-to-string": "4.0.0",
+    "wrangler": "^4.123.0",
+    "yaml": "2.9.1"
   },
   "overrides": {
     "astro": {

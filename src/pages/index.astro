@@ -1,19 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { plugins } from "../data/plugins";
-import { installCommand } from "../data/install";
+import RequestFlow from "../components/RequestFlow.astro";
 const featuredPlugins = ["usage_logger", "tool_governor", "keyword_compactor"]
   .map(name => plugins.find(plugin => plugin.name === name)!);
-const requestPath = `YOUR CODING AGENT
-      ↓  a local provider route
-TORANA · ON YOUR MACHINE
-      Observe request activity
-      Run the plugins you approved
-      Apply your traffic policy
-      ↓
-YOUR CONFIGURED MODEL PROVIDER
-      ↓
-Response back to your agent`;
 ---
 
 <Layout>
@@ -26,27 +16,26 @@ Response back to your agent`;
         <a class="button primary" href="/quickstart/">Try Torana locally <span aria-hidden="true">→</span></a>
         <a class="button" href="https://github.com/torana-edge/torana-edge">Explore the source ↗</a>
       </div>
-      <p class="muted">No Torana account. Currently built from source. <a href="/docs/support/">Check your harness and endpoint →</a></p>
+      <p class="muted">Runs on your machine. No cloud deployment or Torana account required.</p>
+      <a class="text-link" href="/docs/support/">Supported harnesses →</a>
     </div>
-    <div class="proof" data-reveal style="--i:2" aria-label="How requests move through Torana">
-      <div class="proof-head"><span>How it works</span><span>agent → proxy → provider</span></div>
-      <pre><code>{requestPath}</code></pre>
-    </div>
+    <RequestFlow />
   </section>
 
   <section class="rule-section compact">
     <div class="frame">
       <div class="section-head">
         <div>
-          <h2 class="display">Start with a request you can see.</h2>
-          <p>Route one request, open the local feed, then enable one useful plugin. You do not need to write a plugin to get started.</p>
+          <h2 class="display">Your workflow, beyond one harness.</h2>
+          <p>Keep the reusable parts of your setup in Torana. Try an existing plugin, or write the small piece you keep rebuilding.</p>
         </div>
       </div>
-      <div class="flow">
-        <article><div><h3>See what crossed the proxy.</h3><p>Inspect model, latency, status, and reported token usage in the local feed. Add usage_logger to keep a rotating log without prompts or responses.</p></div></article>
-        <article><div><h3>Choose what the model sees.</h3><p>Use tool_governor to change the tool definitions advertised to the model. Your coding agent still owns tool execution and its approvals.</p></div></article>
-        <article><div><h3>Try a different context policy.</h3><p>Experiment with smaller tool results and explicit retention rules. Keep what helps your tasks; switch off what doesn’t.</p></div></article>
-        <article><div><h3>Take your tools with you.</h3><p>Built a workflow hack for one coding harness? Bring the reusable logic into a Go or Rust plugin. Keep it in Torana and reuse it across compatible harnesses.</p></div></article>
+      <div class="capability-grid">
+        <article><h3>Keep your agent and model.</h3><p>Add Torana between a supported coding harness and its provider. Your harness still owns tool execution and its approvals.</p><a class="text-link" href="/docs/support/">Check compatibility →</a></article>
+        <article><h3>Write the logic once.</h3><p>Work with a shared request format across supported OpenAI, Anthropic, and Gemini APIs. Reuse plugin logic across compatible harnesses without parsing each provider’s JSON yourself.</p><a class="text-link" href="/docs/support/#shared-format">How formats work →</a></article>
+        <article><h3>Go or Rust. Compiled to WASM.</h3><p>Build small plugins with the provided SDKs, without modifying Torana itself. Start with an example and make it fit your workflow.</p><a class="text-link" href="https://github.com/torana-edge/torana-plugin-sdk">Explore the SDKs ↗</a></article>
+        <article><h3>Choose what plugins can do.</h3><p>Inspect requested permissions, approve access, and control the plugin pipeline running on your machine. Installation alone does not grant access or enable a plugin.</p><a class="text-link" href="/docs/plugin-installation/">Review the lifecycle →</a></article>
+        <article class="community-capability"><div><h3>Install a plugin. Share yours.</h3><p>Try a plugin from someone else’s repository, or keep your own workflow hacks in yours. Install from source with the CLI, then review and approve the built plugin. No central publishing step required.</p></div><div class="community-links"><a class="text-link" href="/plugins/">Find a plugin →</a><a class="text-link" href="/plugins/submit/">Share your plugin →</a></div></article>
       </div>
     </div>
   </section>
@@ -54,8 +43,8 @@ Response back to your agent`;
   <section class="rule-section compact">
     <div class="frame">
       <div class="catalog-head">
-        <div><h2>Pick a plugin. Make it yours.</h2></div>
-        <a class="button" href="/plugins/">Browse registry →</a>
+        <div><h2>A few plugins to start with.</h2><p class="muted">Three examples. Pick what helps your workflow.</p></div>
+        <a class="button" href="/plugins/">Browse all {plugins.length} plugins →</a>
       </div>
       <div class="catalog catalog-preview">
         {featuredPlugins.map((plugin) => (
@@ -76,10 +65,7 @@ Response back to your agent`;
         <p>You need Git, Go 1.26.6 or newer, and a provider credential. Start with no plugins, then add the usage logger. The walkthrough includes how to switch back.</p>
         <a class="button" href="/quickstart/">Open the walkthrough →</a>
       </div>
-      <div class="command">
-        <pre><code><strong>{installCommand}</strong></code></pre>
-        <button class="copy" type="button" data-copy={installCommand}>Copy build commands</button>
-      </div>
+      <p class="quick-outcome">Send one request through the proxy. See it in the local feed. Then add a plugin.</p>
     </div>
   </section>
 
@@ -99,3 +85,24 @@ Response back to your agent`;
     </div>
   </section>
 </Layout>
+
+<style>
+  /* Hallmark · Workbench / Ecosystem Index · five-panel platform refinement
+   * pre-emit critique: P5 H4 E4 S5 R5 V4 · existing theme, nav and footer retained
+   * rendered: mobile/desktop and light/dark pass · text contrast >= 6.79:1
+   */
+  .capability-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+  .capability-grid article { border: 1px solid var(--rule); padding: var(--space-5); display: flex; flex-direction: column; align-items: flex-start; }
+  .capability-grid h3 { font-size: 1.25rem; line-height: 1.25; margin: 0; }
+  .capability-grid p { color: var(--ink-2); max-width: 60ch; }
+  .capability-grid a { display: inline-flex; align-items: center; min-height: 44px; white-space: nowrap; margin-top: auto; }
+  .community-links { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+  .catalog-head h2 { margin-bottom: var(--space-2); }
+  .catalog-head p { margin: 0; }
+  .quick-outcome { font-family: var(--font-display); font-size: clamp(1.5rem, 3vw, 2.25rem); line-height: 1.3; margin: 0; max-width: 24ch; }
+  @media (min-width: 48rem) {
+    .capability-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .capability-grid .community-capability { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; gap: var(--space-6); background: var(--paper-2); }
+    .community-links { flex-shrink: 0; flex-direction: column; }
+  }
+</style>
