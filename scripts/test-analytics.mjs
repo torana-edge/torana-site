@@ -112,6 +112,8 @@ test("official tracker is explicitly manual, credential-free, and initialized on
   assert.equal(app.listeners.get("click").length, 1);
   const tracker = app.scripts[0];
   assert.equal(tracker.src, "https://cloud.umami.is/script.js");
+  assert.equal(tracker.integrity, "sha256-+RgiMywqE/kej+KcCusWlJfLHYcNMaCZxezIvqWOo6w=");
+  assert.equal(tracker.crossOrigin, "anonymous");
   assert.equal(tracker.referrerPolicy, "no-referrer");
   assert.equal(tracker.async, true);
   assert.deepEqual({ ...tracker.dataset }, {

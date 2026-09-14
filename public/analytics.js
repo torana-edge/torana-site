@@ -107,6 +107,10 @@
 
   const tracker = document.createElement("script");
   tracker.src = "https://cloud.umami.is/script.js";
+  // Reviewed Cloud bytes, 2026-09-14. A vendor update fails closed until its
+  // source and browser behavior are reviewed and this pin is deliberately updated.
+  tracker.integrity = "sha256-+RgiMywqE/kej+KcCusWlJfLHYcNMaCZxezIvqWOo6w=";
+  tracker.crossOrigin = "anonymous";
   tracker.async = true;
   tracker.referrerPolicy = "no-referrer";
   tracker.dataset.websiteId = website;

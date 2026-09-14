@@ -191,6 +191,27 @@ collector were verified on 2026-09-14; changes to these hosts need deliberate
 source review and matching tests. There is no inline script exception, wildcard,
 proxy fallback, or automatic provider initialization.
 
+The Cloud script is pinned with browser-enforced Subresource Integrity and
+`crossOrigin="anonymous"`. The reviewed SHA-256 is
+`f91822332c2a13f91e8fe29c0aeb169497cb1d870d31a099c5ecc8bea58ea3ac`;
+`public/analytics.js` contains its equivalent `sha256-…` Base64 integrity value.
+The provider currently permits the required anonymous CORS request. A changed
+script or missing CORS permission stops analytics before any provider code runs;
+the site continues to work, with no unpinned retry or fallback. Because the
+provider URL is unversioned, a routine Umami update can pause collection until
+we review and update this pin.
+
+Check the public script for changes before a release and when collection
+unexpectedly stops. To update it, review the new tracker source and its behavior
+(especially manual initialization, payloads, storage, and collector hosts), then
+compute its SHA-256 from the exact served bytes. Update the integrity value,
+matching unit assertion, and review date/hash here in one PR. Verify in a browser
+that the matching script sends only the approved payloads, and that a deliberately
+modified response is rejected before execution with no collector requests.
+Intercept all collector requests during these checks; do not send test events to
+the production dashboard. Confirm copying and navigation still work on an
+integrity failure, and rerun both build configurations before publishing the pin.
+
 The event vocabulary is deliberately small:
 
 | Signal | Meaning and properties |
