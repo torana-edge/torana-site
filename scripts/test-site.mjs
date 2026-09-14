@@ -123,15 +123,16 @@ test("plugin sharing has a real issue form and leaves installation permissioned"
 });
 
 test("plugin authoring documents the current SDK pins and an explicit scenario workflow", () => {
+  const sdk = JSON.parse(readFileSync(new URL("../src/data/sdk.json", import.meta.url), "utf8"));
   const authoring = readFileSync(path.join(root, "docs/plugin-authoring/index.html"), "utf8");
   const support = readFileSync(path.join(root, "docs/support/index.html"), "utf8");
   for (const html of [authoring, support]) {
-    assert.match(html, /v0\.5\.0/);
-    assert.match(html, /ABI major 1, contract revision 1/);
+    assert.ok(html.includes(`<code>${sdk.version}</code>`));
+    assert.ok(html.includes(`ABI major ${sdk.abiMajor}, contract revision ${sdk.contractRevision}`));
     assert.match(html, /does not depend on crates\.io availability/);
     assert.doesNotMatch(html, /v0\.3\.0/);
   }
-  assert.match(authoring, /ad98c6d3467f628dd2f630c054715f8b347daa29/);
+  assert.ok(authoring.includes(sdk.revision));
   assert.match(authoring, /\.\/torana plugin new \.\.\/my-go-plugin --language go/);
   assert.match(authoring, /\.\/torana plugin new \.\.\/my-rust-plugin --language rust/);
   assert.match(authoring, /source linter is Go-only/);
