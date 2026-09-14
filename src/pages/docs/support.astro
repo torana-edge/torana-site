@@ -8,7 +8,11 @@ import Layout from "../../layouts/Layout.astro";
   <article class="frame prose" style="max-width:var(--page)">
     <p class="eyebrow">Support matrix · formats and harnesses</p>
     <h1 class="display">What works with Torana.</h1>
-    <p>Torana only sends recognized inference endpoints through its canonical IR and plugin pipeline. Other provider endpoints remain transparent reverse-proxy traffic. “Preserved” below means executable fixtures cover the wire behavior; it does not claim that every model or account enables the provider feature.</p>
+    <p>Torana runs request and response plugins on recognized model-inference endpoints. Other provider endpoints pass through without entering that plugin pipeline. “Preserved” below means executable fixtures cover the wire behavior; it does not claim that every model or account enables the provider feature.</p>
+
+    <h2 id="shared-format">One shared format for plugins</h2>
+    <p>Torana converts supported provider requests and responses into a shared format, so plugins can work with messages, tools, and usage without parsing each provider’s JSON separately. Technical references call this an <em>intermediate representation</em>, or IR.</p>
+    <p>This makes shared plugin logic reusable; it does not make every provider feature interchangeable. Your harness must still speak the configured provider’s supported API format, and a plugin may depend on particular fields or capabilities.</p>
 
     <h2>Provider formats</h2>
     <div class="table-scroll" tabindex="0" role="region" aria-label="Provider support matrix">
@@ -24,7 +28,7 @@ import Layout from "../../layouts/Layout.astro";
     </div>
 
     <h2>Selective interception</h2>
-    <p>Model-list, token-counting, account, quota, status, telemetry, update, MCP, and unknown auxiliary paths do not enter IR and do not run request or response plugins. Real-proxy tests cover auxiliary pass-through for all four formats, including method, path, query, body, permitted headers, upstream status, and response bytes.</p>
+    <p>Model-list, token-counting, account, quota, status, telemetry, update, MCP, and unknown auxiliary paths do not run request or response plugins. Real-proxy tests cover auxiliary pass-through for all four formats, including method, path, query, body, permitted headers, upstream status, and response bytes.</p>
 
     <h2>Coding harnesses</h2>
     <div class="table-scroll" tabindex="0" role="region" aria-label="Coding harness support matrix">

@@ -1,0 +1,78 @@
+name: Plugin listing request
+description: Share a plugin and request a listing in the Torana website catalogue.
+title: "Plugin listing: "
+labels: [plugin-listing]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sharing your plugin! Small, useful workflow fixes are welcome.
+        Your code can stay in your repository. A listing is reviewed by maintainers;
+        it is not a security certification or inclusion in `plugin install --official`.
+        Community listings identify the reviewed revision, not future branch updates.
+        Maintainers may remove listings if source disappears, maintenance or
+        compatibility lapses, licensing changes, or security concerns emerge.
+        Do not include credentials, private prompts, or customer data.
+  - type: input
+    id: plugin-name
+    attributes:
+      label: Plugin name
+    validations:
+      required: true
+  - type: textarea
+    id: use-case
+    attributes:
+      label: What does it do?
+      description: Describe the problem it solves and include a small, public-safe example.
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Public source repository and plugin directory
+      description: Link to the code, not just a downloadable binary.
+    validations:
+      required: true
+  - type: input
+    id: revision
+    attributes:
+      label: Tag or commit to review
+    validations:
+      required: true
+  - type: input
+    id: license
+    attributes:
+      label: License
+      description: Name the license and link to its file in the repository.
+    validations:
+      required: true
+  - type: textarea
+    id: installation
+    attributes:
+      label: Build, install, and configure
+      description: Include prerequisites, commands, and any settings or resource bindings needed.
+    validations:
+      required: true
+  - type: textarea
+    id: permissions
+    attributes:
+      label: Permissions and data access
+      description: Explain requested capabilities, resource bindings, and any external services or data sent to them. Say none if applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Tested compatibility
+      description: List Torana and SDK versions, harnesses, provider endpoints, and known limitations. Distinguish tested setups from expected compatibility.
+    validations:
+      required: true
+  - type: checkboxes
+    id: publication
+    attributes:
+      label: Public listing
+      options:
+        - label: I maintain this plugin or have the maintainer's permission to request its listing.
+          required: true
+        - label: The linked source and examples are public and contain no credentials or private data.
+          required: true

@@ -8,6 +8,7 @@ const plugins = registry.plugins;
     <h1 class="display">Pick a plugin. Make it yours.</h1>
     <p>Start with the <a href="#usage_logger">usage logger</a>, change the tools your model sees, or experiment with context. Install only what you need. Each entry includes its source, requested capabilities, and an install command.</p>
     <p>Run commands from your Torana checkout after the <a href="/quickstart/">quickstart</a>. Installation builds source code; it does not approve or enable the plugin. Review the source first, then approve and enable the built bundle in the local control plane. <a href="/docs/plugin-installation/">How installation and approval work →</a></p>
+    <p>These are the {plugins.length} plugins maintained in the Torana plugins repository. Your plugin can live in your own repo too. Hack together something useful for your workflow, or move a harness-specific extension into a reusable plugin. <a href="/plugins/submit/">Share it and request a catalogue listing →</a></p>
     <div>
       {plugins.map((plugin) => (
         <article class="plugin-detail" id={plugin.name}>

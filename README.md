@@ -31,6 +31,27 @@ navigation still works. Browser storage is optional.
 Plugin capability lists, source links, and install commands use the generated
 registry JSON. Do not maintain a second hand-written permissions list.
 
+The homepage features three examples and derives the full plugin count from that
+same catalogue. Community authors can use `/plugins/submit/` and the
+`plugin-listing.yml` issue form to request a listing while keeping their own repo.
+Requests require maintainer review; they do not automatically update the generated
+official registry or Edge's `--official` install set. When adding community entries,
+keep their ownership explicit and separate from that generated official catalogue.
+Record the reviewed commit (resolving a submitted tag to its commit), not a moving
+branch, when adding or updating a community listing. Review does not cover later
+revisions automatically. Maintainers may remove listings for unavailable source,
+lapsed maintenance or compatibility, changed licensing, or security concerns.
+The issue form uses the repository's `plugin-listing` label for triage; preserve
+that label when maintaining the form, rather than relying on its editable title.
+
+The Edge link check resolves repository-root links to `README.md`, checks linked
+files on `main`, and verifies Markdown heading or source-line fragments. It parses
+Markdown and uses GitHub heading slugs, including duplicate headings; headings
+inside code blocks do not count. Custom raw-HTML anchors are not supported by this
+check. Prefer generated heading anchors in site links. A missing checkout fails;
+only an explicit local `--optional` may skip an absent checkout. The regression
+tests run in `npm test` as well as `npm run edge-links:test`.
+
 Social cards live in `public/social/`: editable SVG sources and matching 1200×630
 PNG exports. Keep each pair in sync; pages link to the PNG for social previews.
 The origin and compaction articles have their own cards.
