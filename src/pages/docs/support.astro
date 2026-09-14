@@ -44,9 +44,10 @@ import Layout from "../../layouts/Layout.astro";
     </div>
 
     <h2>Plugin SDKs</h2>
+    <p>SDK <code>v0.5.0</code> implements ABI major 1, contract revision 1. The SDK package version, plugin ABI, and Edge binary release are separate version numbers. Start with the <a href="/docs/plugin-authoring/">plugin-authoring guide</a> for a project pinned to the host’s SDK.</p>
     <table><tbody>
-      <tr><th>Go</th><td>ABI v1 SDK, helpers, test harness, official plugins, and host conformance.</td></tr>
-      <tr><th>Rust</th><td>ABI v1 bindings and safe wrappers. A clean Rust guest has built, installed, been digest-approved, and executed through the real host path. <code>v0.3.0</code> is tagged and published as a Go module; the crate is not yet on crates.io, so a Rust guest builds from the tag.</td></tr>
+      <tr><th>Go</th><td>ABI v1 SDK, helpers, native test harness, official plugins, and host conformance. Generated projects pin the Go module to <code>v0.5.0</code>.</td></tr>
+      <tr><th>Rust</th><td>ABI v1 bindings, typed results, and safe wrappers. The logger and all-hooks guests run through the shared host conformance harness. Generated projects pin the SDK’s exact Git revision with <code>git</code> and <code>rev</code>; this authoring path does not depend on crates.io availability.</td></tr>
       <tr><th>TypeScript / AssemblyScript</th><td>No supported SDK today. WASI alone is insufficient: a guest must also implement Torana’s protobuf ABI, allocator, framed host calls, and hook contract.</td></tr>
       <tr><th>Other WASI languages</th><td>Possible through the documented raw ABI, but not advertised as supported until a maintained SDK and host-conformance guest exist.</td></tr>
     </tbody></table>

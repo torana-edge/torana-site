@@ -122,6 +122,27 @@ test("plugin sharing has a real issue form and leaves installation permissioned"
   assert.match(installation, /does not approve its permissions or enable it/);
 });
 
+test("plugin authoring documents the current SDK pins and an explicit scenario workflow", () => {
+  const authoring = readFileSync(path.join(root, "docs/plugin-authoring/index.html"), "utf8");
+  const support = readFileSync(path.join(root, "docs/support/index.html"), "utf8");
+  for (const html of [authoring, support]) {
+    assert.match(html, /v0\.5\.0/);
+    assert.match(html, /ABI major 1, contract revision 1/);
+    assert.match(html, /does not depend on crates\.io availability/);
+    assert.doesNotMatch(html, /v0\.3\.0/);
+  }
+  assert.match(authoring, /ad98c6d3467f628dd2f630c054715f8b347daa29/);
+  assert.match(authoring, /\.\/torana plugin new \.\.\/my-go-plugin --language go/);
+  assert.match(authoring, /\.\/torana plugin new \.\.\/my-rust-plugin --language rust/);
+  assert.match(authoring, /source linter is Go-only/);
+  assert.match(authoring, /scaffolding does not generate scenario files/);
+  assert.match(authoring, /\.\/torana plugin test \.\.\/my-go-plugin --scenario/);
+  assert.match(authoring, /This does not approve your installed copy/);
+  for (const page of ["docs/index.html", "plugins/submit/index.html", "docs/support/index.html"]) {
+    assert.ok(readFileSync(path.join(root, page), "utf8").includes('href="/docs/plugin-authoring/"'), `${page} must link to plugin authoring`);
+  }
+});
+
 test("community listing policy limits review to a revision and allows removal", () => {
   // Policy changes, like product-claim changes, need deliberate review. These
   // checks do not snapshot headings or the invitation's marketing wording.
