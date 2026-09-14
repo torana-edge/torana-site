@@ -1,0 +1,104 @@
+---
+import Layout from "../../layouts/Layout.astro";
+const edgeSource = "https://github.com/torana-edge/torana-edge/blob/60e9fb9362bff7c1635395c7f44ee417aa7440f6";
+const providerEntry = `"local-messages": {
+  "url": "http://127.0.0.1:8000",
+  "format": "openai",
+  "auth": {"mode": "none"},
+  "bridge": {
+    "client": "anthropic",
+    "upstream": "openai-chat",
+    "model": "your-loaded-model"
+  }
+}`;
+const request = `curl --fail-with-body \\
+  http://127.0.0.1:8080/provider/local-messages/v1/messages \\
+  -H 'Content-Type: application/json' \\
+  -d '{"model":"client-model","max_tokens":128,"messages":[{"role":"user","content":"Say hello"}]}'`;
+---
+<Layout title="Protocol bridges — Torana" description="Connect an Anthropic Messages client to a local OpenAI-compatible model server. Configure Torana’s opt-in API translation from the CLI and understand its boundaries.">
+  <article class="frame prose bridge-guide">
+    <h1 class="display">Different APIs. One local proxy.</h1>
+    <p>Your client sends Anthropic Messages, but your model server accepts OpenAI Chat Completions. A <strong>protocol bridge</strong> lets Torana translate between them: requests on the way out, JSON or streaming responses on the way back. It is built in; no plugin is required.</p>
+    <p>Translation is opt-in for each named provider route. A <strong>native route</strong>, with no <code>bridge</code> configured, keeps the client and upstream on the same API. Use native routes when you need their supported provider-specific features.</p>
+    <nav class="guide-links" aria-label="On this page">
+      <a href="#configure">Configure</a><a href="#request">Send a request</a><a href="#contracts">API contracts</a><a href="#boundaries">Boundaries</a><a href="#manage">Manage</a>
+    </nav>
+
+    <h2 id="configure">Connect a local model server.</h2>
+    <p>Start an OpenAI-compatible server with a model loaded at <code>http://127.0.0.1:8000</code>. This example assumes it serves <code>/v1/chat/completions</code> without authentication and reports token usage. Torana does not install or start that server.</p>
+    <p>Build and start Torana using the first two steps of the <a href="/quickstart/">quickstart</a>. Keep Torana running on loopback. In a second terminal, use the same checkout and evaluation data directory:</p>
+    <pre><code>{`export TORANA_DATA_DIR="$PWD/.torana-data"
+./torana config get > bridge-settings.json`}</code></pre>
+    <p>The snapshot contains <code>revision</code> and <code>config</code>. Inside its <code>config.providers</code> object, add the following entry alongside existing providers. This is a provider entry, <strong>not a complete settings file</strong>. Preserve the other settings, the revision, and any redacted <code>__set__</code> markers.</p>
+    <pre data-example="bridge-provider"><code>{providerEntry}</code></pre>
+    <p>Replace <code>your-loaded-model</code> with the exact model name accepted by your server. If <code>local-messages</code> already exists, choose a new provider name and use it in the request URL too. Apply the edited snapshot:</p>
+    <pre><code>./torana config apply --file bridge-settings.json --yes</code></pre>
+    <p>This saves the configuration and applies it to subsequent requests without restarting. Keep the snapshot private. If another edit or restart makes its revision stale, export again and reapply your intended edits; do not copy a new revision onto old settings.</p>
+
+    <h2 id="request">Send an Anthropic-shaped request.</h2>
+    <pre data-example="bridge-request"><code>{request}</code></pre>
+    <p>The local server receives <code>/v1/chat/completions</code> with <code>your-loaded-model</code>. You receive an Anthropic Messages response. Add <code>"stream": true</code> to the JSON body and <code>--no-buffer</code> to curl for an Anthropic event stream.</p>
+    <p>An Anthropic-compatible client can use <code>http://127.0.0.1:8080/provider/local-messages</code> as its base URL, if it exposes that setting. Start with a short conversation, then check a tool call and its follow-up turn. The harness still executes tools and handles their approvals.</p>
+    <p>Send complete conversation history on every turn. Translation does not emulate server-managed history. A successful curl request verifies this inference path, not every feature of a coding harness.</p>
+    <p>Only this example’s provider hop stays local. A remote upstream or an approved plugin’s network calls can still send data off your machine. See <a href="/how-it-works/#data-boundary">data boundaries</a>.</p>
+
+    <h2 id="contracts">Choose the client and upstream APIs.</h2>
+    <p>These are explicit API contracts, not model names. OpenAI Chat Completions and Responses share a provider family but use different contracts.</p>
+    <dl class="contract-list">
+      <div><dt><code>openai-chat</code></dt><dd>OpenAI Chat Completions · family <code>openai</code></dd></div>
+      <div><dt><code>openai-responses</code></dt><dd>OpenAI Responses · family <code>openai</code></dd></div>
+      <div><dt><code>anthropic</code></dt><dd>Anthropic Messages · family <code>anthropic</code></dd></div>
+      <div><dt><code>gemini</code></dt><dd>Gemini generate/streamGenerateContent · family <code>gemini</code></dd></div>
+      <div><dt><code>gemini-codeassist</code></dt><dd>Code Assist generate/streamGenerateContent · family <code>gemini-codeassist</code></dd></div>
+    </dl>
+    <ul>
+      <li><code>bridge.client</code> is what your client sends. <code>bridge.upstream</code> is what the server accepts. Provider <code>format</code> must match the upstream family.</li>
+      <li><code>bridge.model</code> optionally maps the client’s model to an upstream model name, before request plugins run.</li>
+      <li><code>bridge.max_tokens</code> supplies an explicit missing-limit default for an Anthropic upstream. <code>bridge.project</code> is required when translating into Code Assist.</li>
+      <li>The provider URL is an origin, optionally with a deployment prefix. Torana appends the complete upstream endpoint. Do not repeat <code>/v1</code> in this example’s base URL.</li>
+      <li>Cross-family bridges require explicit <code>auth.mode: credential</code> with a named Torana credential, or <code>none</code> for an unauthenticated server. Caller credentials are not forwarded across families. See <a href={`${edgeSource}/docs/CREDENTIALS.md`}>credential setup ↗</a>.</li>
+    </ul>
+    <p>To expose the same server through Responses, create another provider entry with <code>bridge.client: openai-responses</code> and send requests to its <code>/v1/responses</code> endpoint. Separate route names let one backend serve several client APIs.</p>
+
+    <h2 id="boundaries">Translate what the destination can represent.</h2>
+    <p>Bridges support common text conversations, function definitions and calls, tool-result follow-ups, complete JSON replies, and SSE streams. Image inputs and structured-output constraints are supported where their semantics have a matching representation. The model must support the requested capability too.</p>
+    <p>Signed reasoning, provider-native server tools, cache breakpoints, opaque continuation items, <code>previous_response_id</code>, and storage/background execution are not portable across these APIs. Unsupported request semantics produce a client-shaped <strong>400 before an upstream call</strong>. Unsupported response content produces a 502, or terminates an already-started stream without a success marker.</p>
+    <p>Under any configured bridge, model discovery, token-counting, files, batch APIs, response retrieval, and other auxiliary APIs are <strong>not emulated or forwarded</strong>; they return 400. This includes bridges whose client and upstream contracts match, such as a same-API route using <code>bridge.model</code> for aliasing. Matching contracts avoids cross-API content conversion, not the inference-only endpoint boundary. Native routes without <code>bridge</code> retain ordinary auxiliary pass-through.</p>
+    <p>A harness requiring these auxiliary APIs needs a native route or additional contract support. Provider-native tools also need a compatible inference contract, not just a different base URL.</p>
+    <p>The automated suite covers all 20 cross-contract directions among the five contracts with mock HTTP upstreams, including text/function-tool loops and JSON/SSE responses. That is contract coverage, not proof that every live harness, model, or account combination works. See the <a href="/docs/support/#bridges">support matrix</a> and <a href={`${edgeSource}/docs/PROTOCOL_BRIDGES.md#supported-translation-surface`}>full translation surface ↗</a>.</p>
+
+    <h2 id="manage">Inspect, change, or remove a bridge.</h2>
+    <pre><code>{`./torana stats
+./torana feed
+./torana config get`}</code></pre>
+    <p>Request plugins see shared client content and the upstream model alias. Response hooks see the actual upstream’s shared response before Torana converts it for the client. Host usage accounting stays in the upstream’s native terms; the client’s usage fields are converted where representable.</p>
+    <p>Compatible bridge routes share the same <code>bridge.client</code> contract. A permitted routing plugin or configured fallback can choose a different upstream API behind that contract. Fallbacks rebuild the accepted request for their own model and credentials; request plugins run once.</p>
+    <p>For any edit, export a fresh settings snapshot and apply it through the CLI. To disable translation while keeping the provider, set its <code>bridge</code> member to <code>null</code>. Omitting the member preserves the existing bridge. Once removed, the client must speak the provider’s native API. Editing the original seed file does not update a managed installation.</p>
+    <p>For upstream failures, start with status and the local feed. Detailed error-body logging is a separate opt-in and can contain prompts or credentials; use the <a href={`${edgeSource}/docs/PROTOCOL_BRIDGES.md#diagnose-an-upstream-rejection`}>diagnostic guide ↗</a> only when needed.</p>
+    <p>Continue with the <a href={`${edgeSource}/docs/CLI.md#protocol-bridges`}>CLI reference ↗</a>, <a href="/docs/plugin-authoring/#bridges">plugin-author notes</a>, or <a href="/plugins/">plugin registry</a>.</p>
+    <p class="version-note">Checked against the Edge source snapshot linked in this guide. SDK v0.5.0 and ABI v1 are unchanged; see <a href={`${edgeSource}/docs/UPGRADE_NOTES.md`}>upgrade notes ↗</a> for Responses field access and the one-time cache-prefix key change.</p>
+  </article>
+</Layout>
+
+<style>
+  /* Hallmark · macrostructure: Long Document · theme: existing studied-DNA teal
+   * audience: developers · use: configure one bridge · tone: approachable technical
+   * nav: existing N1b · footer: existing Ft5 · tokens: src/styles/tokens.css
+   * enrichment: none · motion: none · pre-emit critique: P5 H4 E4 S5 R5 V4
+   */
+  .bridge-guide { padding-top: var(--section-compact); }
+  h1 { line-height: 1.1; text-wrap: balance; }
+  h2 { font-family: var(--font-display); font-style: normal; line-height: 1.25; overflow-wrap: anywhere; min-width: 0; scroll-margin-top: 6rem; }
+  code { overflow-wrap: anywhere; }
+  pre { max-width: 100%; }
+  pre code { overflow-wrap: normal; }
+  .guide-links { display: flex; flex-wrap: wrap; gap: 0 var(--space-5); border-block: 1px solid var(--rule); margin-block: var(--space-6); }
+  .guide-links a { display: inline-flex; align-items: center; min-height: 44px; white-space: nowrap; }
+  .contract-list { margin-block: var(--space-5); }
+  .contract-list > div { padding-block: var(--space-3); border-bottom: 1px solid var(--rule); }
+  dt { font-weight: 600; }
+  dd { margin: var(--space-1) 0 0; color: var(--ink-2); }
+  li + li { margin-top: var(--space-3); }
+  .version-note { font-size: .875rem; }
+</style>

@@ -1,6 +1,21 @@
 [
   {
     "date": "2026-09-14",
+    "scope": "additive-guide-and-content-alignment",
+    "macrostructure": "Long Document",
+    "theme": "existing studied-DNA teal, system/light/dark retained",
+    "nav": "existing N1b + native mobile disclosure",
+    "footer": "existing Ft5",
+    "enrichment": "none",
+    "motion": "none",
+    "variation": "task-oriented prose, explicit configuration and curl examples, stacked contract glossary; no new diagram",
+    "verification": "70 loaded-font route/theme/viewport checks at 320/375/414/768/1280px; guide screenshots inspected; minimum guide text contrast 7.40:1 light and 9.41:1 dark; 29 offline responsive tests cover diagrams and guide",
+    "critique": "P5 H4 E4 S5 R5 V4",
+    "brief": "Document merged Edge #398 protocol bridges with a practical CLI path and separate native, translated, and harness-tested boundaries",
+    "preservation": "User requested the established design and approachable developer tone; theme, shell and document-family rotation intentionally suspended"
+  },
+  {
+    "date": "2026-09-14",
     "scope": "additive-page",
     "macrostructure": "Long Document",
     "theme": "existing studied-DNA teal, system/light/dark retained",

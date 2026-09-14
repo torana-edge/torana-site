@@ -24,7 +24,7 @@ quick theme/menu check use `npm run test:unit`; `npm run test:built` checks an
 existing build. Each palette token uses one `light-dark()` pair, selected by
 the system preference or the header control.
 
-For diagram layout changes, build first, then run the browser regressions:
+For diagram or bridge-guide layout changes, build first, then run the browser regressions:
 
 ```sh
 npx --no-install playwright-core install chromium
@@ -34,7 +34,9 @@ npm run test:layout
 CI installs Chromium with its Linux dependencies and runs these checks too.
 They cover both diagrams in light/dark mode at 320–1920px, including both sides
 of the horizontal-layout breakpoint, centered connectors, label overflow, and
-changing node heights. The test server binds only to loopback; browser and server
+changing node heights. They also cover the protocol-bridge guide at 320, 375, 414,
+768, and 1280px in both themes: reading-column fit, contained code blocks,
+single-line navigation, and keyboard focus. The test server binds only to loopback; browser and server
 close afterward. External requests are blocked, so CI verifies the offline font
 fallback and cannot send analytics. Also visually check with the hosted fonts
 available. To use installed Chrome locally, set `DIAGRAM_BROWSER_CHANNEL=chrome`.

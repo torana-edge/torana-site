@@ -153,3 +153,40 @@ test("technical row alignment follows changing content heights", { timeout: 30_0
     await checkTechnical(page);
   });
 });
+
+for (const theme of ["light", "dark"]) {
+  for (const width of [320, 375, 414, 768, 1280]) {
+    test(`bridge guide fits at ${width}px in ${theme} mode`, { timeout: 30_000 }, async () => {
+      await withPage(width, theme, async page => {
+        await page.goto(`${origin}/docs/protocol-bridges/`);
+        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "No horizontal page overflow");
+        const guide = await box(page, ".bridge-guide");
+        const heading = await box(page, ".bridge-guide h1");
+        assert.ok(heading.x >= guide.x && heading.x + heading.width <= guide.x + guide.width, "Heading fits its reading column");
+        await fits(page, ".contract-list");
+        for (const selector of [".guide-links a", ".nav-links a", ".foot-meta a"]) {
+          assert.ok(await page.locator(selector).count(), `${selector} must exist`);
+          for (const link of await page.locator(selector).all()) {
+            if (!(await link.isVisible())) continue;
+            assert.ok(await link.evaluate(element => {
+              const range = document.createRange();
+              range.selectNodeContents(element);
+              return new Set([...range.getClientRects()].map(rect => Math.round(rect.y))).size <= 1;
+            }), "Navigation labels must not wrap");
+          }
+        }
+        for (const block of await page.locator(".bridge-guide pre").all()) {
+          assert.ok(await block.evaluate(element => {
+            const bounds = element.getBoundingClientRect();
+            return bounds.left >= 0 && bounds.right <= innerWidth;
+          }), "Wide code is contained in its own scrollable block");
+        }
+        await page.locator('.guide-links a[href="#configure"]').focus();
+        assert.ok(await page.locator('.guide-links a[href="#configure"]').evaluate(element => {
+          const style = getComputedStyle(element);
+          return style.outlineStyle !== "none" && parseFloat(style.outlineWidth) >= 2;
+        }), "Keyboard focus is visible");
+      });
+    });
+  }
+}

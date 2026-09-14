@@ -1,13 +1,13 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import HowItWorksFlow from "../components/HowItWorksFlow.astro";
-const edgeSource = "https://github.com/torana-edge/torana-edge/blob/a3f891615f802a4ecef3aaaaafb4572d6505bb38";
+const edgeSource = "https://github.com/torana-edge/torana-edge/blob/60e9fb9362bff7c1635395c7f44ee417aa7440f6";
 const sdkSource = "https://github.com/torana-edge/torana-plugin-sdk/blob/ad98c6d3467f628dd2f630c054715f8b347daa29";
 ---
 
 <Layout
   title="How it works — Torana"
-  description="Follow a request through Torana’s local proxy: provider routing, shared request formats, WASM plugin hooks, permissions, streaming, and local controls."
+  description="Follow a request through Torana’s local proxy: native routing, opt-in API bridges, shared request formats, WASM plugins, streaming, and local controls."
 >
   <article class="frame how-page">
     <header class="introduction">
@@ -31,15 +31,16 @@ const sdkSource = "https://github.com/torana-edge/torana-plugin-sdk/blob/ad98c6d
     <div class="reading">
       <section aria-labelledby="routing">
         <h2 id="routing">The path chooses the provider.</h2>
-        <p>A provider entry in your configuration names an upstream URL, its API format, and its authentication policy. The name in <code>/provider/&lt;name&gt;/…</code> selects that entry. Torana removes the prefix and joins the remaining path to the upstream URL.</p>
-        <dl class="route-example" aria-label="Example route using a provider named primary">
+        <p>A provider entry in your configuration names an upstream URL, its API format, and its authentication policy. The name in <code>/provider/&lt;name&gt;/…</code> selects that entry. On a native route, with no <code>bridge</code> configured, Torana removes the prefix and joins the remaining path to the upstream URL.</p>
+        <dl class="route-example" aria-label="Example native route using a provider named primary">
           <div><dt>Harness sends</dt><dd><code>http://localhost:8080/<wbr />provider/primary/<wbr />v1/messages</code></dd></div>
           <div><dt>Torana selects</dt><dd>The <code>primary</code> provider entry</dd></div>
           <div><dt>Upstream receives</dt><dd><code>/v1/messages</code> at that entry’s URL</dd></div>
         </dl>
-        <p>A configured default provider can handle unprefixed requests. The harness must send the API shape that provider expects. A permitted routing plugin can choose another model or a provider with the <strong>same configured format</strong>; Torana does not translate an Anthropic request into an OpenAI request.</p>
-        <p>Only recognized inference endpoints enter the request and response plugin pipeline. Model lists, token-counting, account APIs, and other auxiliary paths pass through as ordinary proxy traffic. This distinction also means Torana does not intercept the harness’s local tool execution or every MCP connection.</p>
-        <p class="source-link"><a href={`${edgeSource}/internal/provider/resolver.go`}>Read the path resolver ↗</a></p>
+        <p>A configured default provider can handle unprefixed requests. Native routes keep the client and upstream on the same API. An <strong>opt-in protocol bridge</strong> explicitly names a client contract and an upstream contract, then builds the destination’s endpoint and request. For example, Torana can translate Anthropic Messages to OpenAI Chat Completions and return an Anthropic-shaped response. No plugin is required.</p>
+        <p>Native routing stays within the same configured format. Compatible bridge targets share the same <code>bridge.client</code> contract, even when their upstream APIs differ. A permitted routing plugin can select a compatible target; configured fallbacks rebuild the accepted request for their own protocol, model, and credentials. Request plugins run once.</p>
+        <p>Only recognized inference endpoints enter the request and response plugin pipeline. On native routes, model lists, token-counting, account APIs, and other auxiliary paths pass through as ordinary proxy traffic. Under any configured bridge, auxiliary APIs are not emulated or forwarded: they return 400, even when the client and upstream contracts match. Torana does not intercept the harness’s local tool execution or every MCP connection.</p>
+        <p class="source-link"><a href="/docs/protocol-bridges/">Configure a bridge →</a><a href={`${edgeSource}/internal/provider/resolver.go`}>Read the path resolver ↗</a></p>
       </section>
 
       <section aria-labelledby="shared-format">
@@ -51,14 +52,16 @@ const sdkSource = "https://github.com/torana-edge/torana-plugin-sdk/blob/ad98c6d
           <div><dt>Gemini / Vertex AI</dt><dd><code>POST …:generateContent</code><br /><code>POST …:streamGenerateContent</code></dd></div>
           <div><dt>Gemini Code Assist</dt><dd>The same generation methods, with the Code Assist request envelope</dd></div>
         </dl>
-        <p>Text, thinking, tool calls, tool results, cache markers, and provider-specific blocks retain their order. Provider extensions and opaque fields have dedicated preservation paths. An accepted change is encoded back into the original provider’s API shape. When no provider-visible state changes, Torana keeps the validated request body’s original bytes.</p>
-        <p>Shared plugin logic is reusable across compatible APIs; individual features still have provider-specific rules. For example, a plugin cannot rewrite history held by OpenAI behind <code>previous_response_id</code>, and Torana does not manage Gemini’s remote cache resources.</p>
+        <p>On native routes, text, thinking, tool calls, tool results, cache markers, and provider-specific blocks retain their order. Provider extensions and opaque fields have dedicated preservation paths. An accepted change is encoded back into the original API shape. When no provider-visible state changes, Torana keeps the validated request body’s original bytes.</p>
+        <p>A cross-contract bridge instead converts the accepted shared request to the configured upstream API. Common text and function-tool loops work across supported contracts; signed reasoning, cache breakpoints, opaque continuation items, and provider-native tools are not portable. Unsupported request semantics are rejected before an upstream call rather than silently discarded.</p>
+        <p>Shared plugin logic is reusable across compatible APIs; individual features still have provider-specific rules. On native Responses routes, a plugin cannot rewrite history held by OpenAI behind <code>previous_response_id</code>. A cross-contract bridge rejects that server-managed history reference and requires complete history on each turn. Torana does not manage Gemini’s remote cache resources.</p>
         <p class="source-link"><a href="/docs/support/">Check the support matrix →</a><a href={`${edgeSource}/internal/engine/types.go`}>Read the shared types ↗</a></p>
       </section>
 
       <section aria-labelledby="hooks">
         <h2 id="hooks">Plugins run at defined points.</h2>
         <p>Go and Rust plugins compile to WebAssembly and use Torana’s ABI v1 SDK. A plugin declares the hooks it implements. Torana runs enabled plugins in the configured order, checks their output, and passes each accepted change to the next plugin.</p>
+        <p>On a bridge, request hooks see shared client content and the configured upstream model alias. Response hooks see the actual upstream’s shared response before client serialization. Host accounting retains upstream-native usage; client-facing usage is converted where representable. The <a href="/docs/protocol-bridges/#manage">bridge guide</a> explains these boundaries.</p>
         <ol class="hook-sequence">
           <li><h3>Before the upstream request</h3><code>run_before_request</code><p>A hook receives the shared request. It can pass it through or return a replacement within its write grants. Separate, permission-checked host calls can block the request, provide a synthetic response, select a route, or set its identity. An accepted block stops the request before it reaches the provider.</p></li>
           <li><h3>As response events arrive</h3><code>run_on_stream_chunk</code><p>The adapter turns the provider’s stream into typed events: text, thinking, tool-call fragments, boundaries, usage, and completion. Hooks can observe events, replace allowed content, or use the permitted stream operations to buffer, drop, emit, or stop. Torana validates event order and protected content before serializing it back to the harness.</p></li>
@@ -86,7 +89,8 @@ const sdkSource = "https://github.com/torana-edge/torana-plugin-sdk/blob/ad98c6d
         <p>The dashboard at <code>http://localhost:8080/<wbr />_torana/</code> shows request activity and usage, provider configuration, and the installed plugin pipeline. You can inspect permissions and configure the plugins you enable.</p>
         <p>The JSON API at <code>/_torana/api/v1/</code> describes available operations with their paths, input and output schemas, and declared risk. Local software agents can read the request feed and configuration, manage plugins, and discover operations contributed by enabled, approved plugins.</p>
         <p>These control routes are loopback-only. Browser mutations require a matching local origin; non-browser mutations require <code>X-Torana-Local-Request: 1</code>. The conversation list contains metadata, not a copy of the conversation’s messages. Treat software with access to the local administration API as an operator.</p>
-        <p class="source-link"><a href={`${edgeSource}/docs/AGENT_CONTROL_PLANE.md`}>Explore the agent API ↗</a></p>
+        <p>The CLI uses this same local API to inspect traffic, apply revision-checked settings including bridges, and manage the pipeline. Source-build users run <code>./torana</code> from their checkout; the reference uses <code>torana</code> on PATH.</p>
+        <p class="source-link"><a href={`${edgeSource}/docs/CLI.md`}>Use the CLI ↗</a><a href={`${edgeSource}/docs/AGENT_CONTROL_PLANE.md`}>Explore the agent API ↗</a></p>
       </section>
 
       <section aria-labelledby="data-boundary">
@@ -104,6 +108,7 @@ const sdkSource = "https://github.com/torana-edge/torana-plugin-sdk/blob/ad98c6d
         <h2 id="cache-and-signatures">Cache identity and signatures matter.</h2>
         <p>Providers often cache a repeated prompt prefix. A transformation of the same tools, system prompt, and history should produce the same result every time. Adding timestamps, random IDs, or text from the newest turn to that prefix can turn a cache hit into a miss. Preserve existing cache markers unless a permitted transformation intentionally changes them.</p>
         <p>Some provider content carries opaque signatures. These tokens are tied to particular content and positions. A plugin cannot copy a signature onto unrelated content or keep a stale signature over changed content. The host enforces those bindings; authors should use the SDK’s provenance-aware helpers and respect each provider’s mutation rules.</p>
+        <p>Those preservation rules describe native routes. A mismatched protocol bridge cannot carry provider-specific signatures or cache breakpoints into an unrelated API. Prefer a native route for workflows relying on them.</p>
         <p>A compaction plugin also changes what the next model call can see. Its value depends on the workload, retained information, extra model calls, and provider cache behavior. Torana provides the hooks and measurements; it does not promise that compaction saves money.</p>
         <p class="source-link"><a href={`${edgeSource}/docs/PROMPT_CACHING.md`}>Read the caching rules ↗</a><a href={`${edgeSource}/internal/plugin/writegrant.go`}>Read mutation checks ↗</a></p>
       </section>

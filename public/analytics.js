@@ -5,6 +5,7 @@
   const pages = new Map([
     ["/", "home"], ["/quickstart/", "quickstart"], ["/how-it-works/", "how-it-works"],
     ["/docs/", "docs"], ["/docs/support/", "support"],
+    ["/docs/protocol-bridges/", "protocol-bridges"],
     ["/docs/plugin-installation/", "plugin-installation"],
     ["/docs/plugin-authoring/", "plugin-authoring"],
     ["/plugins/", "plugins"], ["/plugins/submit/", "share-plugin"],
