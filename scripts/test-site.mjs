@@ -53,3 +53,18 @@ test("all registry entries expose source, install commands and capability detail
     for (const capability of plugin.capabilities) assert.ok(html.includes(capability));
   }
 });
+
+test("public copy and social-card sources keep the focus on the project", () => {
+  const sources = [...htmlFiles(root), ...readdirSync(path.join(root, "social"))
+    .filter(file => file.endsWith(".svg")).map(file => path.join(root, "social", file))];
+  for (const file of sources) {
+    assert.doesNotMatch(readFileSync(file, "utf8"), /\bAniket\b|github\.com\/projectescape\b/i,
+      `${file}: personal branding belongs outside the project website`);
+  }
+  const origin = readFileSync(path.join(root, "blog/why-torana/index.html"), "utf8");
+  assert.match(origin, /tool calls and MCP calls/i);
+  assert.match(origin, /cheaper or local model/);
+  assert.match(origin, /side-project fashion/);
+  assert.match(origin, /over-engineered/);
+  assert.match(origin, /Bring your workflow hacks/);
+});

@@ -39,7 +39,10 @@ Before announcing the release, replace development-source installation with the
 verified tag instructions in Edge and `src/data/install.ts` together, then update
 the support matrix with the actual manual-test results. The owned-content check
 currently enforces pre-release language and will need to evolve with that change.
-Review the first-person origin article with Aniket and add the real release demo;
+Keep the site and launch articles focused on the project: no personal biography,
+named-author promotion, or personal-profile footer. The side-project journey,
+architectural scope creep, and technical lessons can keep their informal voice.
+Review the origin article and add the real release demo;
 no recording or unverified release number is substituted here.
 
 ## Cloudflare Pages

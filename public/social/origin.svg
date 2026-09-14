@@ -5,10 +5,9 @@
     <text x="72" y="100" font-size="32" font-weight="700" fill="#2dd4bf">Torana</text>
     <text x="72" y="265" font-size="68" font-weight="700" letter-spacing="-2" fill="#e8f1f2">This was supposed</text>
     <text x="72" y="345" font-size="68" font-weight="700" letter-spacing="-2" fill="#e8f1f2">to be a compactor.</text>
-    <text x="72" y="430" font-size="27" fill="#b5c5ca">Aniket on the experiment that became Torana.</text>
+    <text x="72" y="430" font-size="27" fill="#b5c5ca">A compaction experiment. A detour into a programmable proxy.</text>
     <path d="M72 525H1128" stroke="#384d54"/>
     <text x="72" y="573" font-size="23" fill="#b5c5ca">torana.sh</text>
     <text x="1128" y="573" text-anchor="end" font-size="23" fill="#2dd4bf">agent → proxy → provider</text>
   </g>
 </svg>
-
