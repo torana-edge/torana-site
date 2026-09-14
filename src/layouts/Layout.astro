@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { websiteId } from "../lib/analytics";
 
 interface Props {
   title?: string;
@@ -38,6 +39,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="twitter:image:alt" content={imageAlt} />
     <meta name="theme-color" content="oklch(13% 0.018 220)" />
     <script is:inline src="/theme.js"></script>
+    {websiteId && <script is:inline defer src="/analytics.js" data-website-id={websiteId} data-page={canonical.pathname}></script>}
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -88,7 +90,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         <div class="foot-meta">
           <span><a href="https://github.com/torana-edge/torana-edge/blob/main/CONTRIBUTING.md">Contributors welcome</a></span>
           <span><a href="/docs/">Docs</a> · <a href="/plugins/">Plugins</a> · <a href="/blog/">Blog</a> · <a href="https://github.com/torana-edge">GitHub</a></span>
-          <span>Open source · 2026</span>
+          <span>Open source · 2026 · <a href="/privacy/">Privacy</a></span>
         </div>
       </div>
     </footer>
