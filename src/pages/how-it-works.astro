@@ -1,0 +1,165 @@
+---
+import Layout from "../layouts/Layout.astro";
+import HowItWorksFlow from "../components/HowItWorksFlow.astro";
+const edgeSource = "https://github.com/torana-edge/torana-edge/blob/a3f891615f802a4ecef3aaaaafb4572d6505bb38";
+const sdkSource = "https://github.com/torana-edge/torana-plugin-sdk/blob/ad98c6d3467f628dd2f630c054715f8b347daa29";
+---
+
+<Layout
+  title="How it works — Torana"
+  description="Follow a request through Torana’s local proxy: provider routing, shared request formats, WASM plugin hooks, permissions, streaming, and local controls."
+>
+  <article class="frame how-page">
+    <header class="introduction">
+      <h1 class="display">How it works.</h1>
+      <p class="lede">Torana sits between your coding harness and its model provider. It gives your own plugins a place to observe requests, apply policy, and change supported content as that traffic passes through.</p>
+      <p>Your harness still manages the conversation, executes tools, and asks for tool approvals. You point its provider connection at Torana, which runs as a local process on your machine.</p>
+    </header>
+
+    <HowItWorksFlow />
+
+    <nav class="contents" aria-label="On this page">
+      <a href="#routing">Request routing</a>
+      <a href="#shared-format">Shared format</a>
+      <a href="#hooks">Plugin hooks</a>
+      <a href="#permissions">Permissions</a>
+      <a href="#local-controls">Local controls</a>
+      <a href="#data-boundary">Data boundaries</a>
+      <a href="#cache-and-signatures">Cache and signatures</a>
+    </nav>
+
+    <div class="reading">
+      <section aria-labelledby="routing">
+        <h2 id="routing">The path chooses the provider.</h2>
+        <p>A provider entry in your configuration names an upstream URL, its API format, and its authentication policy. The name in <code>/provider/&lt;name&gt;/…</code> selects that entry. Torana removes the prefix and joins the remaining path to the upstream URL.</p>
+        <dl class="route-example" aria-label="Example route using a provider named primary">
+          <div><dt>Harness sends</dt><dd><code>http://localhost:8080/<wbr />provider/primary/<wbr />v1/messages</code></dd></div>
+          <div><dt>Torana selects</dt><dd>The <code>primary</code> provider entry</dd></div>
+          <div><dt>Upstream receives</dt><dd><code>/v1/messages</code> at that entry’s URL</dd></div>
+        </dl>
+        <p>A configured default provider can handle unprefixed requests. The harness must send the API shape that provider expects. A permitted routing plugin can choose another model or a provider with the <strong>same configured format</strong>; Torana does not translate an Anthropic request into an OpenAI request.</p>
+        <p>Only recognized inference endpoints enter the request and response plugin pipeline. Model lists, token-counting, account APIs, and other auxiliary paths pass through as ordinary proxy traffic. This distinction also means Torana does not intercept the harness’s local tool execution or every MCP connection.</p>
+        <p class="source-link"><a href={`${edgeSource}/internal/provider/resolver.go`}>Read the path resolver ↗</a></p>
+      </section>
+
+      <section aria-labelledby="shared-format">
+        <h2 id="shared-format">One format for plugin logic.</h2>
+        <p>Each supported provider adapter reads the incoming JSON into a shared request representation. Plugin authors work with messages, tools, model settings, and ordered content blocks instead of writing a separate JSON parser for each provider. The technical name is an <em>intermediate representation</em>, or IR.</p>
+        <dl class="formats">
+          <div><dt>OpenAI</dt><dd><code>POST …/chat/completions</code><br /><code>POST …/responses</code></dd></div>
+          <div><dt>Anthropic</dt><dd><code>POST …/messages</code></dd></div>
+          <div><dt>Gemini / Vertex AI</dt><dd><code>POST …:generateContent</code><br /><code>POST …:streamGenerateContent</code></dd></div>
+          <div><dt>Gemini Code Assist</dt><dd>The same generation methods, with the Code Assist request envelope</dd></div>
+        </dl>
+        <p>Text, thinking, tool calls, tool results, cache markers, and provider-specific blocks retain their order. Provider extensions and opaque fields have dedicated preservation paths. An accepted change is encoded back into the original provider’s API shape. When no provider-visible state changes, Torana keeps the validated request body’s original bytes.</p>
+        <p>Shared plugin logic is reusable across compatible APIs; individual features still have provider-specific rules. For example, a plugin cannot rewrite history held by OpenAI behind <code>previous_response_id</code>, and Torana does not manage Gemini’s remote cache resources.</p>
+        <p class="source-link"><a href="/docs/support/">Check the support matrix →</a><a href={`${edgeSource}/internal/engine/types.go`}>Read the shared types ↗</a></p>
+      </section>
+
+      <section aria-labelledby="hooks">
+        <h2 id="hooks">Plugins run at defined points.</h2>
+        <p>Go and Rust plugins compile to WebAssembly and use Torana’s ABI v1 SDK. A plugin declares the hooks it implements. Torana runs enabled plugins in the configured order, checks their output, and passes each accepted change to the next plugin.</p>
+        <ol class="hook-sequence">
+          <li><h3>Before the upstream request</h3><code>run_before_request</code><p>A hook receives the shared request. It can pass it through or return a replacement within its write grants. Separate, permission-checked host calls can block the request, provide a synthetic response, select a route, or set its identity. An accepted block stops the request before it reaches the provider.</p></li>
+          <li><h3>As response events arrive</h3><code>run_on_stream_chunk</code><p>The adapter turns the provider’s stream into typed events: text, thinking, tool-call fragments, boundaries, usage, and completion. Hooks can observe events, replace allowed content, or use the permitted stream operations to buffer, drop, emit, or stop. Torana validates event order and protected content before serializing it back to the harness.</p></li>
+          <li><h3>When the response is complete</h3><code>run_after_response</code><p>For a non-streaming JSON response, this hook can change the response before it is sent. JSON responses first pass through the stream hooks as synthetic events. For a streaming response, the final hook receives status, timing, and usage with <code>mutable=false</code> and no assembled message body. Stream content must be inspected in the stream hook; already-sent bytes cannot be rewritten.</p></li>
+        </ol>
+        <p>Plugins can also declare <code>run_on_http_request</code> to serve an approved local UI or API, and <code>run_on_tick</code> for scheduled work. Those hooks are separate from the inference request lifecycle.</p>
+        <h3>If a plugin fails</h3>
+        <p>The approved <code>failure_mode</code> controls traps, timeouts, and invalid hook output. With <code>pass</code>, Torana rejects the failed plugin’s replacement and continues with the last accepted state. With <code>block</code>, it refuses the request or unsent response; during a stream, it terminates the stream. A failure in the final observational streaming hook is recorded, since the body has already been sent.</p>
+        <p>An explicit block remains effective even if that plugin later fails. Invalid routing targets keep the original route. Malformed inference input is a host validation error and is rejected before upstream, independently of a plugin’s failure mode.</p>
+        <p>A signed-stream violation discovered after affected bytes were sent terminates the stream even in <code>pass</code> mode. Torana cannot safely roll back content the harness already received.</p>
+        <p class="source-link"><a href={`${edgeSource}/internal/plugin/discovery.go`}>Read the hook pipeline ↗</a><a href={`${sdkSource}/dispatch.go`}>Read SDK dispatch ↗</a></p>
+      </section>
+
+      <section aria-labelledby="permissions">
+        <h2 id="permissions">Installation is followed by approval.</h2>
+        <p>A plugin bundle contains its compiled WASM, a manifest, and optional configuration schema and agent descriptor. Torana computes a SHA-256 digest over those files. Approval binds the executable and its declared behavior to the exact bundle you reviewed. Changing any of those files requires a new approval.</p>
+        <p>The manifest requests capabilities; the operator approves them and enables the plugin. Every requested permission must be approved before it can run. Write grants are narrow: changing tool-result text, tool definitions, or the model requires the corresponding grant. File, credential, outbound HTTP, and model-service access also use approved resource bindings and limits.</p>
+        <p>WASM guests run in a wazero sandbox with bounded memory, instance counts, and execution time. They have no ambient filesystem or network access. Torana brokers approved access through host calls. System clocks are available to guests, so deterministic transformations are an authoring responsibility.</p>
+        <p>Approval does not make arbitrary output valid. Torana still checks request shape, provider constraints, host-owned metadata, and signature provenance, including for a plugin with every write grant.</p>
+        <p class="source-link"><a href="/docs/plugin-installation/">Review plugin installation →</a><a href={`${edgeSource}/internal/wasm/runtime.go`}>Read the sandbox ↗</a></p>
+      </section>
+
+      <section aria-labelledby="local-controls">
+        <h2 id="local-controls">A local view, for people and agents.</h2>
+        <p>The dashboard at <code>http://localhost:8080/<wbr />_torana/</code> shows request activity and usage, provider configuration, and the installed plugin pipeline. You can inspect permissions and configure the plugins you enable.</p>
+        <p>The JSON API at <code>/_torana/api/v1/</code> describes available operations with their paths, input and output schemas, and declared risk. Local software agents can read the request feed and configuration, manage plugins, and discover operations contributed by enabled, approved plugins.</p>
+        <p>These control routes are loopback-only. Browser mutations require a matching local origin; non-browser mutations require <code>X-Torana-Local-Request: 1</code>. The conversation list contains metadata, not a copy of the conversation’s messages. Treat software with access to the local administration API as an operator.</p>
+        <p class="source-link"><a href={`${edgeSource}/docs/AGENT_CONTROL_PLANE.md`}>Explore the agent API ↗</a></p>
+      </section>
+
+      <section aria-labelledby="data-boundary">
+        <h2 id="data-boundary">What stays local, and what leaves.</h2>
+        <p>The proxy, WASM execution, dashboard, and default local stores run on your machine. Torana does not require a Torana account or a hosted Torana service. That does not mean the conversation is offline.</p>
+        <ul>
+          <li><strong>Provider traffic:</strong> the request and its configured credentials go to the selected upstream. A remote provider receives that content; a supported local model endpoint can keep that hop local.</li>
+          <li><strong>Plugin services:</strong> approved HTTP and model host calls can send plugin-selected data to their configured endpoints. A compactor using a remote summarization model makes an additional model request.</li>
+          <li><strong>Optional infrastructure:</strong> a configured Redis cache or OpenTelemetry exporter can send data to those services. Plugin logging and persistence depend on the plugins and storage configuration you choose.</li>
+        </ul>
+        <p>Review a plugin’s source, requested capabilities, resource bindings, and configuration to understand its data flow. “Runs locally” describes where Torana executes.</p>
+      </section>
+
+      <section aria-labelledby="cache-and-signatures">
+        <h2 id="cache-and-signatures">Cache identity and signatures matter.</h2>
+        <p>Providers often cache a repeated prompt prefix. A transformation of the same tools, system prompt, and history should produce the same result every time. Adding timestamps, random IDs, or text from the newest turn to that prefix can turn a cache hit into a miss. Preserve existing cache markers unless a permitted transformation intentionally changes them.</p>
+        <p>Some provider content carries opaque signatures. These tokens are tied to particular content and positions. A plugin cannot copy a signature onto unrelated content or keep a stale signature over changed content. The host enforces those bindings; authors should use the SDK’s provenance-aware helpers and respect each provider’s mutation rules.</p>
+        <p>A compaction plugin also changes what the next model call can see. Its value depends on the workload, retained information, extra model calls, and provider cache behavior. Torana provides the hooks and measurements; it does not promise that compaction saves money.</p>
+        <p class="source-link"><a href={`${edgeSource}/docs/PROMPT_CACHING.md`}>Read the caching rules ↗</a><a href={`${edgeSource}/internal/plugin/writegrant.go`}>Read mutation checks ↗</a></p>
+      </section>
+
+      <section aria-labelledby="next-steps" class="next-steps">
+        <h2 id="next-steps">Follow one request yourself.</h2>
+        <p>Start with no plugins, configure one provider, and send a request through Torana. Check the local feed. Then install and approve a small plugin, such as the usage logger, and observe what changes.</p>
+        <p class="source-link"><a href="/quickstart/">Open the quickstart →</a><a href="/plugins/">Browse plugins →</a><a href="https://github.com/torana-edge/torana-plugin-sdk">Build a plugin ↗</a></p>
+        <p class="version-note">Source links point to the revisions used for this walkthrough.</p>
+      </section>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  /* Hallmark · macrostructure: Long Document · tone: approachable technical
+   * pre-emit critique: P5 H4 E4 S5 R5 V4
+   * genre: modern-minimal · theme: existing studied-DNA · anchor hue: teal
+   * audience: developers evaluating or authoring plugins · use: understand the request path
+   * nav: existing N1b + native mobile disclosure · footer: existing Ft5
+   * enrichment: inline HTML/SVG architecture · motion: none · tokens: src/styles/tokens.css
+   * contrast: pass (40–41), minimum text 6.79:1 · responsive: 320–1920px verified
+   */
+  .how-page { max-width: 58rem; padding-block: var(--section-compact) var(--section); }
+  h1 { font-size: var(--h2); margin: 0 0 var(--space-5); }
+  h2, h3 { font-family: var(--font-display); font-style: normal; line-height: 1.25; overflow-wrap: anywhere; min-width: 0; }
+  h2 { font-size: 1.75rem; margin: 0 0 var(--space-4); }
+  h3 { font-size: 1.125rem; margin: var(--space-5) 0 var(--space-2); }
+  p, li, dd { color: var(--ink-2); }
+  .introduction p, .reading { max-width: 68ch; }
+  p, li { line-height: 1.7; }
+  strong { color: var(--ink); }
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: .2em; }
+  a:hover { text-decoration-thickness: 2px; }
+  code { font-size: .875em; overflow-wrap: anywhere; }
+  .contents { display: flex; flex-wrap: wrap; gap: 0 var(--space-5); padding-block: var(--space-3); margin-bottom: var(--space-7); border-block: 1px solid var(--rule); }
+  .contents a, .source-link a { display: inline-flex; align-items: center; min-height: 44px; white-space: nowrap; }
+  .contents a { font-size: .875rem; }
+  section { margin-top: var(--space-8); }
+  section:first-child { margin-top: 0; }
+  h2[id] { scroll-margin-top: 6rem; }
+  dl { margin: var(--space-5) 0; }
+  dl > div { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-1); border-bottom: 1px solid var(--rule); padding-block: var(--space-3); }
+  dt { font-weight: 600; }
+  dd { margin: 0; min-width: 0; }
+  .source-link { display: flex; flex-wrap: wrap; gap: 0 var(--space-5); font-size: .875rem; }
+  .hook-sequence { padding-inline-start: var(--space-5); }
+  .hook-sequence li { padding-inline-start: var(--space-2); margin-block: var(--space-6); }
+  .hook-sequence li::marker { color: var(--accent); font-weight: 600; }
+  .hook-sequence h3 { margin-top: 0; }
+  .hook-sequence > li > code { color: var(--accent); }
+  ul { padding-inline-start: var(--space-5); }
+  ul li + li { margin-top: var(--space-3); }
+  .next-steps { border-top: 1px solid var(--rule); padding-top: var(--space-7); }
+  .version-note { color: var(--muted); font-size: .875rem; }
+  @media (min-width: 42rem) {
+    dl > div { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: var(--space-5); }
+  }
+</style>

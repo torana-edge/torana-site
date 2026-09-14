@@ -1,6 +1,20 @@
 [
   {
     "date": "2026-09-14",
+    "scope": "additive-page",
+    "macrostructure": "Long Document",
+    "theme": "existing studied-DNA teal, system/light/dark retained",
+    "nav": "existing N1b + native mobile disclosure",
+    "footer": "existing Ft5",
+    "enrichment": "inline accessible HTML/SVG architecture diagram",
+    "motion": "none",
+    "verification": "54 browser route/theme/viewport cases at 320–1920px; loaded Bricolage Grotesque, Geist and JetBrains Mono; no overflow, wrapped affordances or header collisions; native keyboard menu and no-JS diagram checked; minimum new-content text contrast 6.79:1; screenshots inspected",
+    "critique": "P5 H4 E4 S5 R5 V4",
+    "brief": "Explain routing, API formats, hook lifecycle, grants, local controls, outbound data, caching and signed content from inspected Edge and SDK code",
+    "preservation": "User requested existing colors, fonts and shell; theme and shell rotation intentionally suspended"
+  },
+  {
+    "date": "2026-09-14",
     "scope": "scoped-refinement",
     "macrostructure": "Workbench / Ecosystem Index",
     "theme": "existing studied teal, system/light/dark retained",
