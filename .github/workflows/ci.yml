@@ -45,6 +45,10 @@ jobs:
       - run: npm run edge-links:test
       - run: npm run edge-links:check -- _sources/torana-edge
       - run: npm test
+      - name: Install the diagram test browser
+        run: npx --no-install playwright-core install --with-deps chromium
+      - name: Check responsive diagram alignment
+        run: npm run test:layout
       - run: npm run source-links:check -- _sources/torana-edge _sources/torana-plugin-sdk
       - name: Check the analytics-enabled fixture build
         run: npm run build && npm run test:built
