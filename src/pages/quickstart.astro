@@ -8,6 +8,7 @@ import { installCommand } from "../data/install";
     <h1 class="display">Your first session through Torana.</h1>
     <p>You need Git, Go 1.26.6 or newer, and a provider API credential. This example uses DeepSeek; your normal provider usage is still billed by your provider.</p>
     <p>Run Torana locally, keep the listener on loopback, and review each plugin’s requested capabilities before enabling it.</p>
+    <p>Already running a local model server with a different API from your client? Complete the install and start steps, then follow the <a href="/docs/protocol-bridges/">protocol-bridge guide</a> instead of the DeepSeek request below.</p>
     <h2>1. Install</h2>
     <pre><code>{installCommand}</code></pre>
     <p>This walkthrough currently builds the development source. To reproduce a particular revision, check out its reviewed commit SHA before building. The first tagged release will get its own verified install instructions.</p>
@@ -28,7 +29,7 @@ curl --fail-with-body --silent \\
     <p>This uses the built-in DeepSeek route and forwards your caller credential only to that selected provider. Configure a different provider in the control plane if you do not use DeepSeek.</p>
     <h2>4. Point your harness at it</h2>
     <pre><code>export OPENAI_BASE_URL=http://127.0.0.1:8080/provider/deepseek/v1</code></pre>
-    <p>Replace <code>deepseek</code> with the provider name in your configuration. The harness must speak that provider’s supported wire format; see the <a href="/docs/support/">exact endpoint and harness matrix</a>. Auxiliary provider endpoints pass through without entering the plugin pipeline.</p>
+    <p>Replace <code>deepseek</code> with the provider name in your configuration. This is a native route: the harness must speak the upstream’s supported API, and auxiliary provider endpoints pass through without entering the plugin pipeline. An explicitly configured <a href="/docs/protocol-bridges/">bridge</a> can translate different inference APIs; auxiliary APIs under a mismatched contract return 400. Check the <a href="/docs/support/">endpoint and harness matrix</a> for the path you choose.</p>
     <h2>5. Add one useful plugin</h2>
     <p>In a second terminal, from your Torana checkout, install the usage logger:</p>
     <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/usage_logger</code></pre>

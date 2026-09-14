@@ -1,6 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import sdk from "../../data/sdk.json";
+const edgeSource = "https://github.com/torana-edge/torana-edge/blob/89617dd10ab0aaee93fd6e4715af47a39d699b60";
 ---
 <Layout
   title="Support matrix — Torana"
@@ -9,13 +10,14 @@ import sdk from "../../data/sdk.json";
   <article class="frame prose" style="max-width:var(--page)">
     <p class="eyebrow">Support matrix · formats and harnesses</p>
     <h1 class="display">What works with Torana.</h1>
-    <p>Torana runs request and response plugins on recognized model-inference endpoints. Other provider endpoints pass through without entering that plugin pipeline. “Preserved” below means executable fixtures cover the wire behavior; it does not claim that every model or account enables the provider feature.</p>
+    <p>Torana runs request and response plugins on recognized model-inference endpoints. Choose a native route for the upstream’s own API, or an opt-in bridge to translate a different client API. “Preserved” in the native matrix below means executable fixtures cover the wire behavior; it does not claim that every model or account enables the provider feature.</p>
 
     <h2 id="shared-format">One shared format for plugins</h2>
     <p>Torana converts supported provider requests and responses into a shared format, so plugins can work with messages, tools, and usage without parsing each provider’s JSON separately. Technical references call this an <em>intermediate representation</em>, or IR.</p>
-    <p>This makes shared plugin logic reusable; it does not make every provider feature interchangeable. Your harness must still speak the configured provider’s supported API format, and a plugin may depend on particular fields or capabilities.</p>
+    <p>This makes shared plugin logic reusable; it does not make every provider feature interchangeable. On a native route your harness speaks the upstream’s API. With a bridge it speaks the configured <code>bridge.client</code> contract, while Torana translates supported content to <code>bridge.upstream</code>. A plugin may still depend on particular fields or capabilities.</p>
 
-    <h2>Provider formats</h2>
+    <h2 id="native">Native provider formats</h2>
+    <p>This table applies to routes without a configured bridge. Native feature preservation is broader than the <a href="#bridges">translation surface</a>.</p>
     <div class="table-scroll" tabindex="0" role="region" aria-label="Provider support matrix">
       <table>
         <thead><tr><th>Format</th><th>Inference endpoints</th><th>Streaming</th><th>Tools</th><th>Prompt-cache behavior</th><th>Known boundary</th></tr></thead>
@@ -28,10 +30,18 @@ import sdk from "../../data/sdk.json";
       </table>
     </div>
 
+    <h2 id="bridges">Opt-in protocol bridges</h2>
+    <p>No plugin is required. Configure the client and upstream explicitly using <code>openai-chat</code>, <code>openai-responses</code>, <code>anthropic</code>, <code>gemini</code>, or <code>gemini-codeassist</code>. Provider <code>format</code> describes the upstream family. Cross-family bridges require explicit upstream authentication; caller credentials are not forwarded across families.</p>
+    <p>Automated mock-HTTP tests cover all 20 cross-contract directions for common text/function-tool loops and JSON/SSE responses. Image inputs and structured-output constraints require a representable mapping and a capable model. This does not establish compatibility with every live harness or backend.</p>
+    <p>Provider-specific reasoning/signatures, server-native tools, cache breakpoints, opaque continuation items, <code>previous_response_id</code>, and storage/background execution are not portable. Unsupported request semantics return 400 before an upstream call. Non-portable response content produces a 502 or terminates an already-started stream without a success marker.</p>
+    <p><a href="/docs/protocol-bridges/">Set up a bridge</a> with an Anthropic-client/local-OpenAI example. The <a href={`${edgeSource}/docs/PROTOCOL_BRIDGES.md#supported-translation-surface`}>complete translation reference ↗</a> covers the finer boundaries.</p>
+
     <h2>Selective interception</h2>
-    <p>Model-list, token-counting, account, quota, status, telemetry, update, MCP, and unknown auxiliary paths do not run request or response plugins. Real-proxy tests cover auxiliary pass-through for all four formats, including method, path, query, body, permitted headers, upstream status, and response bytes.</p>
+    <p>On native routes, model-list, token-counting, account, quota, status, telemetry, update, MCP, and unknown auxiliary paths pass through without request or response plugins. Real-proxy tests cover that pass-through for all four native formats, including method, path, query, body, permitted headers, upstream status, and response bytes.</p>
+    <p>Under a mismatched bridge contract, model discovery, token-counting, files, batch APIs, response retrieval, and other auxiliary APIs are not emulated or forwarded; they return 400. Changing a base URL alone does not make a harness that requires these APIs compatible.</p>
 
     <h2>Coding harnesses</h2>
+    <p>The rows below describe native integration paths and their existing test evidence. For a bridge, separately verify the client API, upstream API, model, streaming, complete tool-result follow-ups, and any auxiliary APIs the harness requires. Mock contract coverage is not a credentialed harness smoke test.</p>
     <div class="table-scroll" tabindex="0" role="region" aria-label="Coding harness support matrix">
       <table>
         <thead><tr><th>Harness path</th><th>Torana format</th><th>Automated contract</th><th>Manual status</th></tr></thead>

@@ -131,8 +131,12 @@ test("technical overview explains consequential routing, stream and permission b
   for (const hook of ["run_before_request", "run_on_stream_chunk", "run_after_response", "run_on_http_request", "run_on_tick"]) {
     assert.ok(text.includes(hook), `Missing hook: ${hook}`);
   }
-  assert.match(text, /same configured format/);
-  assert.match(text, /auxiliary paths pass through/);
+  assert.match(text, /Native routing stays within the same configured format/);
+  assert.match(text, /opt-in protocol bridge/);
+  assert.match(text, /same bridge\.client contract/);
+  assert.match(text, /On native routes,.*auxiliary paths pass through/);
+  assert.match(text, /mismatched bridge contract, auxiliary APIs are not emulated or forwarded: they return 400/);
+  assert.doesNotMatch(text, /does not translate an Anthropic request into an OpenAI request/);
   assert.match(text, /mutable=false.*no assembled message body/);
   assert.match(text, /already-sent bytes cannot be rewritten/);
   assert.match(text, /last accepted state/);
@@ -151,6 +155,73 @@ test("technical overview explains consequential routing, stream and permission b
   assert.match(text, /does not automatically track later changes on main/);
   assert.doesNotMatch(text, /nothing leaves your machine|guaranteed savings|any language/i);
   assert.doesNotMatch(html, /curl[^<]*\|[^<]*sh|torana (?:start|stop|status)/);
+});
+
+test("bridge guide is discoverable without changing the core plugin invitation", () => {
+  for (const route of ["index.html", "docs/index.html", "quickstart/index.html", "how-it-works/index.html", "docs/support/index.html", "docs/plugin-authoring/index.html"]) {
+    const html = readFileSync(path.join(root, route), "utf8");
+    assert.match(html.match(/<main\b[\s\S]*?<\/main>/)?.[0] || "", /href="\/docs\/protocol-bridges\/(?:#[^"]*)?"/, route);
+  }
+  const home = readFileSync(path.join(root, "index.html"), "utf8");
+  assert.match(home, /opt in to a bridge between supported client and model APIs/);
+  assert.match(home, /Your harness still owns tool execution/);
+});
+
+test("bridge setup uses a valid provider entry and a revision-checked CLI workflow", () => {
+  const html = readFileSync(path.join(root, "docs/protocol-bridges/index.html"), "utf8");
+  const decode = value => value.replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(parseInt(code, 16)))
+    .replace(/&#([0-9]+);/g, (_, code) => String.fromCodePoint(Number(code)))
+    .replaceAll("&quot;", '"').replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&amp;", "&");
+  const snippet = name => {
+    const content = html.match(new RegExp(`<pre\\b[^>]*data-example="${name}"[^>]*><code[^>]*>([\\s\\S]*?)<\\/code><\\/pre>`))?.[1];
+    assert.ok(content, `Missing ${name}`);
+    return decode(content);
+  };
+  const provider = JSON.parse(`{${snippet("bridge-provider")}}`)["local-messages"];
+  assert.deepEqual(provider, {
+    url: "http://127.0.0.1:8000", format: "openai", auth: { mode: "none" },
+    bridge: { client: "anthropic", upstream: "openai-chat", model: "your-loaded-model" },
+  });
+  const request = snippet("bridge-request");
+  assert.match(request, /http:\/\/127.0.0.1:8080\/provider\/local-messages\/v1\/messages/);
+  const body = JSON.parse(request.match(/-d '([^']+)'/)?.[1] || "");
+  assert.equal(body.max_tokens, 128);
+  assert.equal(body.messages[0].role, "user");
+  assert.doesNotMatch(request, /Authorization|api.key/i);
+  const text = decode(html.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ");
+  for (const required of [
+    "./torana config get > bridge-settings.json", "config.providers", "not a complete settings file",
+    "./torana config apply --file bridge-settings.json --yes", "Preserve the other settings, the revision",
+    "do not copy a new revision onto old settings", "Omitting the member preserves the existing bridge",
+    "set its bridge member to null", "same checkout and evaluation data directory",
+  ]) assert.ok(text.includes(required), required);
+});
+
+test("bridge documentation distinguishes translation coverage from native preservation and live harness proof", () => {
+  for (const route of ["docs/protocol-bridges/index.html", "docs/support/index.html"]) {
+    const html = readFileSync(path.join(root, route), "utf8");
+    const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+    for (const protocol of ["openai-chat", "openai-responses", "anthropic", "gemini", "gemini-codeassist"]) assert.ok(text.includes(protocol));
+    assert.match(text, /[Nn]o plugin is required/);
+    assert.match(text, /20 cross-contract directions/);
+    assert.match(text, /[Mm]ock/);
+    assert.match(text, /caller credentials are not forwarded across families/i);
+    assert.match(text, /not emulated or forwarded.*(?:return|they return) 400/);
+    assert.match(text, /previous_response_id/);
+    assert.match(text, /400 before an upstream call/);
+    assert.match(text, /without a success marker/);
+    assert.doesNotMatch(text, /any harness|every harness works|universal compatibility/i);
+  }
+  const guide = readFileSync(path.join(root, "docs/protocol-bridges/index.html"), "utf8");
+  assert.match(guide, /not proof that every live harness/);
+  assert.match(guide, /Send complete conversation history/);
+  const quickstart = readFileSync(path.join(root, "quickstart/index.html"), "utf8");
+  assert.match(quickstart, /This is a native route/);
+  assert.match(quickstart, /auxiliary APIs under a mismatched contract return 400/);
+  const authoring = readFileSync(path.join(root, "docs/plugin-authoring/index.html"), "utf8");
+  for (const field of ["instructions", "max_output_tokens", "temperature", "top_p", "provider_extensions_json"]) assert.ok(authoring.includes(field));
+  assert.match(authoring, /including native routes/);
+  assert.match(authoring, /does not require an SDK pin change/);
 });
 
 test("plugin sharing has a real issue form and leaves installation permissioned", () => {

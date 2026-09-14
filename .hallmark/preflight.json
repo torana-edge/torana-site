@@ -1,13 +1,13 @@
 {
   "date": "2026-09-14",
-  "scope": "how-it-works page",
-  "base_revision": "f714fb3f5d516b97ae9b2823af5007684c3e3d4c",
-  "framework": { "value": "Astro 7", "source": "package.json:30" },
-  "fonts": { "value": "Bricolage Grotesque / Geist / JetBrains Mono", "source": "src/styles/tokens.css:29" },
-  "palette": { "value": "Existing OKLCH teal; system, light and dark", "source": "src/styles/tokens.css:10" },
-  "spacing": { "value": "Existing 4pt-based --space-1 through --space-9 scale", "source": "src/styles/tokens.css:44" },
-  "motion": { "value": "No library; existing optional CSS reveals; no new motion", "source": "src/styles/global.css:78" },
-  "shell": { "value": "Existing N1b navigation with native mobile disclosure; Ft5 footer", "source": "src/layouts/Layout.astro:50" },
+  "scope": "protocol-bridge guide and scoped documentation alignment",
+  "base_revision": "6e71e230935dd93f4523b6a25a160c05c289da3e",
+  "framework": { "value": "Astro 7", "source": "package.json" },
+  "fonts": { "value": "Bricolage Grotesque / Geist / JetBrains Mono", "source": "src/styles/tokens.css" },
+  "palette": { "value": "Existing OKLCH teal; system, light and dark", "source": "src/styles/tokens.css" },
+  "spacing": { "value": "Existing 4pt-based --space-1 through --space-9 scale", "source": "src/styles/tokens.css" },
+  "motion": { "value": "No library; existing optional CSS reveals; no new motion", "source": "src/styles/global.css" },
+  "shell": { "value": "Existing N1b navigation with native mobile disclosure; Ft5 footer", "source": "src/layouts/Layout.astro" },
   "preserve": ["src/styles/tokens.css", "fonts", "palette", "spacing", "theme control", "shared shell", "installation instructions"],
-  "introduce": ["Long Document page", "accessible HTML/SVG architecture diagram", "navigation destination", "technical content checks"]
+  "introduce": ["Long Document bridge guide", "contextual navigation destination", "native/bridge content checks", "bridge guide responsive checks"]
 }

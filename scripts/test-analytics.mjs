@@ -133,6 +133,7 @@ test("only known links count, with a static destination and placement and no URL
   app.load();
   for (const [href, destination] of [
     ["/quickstart/?secret=hidden#sensitive", "quickstart"], ["/how-it-works/#data-boundary", "how-it-works"],
+    ["/docs/protocol-bridges/?model=private#configure", "protocol-bridges"],
     ["https://github.com/torana-edge/torana-edge", "github"], ["https://github.com/torana-edge/torana-plugin-sdk", "sdk"],
     ["https://github.com/torana-edge/torana-edge/issues", "feedback"],
     ["https://github.com/torana-edge/torana-plugins/tree/main/plugins/usage_logger?private=value", "plugin-source"],
@@ -147,6 +148,22 @@ test("only known links count, with a static destination and placement and no URL
   app.emit("click", element(), { button: 2 });
   app.emit("click", element(), { defaultPrevented: true });
   assert.equal(app.payloads.length, count);
+});
+
+test("bridge guide records only its fixed page and onward destination, respecting privacy", () => {
+  const page = "/docs/protocol-bridges/";
+  const options = { page, url: `https://torana.sh${page}?model=private#configure` };
+  const app = setup(options);
+  app.load();
+  assert.deepEqual(app.payloads, [{ website, hostname: "torana.sh", url: page }]);
+  app.emit("click", element({ href: `${page}#request` }));
+  assert.equal(app.payloads.length, 1, "Contents links are not onward navigation");
+  app.emit("click", element({ href: "/quickstart/?secret=hidden" }));
+  assert.deepEqual(app.payloads.at(-1), { website, hostname: "torana.sh", url: page, name: "key-link", data: { destination: "quickstart", placement: "body" } });
+  for (const privacy of [{ doNotTrack: "1" }, { globalPrivacyControl: true }]) {
+    assert.equal(setup({ ...options, privacy }).scripts.length, 0);
+  }
+  assert.equal(setup({ page, url: `https://preview.torana-site.pages.dev${page}` }).scripts.length, 0);
 });
 
 test("send guard drops unknown types and reconstructs payloads without arbitrary metadata", () => {
