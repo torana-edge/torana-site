@@ -105,6 +105,7 @@ test("plugin sharing has a real issue form and leaves installation permissioned"
   assert.ok(html.includes(`https://github.com/torana-edge/torana-site/issues/new?template=${templateName}`));
   const template = parseYAML(readFileSync(new URL(`../.github/ISSUE_TEMPLATE/${templateName}`, import.meta.url), "utf8"));
   assert.equal(template.name, "Plugin listing request");
+  assert.deepEqual(template.labels, ["plugin-listing"], "Listing requests need a stable triage label, independent of their title");
   const fields = template.body.filter(field => field.id);
   assert.equal(new Set(fields.map(field => field.id)).size, fields.length);
   for (const id of ["plugin-name", "use-case", "source", "revision", "license", "installation", "permissions", "compatibility"]) {
@@ -119,6 +120,18 @@ test("plugin sharing has a real issue form and leaves installation permissioned"
   assert.match(installation, /TORANA_DATA_DIR<\/code> alone does not select the plugin directory/);
   assert.match(installation, /refuses remote Rust source builds/);
   assert.match(installation, /does not approve its permissions or enable it/);
+});
+
+test("community listing policy limits review to a revision and allows removal", () => {
+  // Policy changes, like product-claim changes, need deliberate review. These
+  // checks do not snapshot headings or the invitation's marketing wording.
+  const html = readFileSync(path.join(root, "plugins/submit/index.html"), "utf8");
+  const template = parseYAML(readFileSync(new URL("../.github/ISSUE_TEMPLATE/plugin-listing.yml", import.meta.url), "utf8"));
+  const introduction = template.body.filter(field => field.type === "markdown").map(field => field.attributes.value).join("\n");
+  for (const surface of [html, introduction]) {
+    assert.match(surface, /reviewed revision, not future branch updates/);
+    assert.match(surface, /Maintainers may remove listings/);
+  }
 });
 
 test("public copy and social-card sources keep the focus on the project", () => {

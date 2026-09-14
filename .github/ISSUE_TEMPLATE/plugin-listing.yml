@@ -1,6 +1,7 @@
 name: Plugin listing request
 description: Share a plugin and request a listing in the Torana website catalogue.
 title: "Plugin listing: "
+labels: [plugin-listing]
 body:
   - type: markdown
     attributes:
@@ -8,6 +9,9 @@ body:
         Thanks for sharing your plugin! Small, useful workflow fixes are welcome.
         Your code can stay in your repository. A listing is reviewed by maintainers;
         it is not a security certification or inclusion in `plugin install --official`.
+        Community listings identify the reviewed revision, not future branch updates.
+        Maintainers may remove listings if source disappears, maintenance or
+        compatibility lapses, licensing changes, or security concerns emerge.
         Do not include credentials, private prompts, or customer data.
   - type: input
     id: plugin-name

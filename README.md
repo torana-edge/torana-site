@@ -37,6 +37,12 @@ same catalogue. Community authors can use `/plugins/submit/` and the
 Requests require maintainer review; they do not automatically update the generated
 official registry or Edge's `--official` install set. When adding community entries,
 keep their ownership explicit and separate from that generated official catalogue.
+Record the reviewed commit (resolving a submitted tag to its commit), not a moving
+branch, when adding or updating a community listing. Review does not cover later
+revisions automatically. Maintainers may remove listings for unavailable source,
+lapsed maintenance or compatibility, changed licensing, or security concerns.
+The issue form uses the repository's `plugin-listing` label for triage; preserve
+that label when maintaining the form, rather than relying on its editable title.
 
 The Edge link check resolves repository-root links to `README.md`, checks linked
 files on `main`, and verifies Markdown heading or source-line fragments. It parses

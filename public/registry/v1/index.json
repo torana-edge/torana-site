@@ -130,6 +130,7 @@
         "env.cache_set",
         "env.emit_metric",
         "env.host_call.torana_record_savings",
+        "env.model_pricing",
         "env.plugin_config",
         "env.shared_cache_get",
         "ir.tool_results.write"
