@@ -135,7 +135,8 @@ test("technical overview explains consequential routing, stream and permission b
   assert.match(text, /opt-in protocol bridge/);
   assert.match(text, /same bridge\.client contract/);
   assert.match(text, /On native routes,.*auxiliary paths pass through/);
-  assert.match(text, /mismatched bridge contract, auxiliary APIs are not emulated or forwarded: they return 400/);
+  assert.match(text, /Under any configured bridge, auxiliary APIs are not emulated or forwarded: they return 400, even when the client and upstream contracts match/);
+  assert.match(text, /A mismatched protocol bridge cannot carry provider-specific signatures or cache breakpoints into an unrelated API/);
   assert.doesNotMatch(text, /does not translate an Anthropic request into an OpenAI request/);
   assert.match(text, /mutable=false.*no assembled message body/);
   assert.match(text, /already-sent bytes cannot be rewritten/);
@@ -207,6 +208,8 @@ test("bridge documentation distinguishes translation coverage from native preser
     assert.match(text, /[Mm]ock/);
     assert.match(text, /caller credentials are not forwarded across families/i);
     assert.match(text, /not emulated or forwarded.*(?:return|they return) 400/);
+    assert.match(text, /Under any configured bridge/);
+    assert.match(text, /This includes bridges whose client and upstream contracts match/);
     assert.match(text, /previous_response_id/);
     assert.match(text, /400 before an upstream call/);
     assert.match(text, /without a success marker/);
@@ -217,7 +220,7 @@ test("bridge documentation distinguishes translation coverage from native preser
   assert.match(guide, /Send complete conversation history/);
   const quickstart = readFileSync(path.join(root, "quickstart/index.html"), "utf8");
   assert.match(quickstart, /This is a native route/);
-  assert.match(quickstart, /auxiliary APIs under a mismatched contract return 400/);
+  assert.match(quickstart, /auxiliary APIs under any configured bridge return 400, even when the client and upstream contracts match/);
   const authoring = readFileSync(path.join(root, "docs/plugin-authoring/index.html"), "utf8");
   for (const field of ["instructions", "max_output_tokens", "temperature", "top_p", "provider_extensions_json"]) assert.ok(authoring.includes(field));
   assert.match(authoring, /including native routes/);

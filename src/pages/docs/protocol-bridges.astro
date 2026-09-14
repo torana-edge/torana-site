@@ -1,6 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-const edgeSource = "https://github.com/torana-edge/torana-edge/blob/89617dd10ab0aaee93fd6e4715af47a39d699b60";
+const edgeSource = "https://github.com/torana-edge/torana-edge/blob/85baaec9e36a6ebc1b73981bc6a5e2e75a4b899c";
 const providerEntry = `"local-messages": {
   "url": "http://127.0.0.1:8000",
   "format": "openai",
@@ -64,7 +64,8 @@ const request = `curl --fail-with-body \\
     <h2 id="boundaries">Translate what the destination can represent.</h2>
     <p>Bridges support common text conversations, function definitions and calls, tool-result follow-ups, complete JSON replies, and SSE streams. Image inputs and structured-output constraints are supported where their semantics have a matching representation. The model must support the requested capability too.</p>
     <p>Signed reasoning, provider-native server tools, cache breakpoints, opaque continuation items, <code>previous_response_id</code>, and storage/background execution are not portable across these APIs. Unsupported request semantics produce a client-shaped <strong>400 before an upstream call</strong>. Unsupported response content produces a 502, or terminates an already-started stream without a success marker.</p>
-    <p>Under a mismatched bridge contract, model discovery, token-counting, files, batch APIs, response retrieval, and other auxiliary APIs are <strong>not emulated or forwarded</strong>; they return 400. Native routes retain ordinary auxiliary pass-through. A harness requiring these APIs or provider-native tools needs a compatible route, not just a different base URL.</p>
+    <p>Under any configured bridge, model discovery, token-counting, files, batch APIs, response retrieval, and other auxiliary APIs are <strong>not emulated or forwarded</strong>; they return 400. This includes bridges whose client and upstream contracts match, such as a same-API route using <code>bridge.model</code> for aliasing. Matching contracts avoids cross-API content conversion, not the inference-only endpoint boundary. Native routes without <code>bridge</code> retain ordinary auxiliary pass-through.</p>
+    <p>A harness requiring these auxiliary APIs needs a native route or additional contract support. Provider-native tools also need a compatible inference contract, not just a different base URL.</p>
     <p>The automated suite covers all 20 cross-contract directions among the five contracts with mock HTTP upstreams, including text/function-tool loops and JSON/SSE responses. That is contract coverage, not proof that every live harness, model, or account combination works. See the <a href="/docs/support/#bridges">support matrix</a> and <a href={`${edgeSource}/docs/PROTOCOL_BRIDGES.md#supported-translation-surface`}>full translation surface ↗</a>.</p>
 
     <h2 id="manage">Inspect, change, or remove a bridge.</h2>
@@ -76,7 +77,7 @@ const request = `curl --fail-with-body \\
     <p>For any edit, export a fresh settings snapshot and apply it through the CLI. To disable translation while keeping the provider, set its <code>bridge</code> member to <code>null</code>. Omitting the member preserves the existing bridge. Once removed, the client must speak the provider’s native API. Editing the original seed file does not update a managed installation.</p>
     <p>For upstream failures, start with status and the local feed. Detailed error-body logging is a separate opt-in and can contain prompts or credentials; use the <a href={`${edgeSource}/docs/PROTOCOL_BRIDGES.md#diagnose-an-upstream-rejection`}>diagnostic guide ↗</a> only when needed.</p>
     <p>Continue with the <a href={`${edgeSource}/docs/CLI.md#protocol-bridges`}>CLI reference ↗</a>, <a href="/docs/plugin-authoring/#bridges">plugin-author notes</a>, or <a href="/plugins/">plugin registry</a>.</p>
-    <p class="version-note">Checked against the merged Edge source linked in this guide. SDK v0.5.0 and ABI v1 are unchanged; see <a href={`${edgeSource}/docs/UPGRADE_NOTES.md`}>upgrade notes ↗</a> for Responses field access and the one-time cache-prefix key change.</p>
+    <p class="version-note">Checked against the Edge source snapshot linked in this guide. SDK v0.5.0 and ABI v1 are unchanged; see <a href={`${edgeSource}/docs/UPGRADE_NOTES.md`}>upgrade notes ↗</a> for Responses field access and the one-time cache-prefix key change.</p>
   </article>
 </Layout>
 

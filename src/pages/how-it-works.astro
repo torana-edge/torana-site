@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import HowItWorksFlow from "../components/HowItWorksFlow.astro";
-const edgeSource = "https://github.com/torana-edge/torana-edge/blob/89617dd10ab0aaee93fd6e4715af47a39d699b60";
+const edgeSource = "https://github.com/torana-edge/torana-edge/blob/85baaec9e36a6ebc1b73981bc6a5e2e75a4b899c";
 const sdkSource = "https://github.com/torana-edge/torana-plugin-sdk/blob/ad98c6d3467f628dd2f630c054715f8b347daa29";
 ---
 
@@ -39,7 +39,7 @@ const sdkSource = "https://github.com/torana-edge/torana-plugin-sdk/blob/ad98c6d
         </dl>
         <p>A configured default provider can handle unprefixed requests. Native routes keep the client and upstream on the same API. An <strong>opt-in protocol bridge</strong> explicitly names a client contract and an upstream contract, then builds the destination’s endpoint and request. For example, Torana can translate Anthropic Messages to OpenAI Chat Completions and return an Anthropic-shaped response. No plugin is required.</p>
         <p>Native routing stays within the same configured format. Compatible bridge targets share the same <code>bridge.client</code> contract, even when their upstream APIs differ. A permitted routing plugin can select a compatible target; configured fallbacks rebuild the accepted request for their own protocol, model, and credentials. Request plugins run once.</p>
-        <p>Only recognized inference endpoints enter the request and response plugin pipeline. On native routes, model lists, token-counting, account APIs, and other auxiliary paths pass through as ordinary proxy traffic. Under a mismatched bridge contract, auxiliary APIs are not emulated or forwarded: they return 400. Torana does not intercept the harness’s local tool execution or every MCP connection.</p>
+        <p>Only recognized inference endpoints enter the request and response plugin pipeline. On native routes, model lists, token-counting, account APIs, and other auxiliary paths pass through as ordinary proxy traffic. Under any configured bridge, auxiliary APIs are not emulated or forwarded: they return 400, even when the client and upstream contracts match. Torana does not intercept the harness’s local tool execution or every MCP connection.</p>
         <p class="source-link"><a href="/docs/protocol-bridges/">Configure a bridge →</a><a href={`${edgeSource}/internal/provider/resolver.go`}>Read the path resolver ↗</a></p>
       </section>
 
@@ -53,8 +53,8 @@ const sdkSource = "https://github.com/torana-edge/torana-plugin-sdk/blob/ad98c6d
           <div><dt>Gemini Code Assist</dt><dd>The same generation methods, with the Code Assist request envelope</dd></div>
         </dl>
         <p>On native routes, text, thinking, tool calls, tool results, cache markers, and provider-specific blocks retain their order. Provider extensions and opaque fields have dedicated preservation paths. An accepted change is encoded back into the original API shape. When no provider-visible state changes, Torana keeps the validated request body’s original bytes.</p>
-        <p>A bridge instead converts the accepted shared request to the configured upstream API. Common text and function-tool loops work across supported contracts; signed reasoning, cache breakpoints, opaque continuation items, and provider-native tools are not portable. Unsupported request semantics are rejected before an upstream call rather than silently discarded.</p>
-        <p>Shared plugin logic is reusable across compatible APIs; individual features still have provider-specific rules. On native Responses routes, a plugin cannot rewrite history held by OpenAI behind <code>previous_response_id</code>. A bridge rejects that server-managed history reference and requires complete history on each turn. Torana does not manage Gemini’s remote cache resources.</p>
+        <p>A cross-contract bridge instead converts the accepted shared request to the configured upstream API. Common text and function-tool loops work across supported contracts; signed reasoning, cache breakpoints, opaque continuation items, and provider-native tools are not portable. Unsupported request semantics are rejected before an upstream call rather than silently discarded.</p>
+        <p>Shared plugin logic is reusable across compatible APIs; individual features still have provider-specific rules. On native Responses routes, a plugin cannot rewrite history held by OpenAI behind <code>previous_response_id</code>. A cross-contract bridge rejects that server-managed history reference and requires complete history on each turn. Torana does not manage Gemini’s remote cache resources.</p>
         <p class="source-link"><a href="/docs/support/">Check the support matrix →</a><a href={`${edgeSource}/internal/engine/types.go`}>Read the shared types ↗</a></p>
       </section>
 

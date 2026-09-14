@@ -1,7 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import sdk from "../../data/sdk.json";
-const edgeSource = "https://github.com/torana-edge/torana-edge/blob/89617dd10ab0aaee93fd6e4715af47a39d699b60";
+const edgeSource = "https://github.com/torana-edge/torana-edge/blob/85baaec9e36a6ebc1b73981bc6a5e2e75a4b899c";
 ---
 <Layout
   title="Support matrix — Torana"
@@ -38,7 +38,7 @@ const edgeSource = "https://github.com/torana-edge/torana-edge/blob/89617dd10ab0
 
     <h2>Selective interception</h2>
     <p>On native routes, model-list, token-counting, account, quota, status, telemetry, update, MCP, and unknown auxiliary paths pass through without request or response plugins. Real-proxy tests cover that pass-through for all four native formats, including method, path, query, body, permitted headers, upstream status, and response bytes.</p>
-    <p>Under a mismatched bridge contract, model discovery, token-counting, files, batch APIs, response retrieval, and other auxiliary APIs are not emulated or forwarded; they return 400. Changing a base URL alone does not make a harness that requires these APIs compatible.</p>
+    <p>Under any configured bridge, model discovery, token-counting, files, batch APIs, response retrieval, and other auxiliary APIs are not emulated or forwarded; they return 400. This includes bridges whose client and upstream contracts match. Changing a base URL alone does not make a harness that requires these APIs compatible.</p>
 
     <h2>Coding harnesses</h2>
     <p>The rows below describe native integration paths and their existing test evidence. For a bridge, separately verify the client API, upstream API, model, streaming, complete tool-result follow-ups, and any auxiliary APIs the harness requires. Mock contract coverage is not a credentialed harness smoke test.</p>
