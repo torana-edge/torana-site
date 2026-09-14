@@ -13,9 +13,11 @@
     "check:deploy": "./scripts/test-cloudflare-deploy-ready.sh",
     "check:security": "node scripts/check-security-headers.mjs",
     "test": "npm run test:unit && npm run build && npm run test:built",
-    "test:unit": "node --test scripts/test-theme.mjs",
+    "test:unit": "node --test scripts/test-theme.mjs scripts/test-social-cards.mjs",
     "test:built": "node --test scripts/test-site.mjs",
-    "build": "npm run check:security && npm run check:contract && npm run check:deploy && ASTRO_TELEMETRY_DISABLED=1 astro check && ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "build": "npm run check:security && npm run check:contract && npm run check:deploy && npm run social:check && ASTRO_TELEMETRY_DISABLED=1 astro check && ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "social:build": "node scripts/social-cards.mjs",
+    "social:check": "node scripts/social-cards.mjs --check",
     "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview",
     "registry:sync": "node scripts/sync-registry.mjs",
     "registry:check": "node scripts/sync-registry.mjs --check",
@@ -29,6 +31,7 @@
     "typescript": "^5.8.3"
   },
   "devDependencies": {
+    "@resvg/resvg-wasm": "2.6.2",
     "wrangler": "^4.123.0"
   },
   "overrides": {

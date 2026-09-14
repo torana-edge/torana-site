@@ -35,6 +35,24 @@ Social cards live in `public/social/`: editable SVG sources and matching 1200×6
 PNG exports. Keep each pair in sync; pages link to the PNG for social previews.
 The origin and compaction articles have their own cards.
 
+After editing a card, run `npm run social:build` and commit both the SVG and PNG.
+`npm run social:check` freshly renders every SVG and byte-compares the committed
+PNG. It fails for stale, missing, corrupted or orphaned exports without repairing
+them. It runs inside `npm run build`, so ordinary CI cannot ship a stale preview.
+
+Rendering uses the pinned development-only `@resvg/resvg-wasm` dependency and
+publicly hosted Geist Regular/Bold files at an immutable upstream revision, with
+SHA-256 checks. This avoids platform-specific Arial fallbacks and native renderer
+differences. The first run needs HTTPS access to raw.githubusercontent.com; fonts
+are cached by digest in the system temporary directory at
+`torana-site-social-fonts/`, outside the repository and build output. Cache hits
+are verified too. A missing network/font or integrity failure is an error, not a
+reason to skip the check or substitute another font. The fonts are licensed under
+the [SIL Open Font License](https://github.com/vercel/geist-font/blob/a6d260e6cbc07eafdfad438f33601fe3c38b1e6f/OFL.txt).
+No font files or renderer code are shipped to the website; its existing hosted
+fonts and browser fallbacks are unchanged. Still visually review card layout
+when changing copy: matching bytes prove freshness, not good typography.
+
 Before announcing the release, replace development-source installation with the
 verified tag instructions in Edge and `src/data/install.ts` together, then update
 the support matrix with the actual manual-test results. The owned-content check
@@ -42,6 +60,8 @@ currently enforces pre-release language and will need to evolve with that change
 Keep the site and launch articles focused on the project: no personal biography,
 named-author promotion, or personal-profile footer. The side-project journey,
 architectural scope creep, and technical lessons can keep their informal voice.
+First person is welcome when owning an experiment, measurement, or engineering
+decision; it does not need a biography or promotional byline.
 Review the origin article and add the real release demo;
 no recording or unverified release number is substituted here.
 

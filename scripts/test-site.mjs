@@ -55,6 +55,8 @@ test("all registry entries expose source, install commands and capability detail
 });
 
 test("public copy and social-card sources keep the focus on the project", () => {
+  assert.doesNotMatch(readdirSync(root, { recursive: true }).join("\n"), /\.(?:ttf|otf|woff2?)$/im,
+    "Build-only social fonts must not be bundled into the website");
   const sources = [...htmlFiles(root), ...readdirSync(path.join(root, "social"))
     .filter(file => file.endsWith(".svg")).map(file => path.join(root, "social", file))];
   for (const file of sources) {
@@ -67,4 +69,7 @@ test("public copy and social-card sources keep the focus on the project", () => 
   assert.match(origin, /side-project fashion/);
   assert.match(origin, /over-engineered/);
   assert.match(origin, /Bring your workflow hacks/);
+  const result = readFileSync(path.join(root, "blog/context-compaction-negative-result/index.html"), "utf8");
+  assert.match(result, /I built a context compactor/);
+  assert.match(result, /I stopped treating savings as the product promise/);
 });

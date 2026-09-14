@@ -4,9 +4,9 @@ import Layout from "../../layouts/Layout.astro";
 <Layout title="The context compaction negative result — Torana" description="75 sessions across three arms: a DeepSeek compaction experiment that did not establish reliable savings." article image="/social/compaction.png" imageAlt="Fewer tokens. A smaller bill? Torana's compaction experiment.">
   <article class="frame prose">
     <p class="eyebrow">Negative result · 26 July 2026</p>
-    <h1 class="display">Fewer tokens. A smaller bill?</h1>
+    <h1 class="display">I built a context compactor. I couldn’t establish reliable savings.</h1>
     <p>Many coding-agent workflows resend visible conversation history on successive requests. A large tool result can remain in that history long after its useful moment, so replacing it with a smaller representation looks like an obvious saving. Provider-managed history and native compaction are different cases.</p>
-    <p>That transformation became a Torana plugin. Then came the accounting.</p>
+    <p>I built that transformation as a Torana plugin. Then I measured it.</p>
     <h2>The result</h2>
     <p>The 21 July 2026 experiment used OMP with DeepSeek V4 Pro: five tasks, five repetitions, and three randomized arms per repetition, for 75 sessions. Costs were calculated from provider-reported usage and the historical prices used for that run.</p>
     <p>The deterministic arm removed 4.81 MB from repeated history. Its paired median cost reduction was $0.000524 per session, with a bootstrap 95% interval of −$0.003714 to +$0.003725. Mean savings were slightly negative. The result did not establish reliable savings.</p>
@@ -18,7 +18,7 @@ import Layout from "../../layouts/Layout.astro";
     <pre><code>N &gt; (R × max(0, W − C) + S) / (D × C)</code></pre>
     <p>This simplified model assumes positive <code>D × C</code> and matching units: rates per token when <code>S</code> is in dollars. It does not model every provider’s caching rules or changes in agent behavior. Missing economic inputs or non-positive expected net prevents economically gated compaction.</p>
     <h2>What happened next</h2>
-    <p>The results changed the plan: savings would not be the product promise. By then, the infrastructure around the experiment had become a local proxy with a shared request model and a WASM plugin runtime. The project shifted toward that reusable layer.</p>
+    <p>I stopped treating savings as the product promise. By then, the infrastructure around the experiment had become a local proxy with a shared request model and a WASM plugin runtime. I shifted the project toward that reusable layer.</p>
     <p>Compaction is still an opt-in experiment inside Torana. It is no longer the reason the whole project exists. You can use the proxy to observe request activity, change model-facing tool definitions, or try your own plugin without enabling compaction at all.</p>
     <p><a href="/blog/why-torana/">Read the story of the pivot →</a></p>
     <p>This was one provider and workload. Completion varied across arms; safety-task outputs were manually reviewed, and the quality evaluation does not establish general non-inferiority. Historical prices are not current price guidance.</p>
