@@ -1,29 +1,24 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 ---
-<Layout title="I wanted cheaper AI chats. I built a proxy instead. — Torana" description="A compaction experiment, some architectural scope creep, and the local-first proxy that became Torana." article image="/social/origin.png" imageAlt="This was supposed to be a compactor. The story behind Torana.">
+<Layout title="This was supposed to be a compactor. — Torana" description="A compaction experiment, some architectural scope creep, and the local-first proxy that became Torana." article image="/social/origin.png" imageAlt="This was supposed to be a compactor. The story behind Torana.">
   <article class="frame prose">
-    <p class="article-meta">By Aniket · Building Torana</p>
-    <h1 class="display">I wanted cheaper AI chats. I built a proxy instead.</h1>
-    <p>The original idea was fairly small: use a cheaper model to shorten the history sent to a more expensive model. Less context, fewer tokens, smaller bill. That was the hope.</p>
-    <p>Somewhere along the way, I built a local reverse proxy, a shared request model, a WASM plugin runtime, and SDKs.</p>
-    <p>I may have got a little distracted.</p>
-
-    <h2>I’ve always liked the part where I don’t know how it works yet.</h2>
-    <p>I tried learning C and C++ when I was very young. I experimented with networking my Windows machine and smart TV over Wi-Fi so I could stream movies. I hopped between Linux distributions. A lot of the time I didn’t really know what I was doing. Getting something to work was how I found out.</p>
-    <p>That curiosity is still why I like software development. I enjoy writing code, but I also love thinking about how the pieces fit together: where a responsibility belongs, what an interface should expose, and what becomes possible once it exists.</p>
-    <p>Torana is a fairly good demonstration of both the upside and the scope-creep potential of that habit.</p>
+    <p class="article-meta">Building Torana · the origin story</p>
+    <h1 class="display">This was supposed to be a compactor.</h1>
+    <p>The original idea was fairly small: tool calls and MCP calls can emit huge outputs. Use a cheaper or local model to compact those outputs before the harness adds them to conversation history and carries them through the rest of the workflow. Less repeated context, fewer tokens, smaller bill. That was the hope.</p>
+    <p>The experiment needed a reverse proxy. In typical side-project fashion, that proxy got over-engineered into a shared request model, a WASM plugin runtime, and SDKs.</p>
+    <p>The middleware became a project of its own.</p>
 
     <h2>The middleware got interesting.</h2>
     <p>The compactor needed somewhere to intercept requests and change context. A proxy gave it that place, without making the experiment part of one particular coding agent.</p>
-    <p>Then came the questions. Could a different transformation use the same interface? Could a plugin work against a shared request model instead of implementing every provider format itself? Could I load someone else’s plugin without giving it unrestricted access to the host?</p>
+    <p>Then came the questions. Could a different transformation use the same interface? Could a plugin work against a shared request model instead of implementing every provider format itself? Could someone else’s plugin run without unrestricted access to the host?</p>
     <p>Those questions led to the architecture Torana has now: provider adapters, a common request representation, and Go or Rust plugins running as WASM guests. Plugins declare capabilities; the operator decides what to approve.</p>
-    <p>There was useful engineering in that detour. There was also overengineering. I’m not going to pretend I had a perfectly formed platform strategy from day one.</p>
+    <p>There was useful engineering in that detour. There was also overengineering. The architecture grew with the experiment, not from a perfectly formed platform strategy on day one.</p>
 
     <h2>Smaller context didn’t automatically mean a smaller bill.</h2>
     <p>The economics were less cooperative than the first sketch suggested. Rewriting history can disturb a cached prefix. Calling a summarizer has a cost of its own. And removing information is easy; knowing that it will never matter again is harder.</p>
-    <p>The DeepSeek experiment did not establish reliable savings for the workload I tested. That is narrower than “compaction never works,” but it was enough to make me rethink what I was trying to launch.</p>
-    <p><a href="/blog/context-compaction-negative-result/">The experiment and its limitations are written up separately.</a> I kept the compaction work as an opt-in plugin. I shifted the project toward the proxy and plugin system.</p>
+    <p>The DeepSeek experiment did not establish reliable savings for the tested workload. That is narrower than “compaction never works,” but it was enough to change the project’s direction.</p>
+    <p><a href="/blog/context-compaction-negative-result/">The experiment and its limitations are written up separately.</a> Compaction stayed as an opt-in plugin. The proxy and plugin system became the focus.</p>
 
     <h2>So, what is Torana now?</h2>
     <p>Torana is an open-source, local-first reverse proxy for coding-agent traffic. You keep your agent and model, point a supported provider route at Torana, and choose what runs in between.</p>
@@ -35,9 +30,9 @@ import Layout from "../../layouts/Layout.astro";
     <p>Local-first means the proxy runs on your machine. Requests still go to your configured model provider, and plugins can use external services when you explicitly configure and approve them.</p>
     <p>The <a href="/docs/support/">compatibility page</a> describes supported formats, harness connections, and the checks behind them.</p>
 
-    <h2>I want to see what other people put in the middle.</h2>
-    <p>The direction I’m excited about is a place to share small, useful changes to coding-agent workflows: a context policy for a particular kind of task, an adapter for an awkward tool schema, or a bit of observability that answers a question you keep having.</p>
-    <p>Maybe you’ve already built a tool or workflow hack for your favourite harness. I’d love to see you bring its reusable logic into a Torana plugin, so the next time you switch harnesses, you can take that work with you.</p>
+    <h2>Bring your workflow hacks.</h2>
+    <p>A plugin can be a small, useful change to a coding-agent workflow: a context policy for a particular kind of task, an adapter for an awkward tool schema, or a bit of observability that answers a question you keep having.</p>
+    <p>Maybe you’ve already built a tool or workflow hack for your favourite harness. Try bringing its reusable logic into a Torana plugin, so the next time you switch to another compatible harness, you can take that work with you.</p>
     <p>Request plugins work on Torana’s shared representation across compatible provider routes. Plugins can also expose <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/AGENT_CONTROL_PLANE.md">discoverable local HTTP operations</a> for tools and automation. Connect your harness to those operations through its supported invocation mechanism; the shared implementation lives in the plugin.</p>
     <p>Try it on a coding task, or hack together a plugin for your own use case. Share what worked and what you built. Contributions don’t have to start with a runtime feature—a clear bug report or a better first-run explanation is useful too.</p>
     <p><a href="/quickstart/">Try Torana locally →</a> · <a href="/plugins/">Browse the plugins →</a> · <a href="https://github.com/torana-edge/torana-edge">Read the source →</a></p>
