@@ -1,5 +1,7 @@
 // Validate site links against CI's torana-edge checkout, including README
 // fragments. GitHub returns 200 even for a nonexistent heading anchor.
+// This guard began after a renamed dogfood-results file left a public 404
+// with no warning from either repository; a successful check must verify targets.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";

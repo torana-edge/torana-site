@@ -55,30 +55,46 @@ test("all registry entries expose source, install commands and capability detail
   }
 });
 
-test("homepage explains five platform capabilities and identifies its featured subset", () => {
+// These assertions intentionally guard product claims. Recheck the implementation
+// before changing them; they are not marketing-headline snapshots.
+test("homepage product claims retain local operation and supported API/SDK boundaries", () => {
+  const html = readFileSync(path.join(root, "index.html"), "utf8");
+  assert.match(html, /Runs on your machine\. No cloud deployment or Torana account required/);
+  assert.match(html, /supported OpenAI, Anthropic, and Gemini APIs/);
+  assert.match(html, /Go or Rust/);
+  assert.doesNotMatch(html, /nothing leaves your machine|any language/i);
+});
+
+test("homepage exposes named capabilities and registry-backed featured plugins", () => {
   const html = readFileSync(path.join(root, "index.html"), "utf8");
   const registry = JSON.parse(readFileSync(path.join(root, "registry/v1/index.json"), "utf8"));
   const capabilities = html.match(/<div class="capability-grid"[\s\S]*?<\/section>/)?.[0];
   assert.ok(capabilities);
-  assert.equal([...capabilities.matchAll(/<article\b/g)].length, 5);
-  assert.match(capabilities, /Install a plugin\. Share yours\./);
+  // Named markers identify capabilities, independent of headlines, element type,
+  // or an unmarked article nested inside a panel. Duplicates still fail.
+  const names = [...capabilities.matchAll(/\bdata-capability="([^"]+)"/g)].map(match => match[1]);
+  assert.deepEqual(names.sort(), ["community", "harness", "permissions", "shared-format", "wasm-sdk"],
+    "Each platform capability must appear once; inspect missing or duplicate named panels");
   assert.match(capabilities, /href="\/plugins\/submit\/"/);
-  assert.match(capabilities, /supported OpenAI, Anthropic, and Gemini APIs/);
-  assert.match(capabilities, /Go or Rust/);
   assert.ok(html.includes(`Browse all ${registry.plugins.length} plugins`));
-  assert.match(html, /A few plugins to start with/);
-  assert.match(html, /Three examples/);
-  const featured = [...html.matchAll(/<h3[^>]*><a href="\/plugins\/#([^"]+)"/g)].map(match => match[1]);
+  const featured = [...html.matchAll(/\bdata-featured-plugin="([^"]+)"/g)].map(match => match[1]);
   assert.equal(featured.length, 3);
+  assert.equal(new Set(featured).size, featured.length, "Featured examples must be distinct");
   for (const name of featured) assert.ok(registry.plugins.some(plugin => plugin.name === name));
-  assert.match(html, /Runs on your machine\. No cloud deployment or Torana account required/);
-  assert.doesNotMatch(html, /nothing leaves your machine|any language|canonical IR|git clone|go build/i);
+  assert.doesNotMatch(html, /canonical IR|git clone|go build/i);
+});
+
+test("homepage request diagram retains accessible labels and visual flow nodes", () => {
+  const html = readFileSync(path.join(root, "index.html"), "utf8");
   const diagram = html.match(/<figure class="request-flow"[\s\S]*?<\/figure>/)?.[0];
   assert.ok(diagram);
   assert.match(diagram, /aria-labelledby="request-flow-title"/);
   assert.match(diagram, /aria-describedby="request-flow-description"/);
-  assert.match(diagram, /On your machine/);
-  assert.match(diagram, /Your model provider/);
+  for (const id of ["request-flow-title", "request-flow-description"]) {
+    assert.match(diagram, new RegExp(`<[^>]+\\bid="${id}"[^>]*>[^<]*\\S[^<]*<`), `${id} must name non-empty accessible text`);
+  }
+  assert.match(diagram, /class="machine-boundary"/);
+  assert.match(diagram, /class="flow-node provider-node"/);
   assert.match(diagram, /<svg\b/);
   assert.doesNotMatch(diagram, /<pre\b/);
 });
