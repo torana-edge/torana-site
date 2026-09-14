@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "ASTRO_TELEMETRY_DISABLED=1 astro dev",
     "check:contract": "node scripts/check-current-contract.mjs",
-    "check:deploy": "./scripts/test-cloudflare-deploy-ready.sh",
+    "check:deploy": "./scripts/test-cloudflare-deploy-ready.sh && node --test scripts/test-cloudflare-deployment.mjs",
     "check:security": "node scripts/check-security-headers.mjs",
     "test": "npm run test:unit && npm run build && npm run test:built",
     "test:unit": "node --test scripts/test-theme.mjs",
