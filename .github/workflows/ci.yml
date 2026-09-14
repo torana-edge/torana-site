@@ -41,6 +41,7 @@ jobs:
       - run: npm audit --audit-level=high
       - run: npm run registry:check -- _sources/torana-plugins
       - run: npm run owned-content:check -- _sources/torana-edge
+      - run: npm run sdk-docs:check -- _sources/torana-edge _sources/torana-plugin-sdk
       - run: npm run edge-links:test
       - run: npm run edge-links:check -- _sources/torana-edge
       - run: npm test
