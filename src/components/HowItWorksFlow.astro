@@ -38,7 +38,7 @@
 
 <style>
   /* Hallmark · technical request diagram · existing studied-DNA tokens
-   * pre-emit critique: P5 H4 E4 S5 R5 V4 · contrast: pass (40–41)
+   * pre-emit critique: P5 H4 E5 S5 R5 V4 · contrast: pass (40–41)
    * HTML labels + SVG connections · no motion · local boundary is explicit
    */
   .architecture { margin: var(--space-7) 0; min-width: 0; }
@@ -56,16 +56,22 @@
   svg { stroke: var(--accent); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex: none; }
   .control-node { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
   .control-node strong { font-size: .875rem; font-weight: 600; }
-  .control-node svg { stroke: var(--muted); margin-inline-start: var(--space-4); }
+  .control-node svg { stroke: var(--muted); align-self: center; }
   .upstream-node { padding: var(--space-4); border: 1px solid var(--rule-strong); border-radius: var(--radius); }
   .diagram-note { margin: var(--space-3) 0 0; color: var(--muted); font-size: .875rem; line-height: 1.6; }
   @media (min-width: 42rem) {
-    .architecture-path { grid-template-columns: minmax(0, 3fr) 3rem minmax(0, 1fr); align-items: start; }
-    .local-path { grid-template-columns: minmax(0, 1fr) 3rem minmax(0, 1.4fr); align-items: center; }
+    /* Shared rows align the inference path independently of label/control height. */
+    .architecture-path { grid-template-columns: minmax(0, 1fr) var(--space-7) minmax(0, 1.4fr) var(--space-7) minmax(0, 1fr); grid-template-rows: auto auto auto; align-items: center; }
+    .local-boundary { display: grid; grid-column: 1 / 4; grid-row: 1 / 4; grid-template-columns: subgrid; grid-template-rows: subgrid; }
+    .boundary-name { grid-column: 1 / -1; }
+    .local-path { grid-column: 1 / -1; grid-row: 2 / 4; grid-template-columns: subgrid; grid-template-rows: subgrid; align-items: center; }
+    .harness-node { grid-column: 1; grid-row: 1; }
+    .local-path > .connector { grid-column: 2; grid-row: 1; }
+    .edge-node { grid-column: 3; grid-row: 1; }
     .connector svg { transform: rotate(-90deg); }
-    .control-node { grid-column: 3; }
-    .upstream-connector { margin-top: var(--space-8); }
-    .upstream-node { margin-top: var(--space-7); }
+    .control-node { grid-column: 3; grid-row: 2; }
+    .upstream-connector { grid-column: 4; grid-row: 2; }
+    .upstream-node { grid-column: 5; grid-row: 2; }
     .node strong { overflow-wrap: anywhere; }
   }
 </style>

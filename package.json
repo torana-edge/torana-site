@@ -15,6 +15,7 @@
     "test": "npm run test:unit && npm run build && npm run test:built",
     "test:unit": "node --test scripts/test-theme.mjs scripts/test-social-cards.mjs scripts/test-edge-links.mjs scripts/test-sdk-docs.mjs scripts/test-pinned-source-links.mjs scripts/test-analytics.mjs",
     "test:built": "node --test scripts/test-site.mjs scripts/test-analytics-built.mjs",
+    "test:layout": "node --test scripts/test-diagram-layout.mjs",
     "build": "npm run check:security && npm run check:contract && npm run check:deploy && npm run social:check && ASTRO_TELEMETRY_DISABLED=1 astro check && ASTRO_TELEMETRY_DISABLED=1 astro build",
     "social:build": "node scripts/social-cards.mjs",
     "social:check": "node scripts/social-cards.mjs --check",
@@ -37,6 +38,7 @@
     "github-slugger": "2.0.0",
     "mdast-util-from-markdown": "2.0.3",
     "mdast-util-to-string": "4.0.0",
+    "playwright-core": "1.63.0",
     "wrangler": "^4.123.0",
     "yaml": "2.9.1"
   },

@@ -24,6 +24,21 @@ quick theme/menu check use `npm run test:unit`; `npm run test:built` checks an
 existing build. Each palette token uses one `light-dark()` pair, selected by
 the system preference or the header control.
 
+For diagram layout changes, build first, then run the browser regressions:
+
+```sh
+npx --no-install playwright-core install chromium
+npm run test:layout
+```
+
+CI installs Chromium with its Linux dependencies and runs these checks too.
+They cover both diagrams in light/dark mode at 320–1920px, including both sides
+of the horizontal-layout breakpoint, centered connectors, label overflow, and
+changing node heights. The test server binds only to loopback; browser and server
+close afterward. External requests are blocked, so CI verifies the offline font
+fallback and cannot send analytics. Also visually check with the hosted fonts
+available. To use installed Chrome locally, set `DIAGRAM_BROWSER_CHANNEL=chrome`.
+
 The theme helper runs as a same-origin external script before body paint, retaining
 the CSP restriction against inline scripts. System / Light / Dark is available in
 the header. Without JavaScript, CSS follows the system theme and the native mobile
