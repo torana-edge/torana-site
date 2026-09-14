@@ -147,6 +147,8 @@ test("technical overview explains consequential routing, stream and permission b
   assert.match(text, /loopback-only/);
   assert.match(text, /cache hit into a miss/);
   assert.match(text, /stale signature/);
+  assert.match(text, /inspected Edge and SDK source snapshots/);
+  assert.match(text, /does not automatically track later changes on main/);
   assert.doesNotMatch(text, /nothing leaves your machine|guaranteed savings|any language/i);
   assert.doesNotMatch(html, /curl[^<]*\|[^<]*sh|torana (?:start|stop|status)/);
 });
