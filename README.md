@@ -72,6 +72,10 @@ Do not use `wrangler deploy` or add a Worker entry point for this site.
    Actions**. Local OAuth login does not supply credentials to GitHub Actions.
    Enter values directly into secret storage, never a commit, issue, or chat.
 
+Configure and validate both deployment credentials **before merging the publishing
+workflow**. Missing credentials intentionally fail main's deployment; do not
+normalize an expected red workflow or restore the old successful-skip behaviour.
+
 See Cloudflare's [Pages configuration](https://developers.cloudflare.com/pages/functions/wrangler-configuration/)
 and [CI credentials guide](https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/).
 Do not enable a second Git-integrated deployment pipeline for the same project;
@@ -87,15 +91,20 @@ production branch with the exact Git commit recorded.
 The final step consumes Wrangler's structured deployment output and verifies:
 
 - the project, production environment, and commit match;
-- eight public routes serve bytes identical to the build, including the homepage,
+- eight routes at the unique deployment URL serve bytes identical to the build, including the homepage,
   quickstart, both articles, registry, scripts, and social image;
-- the homepage serves the security headers from `public/_headers`.
+- each checked route serves its applicable `public/_headers` rules, respecting
+  path/host patterns, combined headers and detach rules;
+- this check does **not** establish that `torana-site.pages.dev` or `torana.sh`
+  serves the revision. Check alias freshness and custom-domain DNS/TLS separately.
 
 The workflow summary links the verified deployment URL. A green build or upload
 alone is not deployment verification. Failure after upload does not automatically
 roll back; inspect the live result and use Pages deployment history deliberately.
 Do not redirect or protect the unique deployment URL with Access without also
-updating this verification contract. Custom-domain checks remain separate.
+updating this verification contract. Failures identify the affected route/header
+or metadata check using controlled messages, without logging response bodies,
+header values, raw tool output, arbitrary exception messages, or credentials.
 
 For an owner-authorized first upload using local OAuth, build with `npm test`
 and deploy from a clean, reviewed checkout with

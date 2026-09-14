@@ -37,7 +37,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           WRANGLER_SEND_METRICS: "false"
           WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/torana-site-deployment.ndjson
-      - name: Verify the uploaded revision over public HTTPS
+      - name: Verify the uploaded build at its unique deployment URL
         run: node scripts/verify-cloudflare-deployment.mjs
         env:
           WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/torana-site-deployment.ndjson
