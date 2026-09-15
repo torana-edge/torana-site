@@ -8,7 +8,12 @@ import Layout from "../../layouts/Layout.astro";
     <h2>Build, approve, enable.</h2>
     <p>With the default quickstart setup, run the command from the same Torana checkout you used to start the server. Plugins install into <code>./plugins</code>, relative to your working directory. If you configured a different plugin directory, pass <code>--dir</code> with the absolute path to that directory to the install command. Setting <code>TORANA_DATA_DIR</code> alone does not select the plugin directory.</p>
     <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/usage_logger</code></pre>
-    <p>The command builds and installs the bundle. It does not approve its permissions or enable it. Inspect what was built:</p>
+    <p>The command builds and installs the bundle. It does not approve its permissions or enable it.</p>
+    <h3>Enable it in the local UI</h3>
+    <p>Open <code>http://127.0.0.1:8080/_torana/</code>, select <strong>usage_logger</strong>, review its requested file access and retention budget, then choose <strong>Approve and enable</strong>. Send another request from your harness and check its output.</p>
+    <p>For terminal or agent automation, follow the <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/usage_logger/README.md#configure">usage logger’s CLI guide</a>. The same workflow is also outlined below.</p>
+    <details><summary>CLI approval example</summary>
+    <p>Inspect what was built:</p>
     <pre><code>./torana plugin inspect usage_logger</code></pre>
     <p>Review the exact digest, requested permissions and resource limits. Save the following as <code>approval.json</code>, replacing the digest with the one you inspected. This example is only for the usage logger; other plugins need their own declared permission set and resources.</p>
     <pre><code>{`{
@@ -28,6 +33,7 @@ import Layout from "../../layouts/Layout.astro";
 ./torana plugin enable usage_logger --yes
 ./torana plugin status`}</code></pre>
     <p>Confirm the bundle is loaded, then send another request. Permissions must equal the full declared set; file and service budgets can be narrowed separately. The local UI at <code>http://127.0.0.1:8080/_torana/</code> offers the same review and activation flow.</p>
+    </details>
     <p>The <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/usage_logger/README.md">usage logger guide</a> explains its records and rotation. Each catalogue entry now links to its own setup guide, including model/pricing/cache bindings where required.</p>
     <p>For the usage logger, the <a href="/quickstart/">quickstart includes a command to follow the JSONL output</a>. Other plugins may need settings or bound resources first; use their source documentation.</p>
     <h2 id="community">Install from any plugin repository.</h2>
