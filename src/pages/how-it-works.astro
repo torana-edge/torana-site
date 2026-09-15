@@ -1,14 +1,12 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { meta } from "../data/pages";
 import HowItWorksFlow from "../components/HowItWorksFlow.astro";
 const edgeSource = "https://github.com/torana-edge/torana-edge/blob/60e9fb9362bff7c1635395c7f44ee417aa7440f6";
 const sdkSource = "https://github.com/torana-edge/torana-plugin-sdk/blob/ad98c6d3467f628dd2f630c054715f8b347daa29";
 ---
 
-<Layout
-  title="How it works — Torana"
-  description="Follow a request through Torana’s local proxy: native routing, opt-in API bridges, shared request formats, WASM plugins, streaming, and local controls."
->
+<Layout {...meta("/how-it-works/")}>
   <article class="frame how-page">
     <header class="introduction">
       <h1 class="display">How it works.</h1>

@@ -1,7 +1,8 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import { meta } from "../../data/pages";
 ---
-<Layout title="The context compaction negative result — Torana" description="75 sessions across three arms: a DeepSeek compaction experiment that did not establish reliable savings." article image="/social/compaction.png" imageAlt="Fewer tokens. A smaller bill? Torana's compaction experiment.">
+<Layout {...meta("/blog/context-compaction-negative-result/")} article image="/social/compaction.png" imageAlt="Fewer tokens. A smaller bill? Torana's compaction experiment.">
   <article class="frame prose">
     <p class="eyebrow">Negative result · 26 July 2026</p>
     <h1 class="display">I built a context compactor. I couldn’t establish reliable savings.</h1>

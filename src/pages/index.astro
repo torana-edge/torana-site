@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { meta } from "../data/pages";
 import { plugins } from "../data/plugins";
 import descriptions from "../data/plugin-copy.json";
 const copy: Record<string, { description: string }> = descriptions;
@@ -8,7 +9,7 @@ const featuredPlugins = ["usage_logger", "tool_governor", "keyword_compactor"]
   .map(name => plugins.find(plugin => plugin.name === name)!);
 ---
 
-<Layout>
+<Layout {...meta("/")}>
   <section class="frame hero">
     <div>
       <p class="eyebrow" data-reveal style="--i:0">Local-first · open source · WASM-extensible</p>

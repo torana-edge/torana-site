@@ -142,3 +142,107 @@ test("website output does not bundle font assets", () => {
   assert.doesNotMatch(readdirSync(root, { recursive: true }).join("\n"), /\.(?:ttf|otf|woff2?)$/im,
     "Build-only social fonts must not be bundled into the website");
 });
+
+// --- machine readers ---------------------------------------------------------
+// The site is read by crawlers and agents as well as people. These check the
+// generated artifacts are present, complete and consistent with what was built;
+// the build itself fails if src/data/pages.ts and src/pages/ ever disagree.
+
+const builtRoutes = () =>
+  htmlFiles(root)
+    .map(file => `/${path.relative(root, file).replace(/index\.html$/, "").replaceAll(path.sep, "/")}`)
+    .filter(route => route !== "/404.html")
+    .sort();
+
+test("the sitemap lists every built page and nothing else", () => {
+  const sitemap = readFileSync(path.join(root, "sitemap.xml"), "utf8");
+  const listed = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]).sort();
+  assert.ok(listed.length > 0, "an empty sitemap has stopped seeing what it guards");
+  for (const location of listed) {
+    assert.ok(location.startsWith("https://torana.sh/"), `${location} must be an absolute production URL`);
+  }
+  assert.deepEqual(listed.map(location => new URL(location).pathname).sort(), builtRoutes());
+  assert.doesNotMatch(sitemap, /\/404/, "the not-found page must not be advertised for indexing");
+});
+
+test("robots.txt points at a sitemap that exists", () => {
+  const robots = readFileSync(path.join(root, "robots.txt"), "utf8");
+  const advertised = robots.match(/^Sitemap:\s*(\S+)$/m)?.[1];
+  assert.ok(advertised, "robots.txt must advertise a sitemap");
+  assert.ok(existsSync(path.join(root, new URL(advertised).pathname)), `${advertised} is advertised but not built`);
+});
+
+test("llms.txt renders every page, repository and product fact it is given", async () => {
+  const { product, repositories } = await import("../src/data/product.ts");
+  const llms = readFileSync(path.join(root, "llms.txt"), "utf8");
+  // Generator wiring, not wording: each assertion reads the same source the
+  // endpoint does, so editing a fact in product.ts never fails CI — only
+  // dropping one from the output does.
+  assert.ok(llms.startsWith(`# ${product.name}`));
+  for (const route of builtRoutes()) {
+    assert.ok(llms.includes(`https://torana.sh${route})`), `llms.txt is missing ${route}`);
+  }
+  for (const { name } of repositories) {
+    assert.ok(llms.includes(`github.com/torana-edge/${name}`), `llms.txt is missing ${name}`);
+  }
+  for (const limit of product.limits) {
+    assert.ok(llms.includes(limit), "llms.txt dropped a documented scope limit");
+  }
+});
+
+test("structured data models the proxy and its plugins from the shared product facts", async () => {
+  const { product } = await import("../src/data/product.ts");
+  const files = htmlFiles(root);
+  assert.ok(files.length >= 10);
+  for (const file of files) {
+    const block = readFileSync(file, "utf8").match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+    assert.ok(block, `${file}: missing JSON-LD`);
+    const graph = JSON.parse(block[1])["@graph"];
+
+    const project = graph.find(node => node["@id"] === "https://torana.sh/#project");
+    assert.equal(project["@type"], "SoftwareSourceCode");
+    assert.equal(project.codeRepository, product.repository);
+    assert.equal(project.license, product.license);
+    assert.equal(project.isAccessibleForFree, true);
+    // The proxy is a native program. Describing it as running on the plugin
+    // runtime, or listing a plugin-only language against it, is what this
+    // catches — the mistake the first version of this graph actually made.
+    assert.equal(project.programmingLanguage, product.language);
+    assert.equal(project.runtimePlatform, undefined, "the proxy does not run on the plugin runtime");
+
+    const plugins = project.hasPart;
+    assert.equal(plugins.runtimePlatform, product.pluginRuntime);
+    assert.deepEqual(plugins.programmingLanguage, [...product.pluginLanguages]);
+
+    const site = graph.find(node => node["@type"] === "WebSite");
+    // schema.org expects an Organization or Person as publisher; the site is
+    // about the project, not published by it.
+    assert.equal(site.publisher, undefined);
+    assert.equal(site.about["@id"], project["@id"]);
+  }
+});
+
+test("a not-found page is built for Cloudflare to serve with a 404 status", () => {
+  const html = readFileSync(path.join(root, "404.html"), "utf8");
+  assert.match(html, /<title>[^<]*not found[^<]*<\/title>/i);
+  for (const route of ["/quickstart/", "/docs/", "/plugins/"]) {
+    assert.ok(html.includes(`href="${route}"`), `the 404 page should offer ${route}`);
+  }
+});
+
+test("every page serves the title and description from the one inventory", async () => {
+  const { pages } = await import("../src/data/pages.ts");
+  const decode = value => value.replaceAll("&#39;", "'").replaceAll("&quot;", '"').replaceAll("&amp;", "&");
+  for (const page of pages) {
+    const file = page.path === "/404/" ? "404.html" : path.join(page.path.slice(1), "index.html");
+    const html = readFileSync(path.join(root, file), "utf8");
+    assert.equal(decode(html.match(/<title>([\s\S]*?)<\/title>/)[1]), page.title, `${file} title`);
+    assert.equal(decode(html.match(/<meta name="description" content="([^"]*)"/)[1]), page.description, `${file} description`);
+  }
+  // Four pages used to fall through to the homepage's description, so search
+  // results described them all identically. Keep them distinct.
+  const descriptions = pages.map(page => page.description);
+  assert.equal(new Set(descriptions).size, descriptions.length, "two pages share a description");
+  const titles = pages.map(page => page.title);
+  assert.equal(new Set(titles).size, titles.length, "two pages share a title");
+});

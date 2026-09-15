@@ -1,8 +1,9 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import { meta } from "../../data/pages";
 const submissionURL = "https://github.com/torana-edge/torana-site/issues/new?template=plugin-listing.yml";
 ---
-<Layout title="Share a plugin — Torana" description="Build a Torana plugin for your workflow, keep it in your own repository, and request a listing in the plugin catalogue.">
+<Layout {...meta("/plugins/submit/")}>
   <article class="frame prose">
     <h1 class="display">Your workflow hack could help someone else.</h1>
     <p>A small plugin that solves one annoying problem is a good place to start. Try moving a harness-specific tool or policy into Torana so you can reuse it across compatible setups. It does not need to cover everyone’s workflow.</p>

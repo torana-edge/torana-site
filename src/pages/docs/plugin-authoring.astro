@@ -1,5 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import { meta } from "../../data/pages";
 import sdk from "../../data/sdk.json";
 const rustDependency = `torana-plugin-sdk = { git = "https://github.com/torana-edge/torana-plugin-sdk", rev = "${sdk.revision}" }`;
 const scenario = `{
@@ -14,7 +15,7 @@ const scenario = `{
   "expected_verdicts": {}
 }`;
 ---
-<Layout title="Write a plugin — Torana" description={`Scaffold a Go or Rust plugin with SDK ${sdk.version}, build its WASM bundle, test it against local scenarios, and approve it in Torana.`}>
+<Layout {...meta("/docs/plugin-authoring/")}>
   <article class="frame prose">
     <p class="eyebrow">Plugin authoring · Go and Rust</p>
     <h1 class="display">Start with one hook.</h1>

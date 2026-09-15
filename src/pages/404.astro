@@ -1,0 +1,27 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { meta, pages } from "../data/pages";
+
+// Cloudflare Pages serves this file with a real 404 status for unmatched paths.
+// Before it existed every unknown URL returned 200 with the homepage, which
+// tells a crawler the page is real and hands an agent that guessed a URL a
+// plausible wrong answer instead of an error.
+const suggestions = pages.filter(page => ["/quickstart/", "/docs/", "/plugins/", "/how-it-works/"].includes(page.path));
+---
+<Layout {...meta("/404/")} noindex>
+  <article class="frame prose not-found">
+    <p class="eyebrow">404</p>
+    <h1 class="display">That page isn’t here.</h1>
+    <p>The link may be outdated, or the page may have moved. Nothing is wrong with your setup.</p>
+    <ul>
+      {suggestions.map(page => <li><a href={page.path}>{page.label}</a> — {page.description}</li>)}
+    </ul>
+    <p>If a link on this site brought you here, please <a href="https://github.com/torana-edge/torana-site/issues">report it</a>.</p>
+  </article>
+</Layout>
+
+<style>
+  .not-found { padding-top: var(--section-compact); }
+  h1 { line-height: 1.1; text-wrap: balance; }
+  li + li { margin-top: var(--space-3); }
+</style>
