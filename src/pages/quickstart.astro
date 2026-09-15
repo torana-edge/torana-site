@@ -25,6 +25,17 @@ import { installCommand } from "../data/install";
     <p>Already signed in? Keep the example’s <code>anthropic</code> provider on <strong>Use harness credentials</strong>, then launch Claude Code with a command-scoped address:</p>
     <pre><code>ANTHROPIC_BASE_URL=http://127.0.0.1:8080/provider/anthropic claude</code></pre>
     <p>Do not add a DeepSeek key or replace your login. If your shell already sets an Anthropic key/token or your Claude configuration uses a key helper, that credential may take precedence. The <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/HARNESS_SETUP.md#claude-code">Claude Code guide</a> explains the distinction.</p>
+    <details>
+      <summary>Claude replies, but the Feed is empty?</summary>
+      <p>Check <code>./torana status</code> and open that instance’s control plane. Exit Claude Code and start a fresh session with the command above, using your Torana instance’s port and provider name. A session launched normally will not inherit that command-scoped routing setting.</p>
+      <p>Separately, to check for credentials that could override your Claude login, run this in the shell where you launch Claude. It prints variable names only, never their values. Also check whether your Claude configuration uses a key helper. Credential overrides affect authentication and billing; they do not by themselves mean that traffic bypasses Torana.</p>
+      <pre><code>{`for name in ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN; do
+  if printenv "$name" >/dev/null; then
+    printf '%s is set\\n' "$name"
+  fi
+done`}</code></pre>
+      <p>Do not paste tokens, a full environment dump, or credential-bearing configuration into an issue.</p>
+    </details>
     <h3>Codex, Antigravity, pi, or oh-my-pi</h3>
     <p>Use the <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/HARNESS_SETUP.md">harness setup guide</a> for their routing settings and current verification results. Codex’s ChatGPT login and an OpenAI API key use different upstream endpoints. Antigravity’s signed-in Code Assist path uses the optional local TLS ingress. These are not interchangeable base-URL settings.</p>
     <p>Ask your harness to read a small, non-sensitive file. Open the local control plane’s <strong>Feed</strong> and find the request, model, and status. A reply alone is not proof that response plugins ran.</p>
