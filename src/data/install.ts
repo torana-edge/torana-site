@@ -1,5 +1,4 @@
-// This block is checked in CI against torana-edge/docs/QUICKSTART.md.
-// Keep pages importing it rather than restating release-channel policy.
+// Shared source-build instructions until tagged binaries are published.
 export const installCommand = `git clone https://github.com/torana-edge/torana-edge.git
 cd torana-edge
 go build -o ./torana ./cmd/torana
