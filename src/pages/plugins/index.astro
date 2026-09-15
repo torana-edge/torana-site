@@ -1,6 +1,8 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import registry from "../../../public/registry/v1/index.json";
+import descriptions from "../../data/plugin-copy.json";
+const copy: Record<string, { title: string; description: string; guide: string }> = descriptions;
 const plugins = registry.plugins;
 ---
 <Layout title="Plugin registry — Torana" description="Curated Torana plugins and their requested capability classes.">
@@ -13,7 +15,7 @@ const plugins = registry.plugins;
       {plugins.map((plugin) => (
         <article class="plugin-detail" id={plugin.name}>
           <h2><a href={plugin.source}>{plugin.name}</a></h2>
-          <p>{plugin.description}</p>
+          <p>{copy[plugin.name].description}</p>
           <p class="article-meta">On plugin failure: {plugin.failure_mode === "block" ? "block the request" : "let the request continue"}.</p>
           {plugin.conflicts_with.length > 0 && <p>Use separately from: {plugin.conflicts_with.join(", ")}.</p>}
           <details>
@@ -25,7 +27,7 @@ const plugins = registry.plugins;
             <pre><code>{`./torana plugin install ${plugin.source}`}</code></pre>
             <button class="copy" type="button" data-copy={`./torana plugin install ${plugin.source}`} data-copy-label={`${plugin.name} install command copied.`} data-analytics-copy="plugin-install" aria-label={`Copy install command for ${plugin.name}`}>Copy install command</button>
           </div>
-          <div class="actions"><a class="button" href={plugin.source}>Source &amp; docs ↗</a><a class="button" href="/docs/plugin-installation/">Installation help →</a></div>
+          <div class="actions"><a class="button" href={copy[plugin.name].guide}>Setup guide ↗</a><a class="button" href={plugin.source}>Source ↗</a><a class="button" href="/docs/plugin-installation/">Installation help →</a></div>
         </article>
       ))}
     </div>

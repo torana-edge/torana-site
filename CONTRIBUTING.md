@@ -18,5 +18,24 @@ fail until the owning repository lands. The auth reference plugin is the sole
 deliberate registry exclusion, and the generator asserts that inventory.
 
 Quickstart command snippets follow the same ownership rule: edit them in
-`torana-edge`, then run the owned-content sync here and merge the site update
-after the source change.
+`torana-edge`, update `src/data/install.ts` here, and merge after the source change.
+
+## Human-readable catalogue copy
+
+`src/data/plugin-copy.json` owns short titles/descriptions and setup-guide links.
+It is presentation copy, not a second manifest. Keep an entry for each generated
+catalogue name and link to its owning guide.
+Do not edit digest-bound manifests just to polish a website sentence.
+Source coordinates, permissions, conflicts and failure modes still come from
+the generated registry, whose API remains unchanged.
+
+## Further guidance
+
+- [Development and visual checks](docs/DEVELOPMENT.md).
+- [Deployment and verification](docs/DEPLOYMENT.md).
+- [Aggregate analytics and privacy checks](docs/ANALYTICS.md).
+
+Operator instructions belong in Edge, authoring in the SDK, individual behavior
+in Plugins. Keep website summaries concise and link to the owner. Internal
+release coordination and account-bootstrap history do not belong in these
+public guides.

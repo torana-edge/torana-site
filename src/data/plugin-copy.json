@@ -1,0 +1,52 @@
+{
+  "usage_logger": {
+    "title": "See usage without saving prompts",
+    "description": "Write one content-free JSONL record for each completed response: provider, model, status, latency and reported token counts.",
+    "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/usage_logger/README.md"
+  },
+  "tool_governor": {
+    "title": "Choose the tools your model sees",
+    "description": "Restrict or replace model-visible tool definitions. For example, expose search and read tools while omitting deployment tools during a review.",
+    "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/tool_governor/README.md"
+  },
+  "otel": {
+    "title": "Add request metrics",
+    "description": "Emit request shape, latency, observed status classes and provider-reported token usage through Torana's metrics host.",
+    "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/otel/README.md"
+  },
+  "schema_translator": {
+    "title": "Adapt map-shaped tool schemas",
+    "description": "Convert supported open-map tool parameters into key/value arrays for providers that need a constrained schema, then reverse the recorded conversion on streamed tool calls.",
+    "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/schema_translator/README.md"
+  },
+  "intent": {
+    "title": "Carry the reason for a tool call",
+    "description": "Ask the model to include why it is making a tool call, strip the added field before the harness sees the streamed call, and make captured intent available to a compactor.",
+    "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/intent/README.md"
+  },
+  "keyword_compactor": {
+    "title": "Trim repeatable tool output without another model",
+    "description": "Apply explicit deterministic or keyword policies to selected tool results. Useful for long searches and listings that can be rerun, while keeping source reads exact.",
+    "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/keyword_compactor/README.md"
+  },
+  "compactor": {
+    "title": "Summarize selected historical tool results",
+    "description": "Use an operator-bound model for eligible older tool output, only when the estimated benefit clears the cache-rewrite and summarizer-cost gate.",
+    "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/compactor/README.md"
+  },
+  "pii": {
+    "title": "Check tool output before forwarding it",
+    "description": "Scan selected tool results with deterministic patterns and an operator-bound contextual model. Block the request when a finding is detected.",
+    "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii/README.md"
+  },
+  "cache_tier_selector": {
+    "title": "Choose a cache lifetime for a conversation",
+    "description": "Choose between configured prompt-cache tiers using observed idle gaps, while keeping a live cached prefix's choice stable.",
+    "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/cache_tier_selector/README.md"
+  },
+  "cache_warmer": {
+    "title": "Keep one conversation's cache warm for a bounded gap",
+    "description": "Opt a conversation into periodic refresh requests, with a deadline and break-even budget. Useful only for explicit cache markers whose lifetime refreshes on a read.",
+    "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/cache_warmer/README.md"
+  }
+}

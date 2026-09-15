@@ -40,16 +40,16 @@ const edgeSource = "https://github.com/torana-edge/torana-edge/blob/60e9fb9362bf
     <p>On native routes, model-list, token-counting, account, quota, status, telemetry, update, MCP, and unknown auxiliary paths pass through without request or response plugins. Real-proxy tests cover that pass-through for all four native formats, including method, path, query, body, permitted headers, upstream status, and response bytes.</p>
     <p>Under any configured bridge, model discovery, token-counting, files, batch APIs, response retrieval, and other auxiliary APIs are not emulated or forwarded; they return 400. This includes bridges whose client and upstream contracts match. Changing a base URL alone does not make a harness that requires these APIs compatible.</p>
 
-    <h2>Coding harnesses</h2>
+    <h2 id="harnesses" data-evidence="automated-contract">Coding harnesses</h2>
     <p>The rows below describe native integration paths and their existing test evidence. For a bridge, separately verify the client API, upstream API, model, streaming, complete tool-result follow-ups, and any auxiliary APIs the harness requires. Mock contract coverage is not a credentialed harness smoke test.</p>
     <div class="table-scroll" tabindex="0" role="region" aria-label="Coding harness support matrix">
       <table>
-        <thead><tr><th>Harness path</th><th>Torana format</th><th>Automated contract</th><th>Manual status</th></tr></thead>
+        <thead><tr><th>Harness path</th><th>Torana format</th><th>Automated contract</th></tr></thead>
         <tbody>
-          <tr><th>Claude Code via <code>ANTHROPIC_BASE_URL</code></th><td>Anthropic Messages</td><td>System prompts, streaming tool use/results, cache markers, signatures, and auxiliary pass-through</td><td>Credentialed normal/tool/resume smoke remains a release gate</td></tr>
-          <tr><th>Codex custom provider</th><td>OpenAI Responses</td><td>Responses layout, opaque input items, streaming tools, and model-list pass-through</td><td>Credentialed normal/tool/resume smoke remains a release gate</td></tr>
-          <tr><th>OpenCode / Aider base URL</th><td>OpenAI or Anthropic</td><td>The selected provider wire has automated coverage</td><td>Credentialed client smoke remains a release gate</td></tr>
-          <tr><th>Antigravity / Code Assist</th><td>Gemini Code Assist</td><td>Wrapper data, signed parts, cache facts, stream framing, and auxiliary pass-through</td><td>Credentialed client smoke remains a release gate</td></tr>
+          <tr><th>Claude Code via <code>ANTHROPIC_BASE_URL</code></th><td>Anthropic Messages</td><td>System prompts, streaming tool use/results, cache markers, signatures, and auxiliary pass-through</td></tr>
+          <tr><th>Codex custom provider</th><td>OpenAI Responses</td><td>Responses layout, opaque input items, streaming tools, and model-list pass-through</td></tr>
+          <tr><th>OpenCode / Aider base URL</th><td>OpenAI or Anthropic</td><td>The selected provider wire has automated coverage</td></tr>
+          <tr><th>Antigravity / Code Assist</th><td>Gemini Code Assist</td><td>Wrapper data, signed parts, cache facts, stream framing, and auxiliary pass-through</td></tr>
         </tbody>
       </table>
     </div>
