@@ -50,6 +50,7 @@ test("all registry entries expose source, install commands and capability detail
   for (const plugin of registry.plugins) {
     assert.ok(html.includes(`id="${plugin.name}"`));
     assert.ok(html.includes(`href="${plugin.source}"`));
+    assert.ok(html.includes(`href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/${plugin.name}/README.md"`));
     assert.ok(html.includes(`data-copy="./torana plugin install ${plugin.source}"`));
     for (const capability of plugin.capabilities) assert.ok(html.includes(capability));
   }
@@ -223,7 +224,9 @@ test("bridge documentation distinguishes translation coverage from native preser
   assert.match(quickstart, /auxiliary APIs under any configured bridge return 400, even when the client and upstream contracts match/);
   const authoring = readFileSync(path.join(root, "docs/plugin-authoring/index.html"), "utf8");
   for (const field of ["instructions", "max_output_tokens", "temperature", "top_p", "provider_extensions_json"]) assert.ok(authoring.includes(field));
-  assert.match(authoring, /including native routes/);
+  assert.match(authoring, /native routes/);
+  assert.match(authoring, /href="https:\/\/github\.com\/torana-edge\/torana-edge\/blob\/main\/docs\/UPGRADE_NOTES\.md"/);
+  assert.match(authoring, /cache-prefix changes/);
   assert.match(authoring, /does not require an SDK pin change/);
 });
 

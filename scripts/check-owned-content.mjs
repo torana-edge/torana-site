@@ -5,8 +5,8 @@ const edgeRoot = path.resolve(process.argv[2]);
 if (!fs.existsSync(edgeRoot)) throw new Error("usage: check-owned-content.mjs <torana-edge checkout>");
 
 const quickstart = fs.readFileSync(path.join(edgeRoot, "docs/QUICKSTART.md"), "utf8");
-const canonical = quickstart.match(/## Install the current pre-release\s+```bash\n([\s\S]*?)\n```/)?.[1]?.trim();
-if (!canonical) throw new Error("canonical pre-release install block not found in Edge quickstart");
+const canonical = quickstart.match(/<!-- torana:source-install:start -->\s+```bash\n([\s\S]*?)\n```\s+<!-- torana:source-install:end -->/)?.[1]?.trim();
+if (!canonical) throw new Error("marked source-install block not found in Edge quickstart");
 
 const siteSource = fs.readFileSync("src/data/install.ts", "utf8");
 const site = siteSource.match(/export const installCommand = `([\s\S]*?)`;/)?.[1]?.trim();
@@ -44,6 +44,8 @@ for (const cacheField of ["cache_control", "prompt_cache_key", "prompt_cache_ret
   if (!support.includes(cacheField)) throw new Error(`site support matrix omits ${cacheField}`);
 }
 
-if (!support.includes("Credentialed normal/tool/resume smoke remains a release gate")) {
-  throw new Error("site support matrix must keep the credentialed harness release gate visible");
+// Keep the evidence category explicit without locking editorial wording to a
+// release checklist. Do not turn fixture coverage into a live-harness claim.
+if (!support.includes('data-evidence="automated-contract"')) {
+  throw new Error("harness matrix must identify its evidence as automated contract coverage");
 }

@@ -1,6 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { plugins } from "../data/plugins";
+import descriptions from "../data/plugin-copy.json";
+const copy: Record<string, { description: string }> = descriptions;
 import RequestFlow from "../components/RequestFlow.astro";
 const featuredPlugins = ["usage_logger", "tool_governor", "keyword_compactor"]
   .map(name => plugins.find(plugin => plugin.name === name)!);
@@ -51,7 +53,7 @@ const featuredPlugins = ["usage_logger", "tool_governor", "keyword_compactor"]
         {featuredPlugins.map((plugin) => (
           <article class="plugin" data-featured-plugin={plugin.name}>
             <h3><a href={`/plugins/#${plugin.name}`}>{plugin.name}</a></h3>
-            <p>{plugin.description}</p>
+            <p>{copy[plugin.name].description}</p>
             <a class="tag" href={`/plugins/#${plugin.name}`}>Details →</a>
           </article>
         ))}
@@ -63,7 +65,7 @@ const featuredPlugins = ["usage_logger", "tool_governor", "keyword_compactor"]
     <div class="frame quick-grid">
       <div>
         <h2 class="display">One binary. One local port.</h2>
-        <p>You need Git, Go 1.26.6 or newer, and a model endpoint. The quickstart uses a remote provider and its credential; a local backend can use the bridge guide. Start with no plugins, then add the usage logger.</p>
+        <p>Start, stop, inspect requests and manage your plugins from the terminal. The local UI uses the same controls. You need Git, Go 1.26.6 or newer, and a model endpoint. Start with no plugins, then add the usage logger.</p>
         <a class="button" href="/quickstart/">Open the walkthrough →</a>
       </div>
       <p class="quick-outcome">Send one request through the proxy. See it in the local feed. Then add a plugin.</p>
@@ -88,10 +90,6 @@ const featuredPlugins = ["usage_logger", "tool_governor", "keyword_compactor"]
 </Layout>
 
 <style>
-  /* Hallmark · Workbench / Ecosystem Index · five-panel platform refinement
-   * pre-emit critique: P5 H4 E4 S5 R5 V4 · existing theme, nav and footer retained
-   * rendered: mobile/desktop and light/dark pass · text contrast >= 6.79:1
-   */
   .capability-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
   .how-link { display: flex; align-items: center; min-height: 44px; width: fit-content; white-space: nowrap; }
   .capability-grid article { border: 1px solid var(--rule); padding: var(--space-5); display: flex; flex-direction: column; align-items: flex-start; }

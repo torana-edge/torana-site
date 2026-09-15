@@ -11,11 +11,12 @@ import { installCommand } from "../data/install";
     <p>Already running a local model server with a different API from your client? Complete the install and start steps, then follow the <a href="/docs/protocol-bridges/">protocol-bridge guide</a> instead of the DeepSeek request below.</p>
     <h2>1. Install</h2>
     <pre><code>{installCommand}</code></pre>
-    <p>This walkthrough currently builds the development source. To reproduce a particular revision, check out its reviewed commit SHA before building. The first tagged release will get its own verified install instructions.</p>
+    <p>This walkthrough builds from source. To reproduce a particular revision, check out its reviewed commit SHA before building.</p>
     <h2>2. Start without plugins</h2>
     <pre><code>{`export TORANA_DATA_DIR="$PWD/.torana-data"
-./torana --debug`}</code></pre>
-    <p>This keeps evaluation state in <code>.torana-data</code> inside the checkout. On first run Torana imports <code>config.json</code>; later changes belong in the local control plane, not the seed file. This directory can contain credentials and plugin files: keep it private. Open <code>http://127.0.0.1:8080/_torana/</code> to inspect activity or edit providers. The listener and control plane default to loopback. Leave the server running, then verify it from another terminal:</p>
+./torana --debug start
+./torana status`}</code></pre>
+    <p>This keeps evaluation state in <code>.torana-data</code> inside the checkout. On first run Torana imports <code>config.json</code>; later changes belong in the local control plane, not the seed file. This directory can contain credentials and plugin files: keep it private. Open <code>http://127.0.0.1:8080/_torana/</code> to inspect activity or edit providers. The listener and control plane default to loopback. The server runs in the background. In the same shell, verify it:</p>
     <pre><code>curl --fail-with-body --silent http://127.0.0.1:8080/health</code></pre>
     <p>A healthy process returns <code>{`{"status":"ok"}`}</code>. A failed plugin reload keeps the last known-good pipeline serving but reports a degraded health status.</p>
     <h2>3. Send one inference request</h2>
@@ -27,18 +28,21 @@ curl --fail-with-body --silent \\
   -H "Content-Type: application/json" \\
   -d '{"model":"deepseek-flash","messages":[{"role":"user","content":"Reply with exactly: Torana works"}]}'`}</code></pre>
     <p>This uses the built-in DeepSeek route and forwards your caller credential only to that selected provider. Configure a different provider in the control plane if you do not use DeepSeek.</p>
+    <pre><code>{`./torana feed
+./torana stats`}</code></pre>
+    <p>Find the matching request in the feed. You can also inspect it in the local UI. <code>./torana status</code> reports the instance and log path.</p>
     <h2>4. Point your harness at it</h2>
     <pre><code>export OPENAI_BASE_URL=http://127.0.0.1:8080/provider/deepseek/v1</code></pre>
     <p>Replace <code>deepseek</code> with the provider name in your configuration. This is a native route: the harness must speak the upstream’s supported API, and auxiliary provider endpoints pass through without entering the plugin pipeline. An explicitly configured <a href="/docs/protocol-bridges/">bridge</a> can translate different inference APIs; auxiliary APIs under any configured bridge return 400, even when the client and upstream contracts match. Check the <a href="/docs/support/">endpoint and harness matrix</a> for the path you choose.</p>
     <h2>5. Add one useful plugin</h2>
-    <p>In a second terminal, from your Torana checkout, install the usage logger:</p>
+    <p>From the same Torana checkout, install the usage logger:</p>
     <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/usage_logger</code></pre>
-    <p>Installation builds the plugin but does not approve or enable it. In the local control plane, inspect its requested capabilities and private-file budget, approve and enable it, and verify it is in the active pipeline. Send another request, then read the result:</p>
+    <p>Installation builds the plugin but does not approve or enable it. Follow the <a href="/docs/plugin-installation/">CLI approval example</a> to inspect its digest, approve its private-file budget and enable it. You can also do those steps in the local UI. Send another request, then read the result:</p>
     <pre><code>{`tail -F "$(./torana plugin file path usage_logger usage.jsonl)"`}</code></pre>
     <p>Each JSONL record includes provider, model, latency, status, and reported input/output/cache token counts. It does not contain prompts, responses, or headers. You now have a concrete check that requests are reaching Torana and the plugin is running.</p>
     <p>Next, <a href="/plugins/">explore the other plugins</a> or <a href="https://github.com/torana-edge/torana-plugin-sdk">write your own</a>.</p>
     <h2>Switch back whenever you want</h2>
-    <p>Restore your harness’s previous provider/base-URL configuration and restart the harness. If <code>OPENAI_BASE_URL</code> was previously unset, use <code>unset OPENAI_BASE_URL</code> in that shell. Once your agent connects directly again, stop Torana with Ctrl+C. The evaluation directory remains on disk until you remove it.</p>
+    <p>Restore your harness’s previous provider/base-URL configuration and restart the harness. If <code>OPENAI_BASE_URL</code> was previously unset, use <code>unset OPENAI_BASE_URL</code> in that shell. Once your agent connects directly again, stop Torana with <code>./torana stop --yes</code>. Use <code>./torana serve</code> if you prefer foreground serving. The evaluation directory remains on disk until you remove it.</p>
     <h2>Help improve the next release</h2>
     <p><a href="https://github.com/torana-edge/torana-edge/issues">Tell us how your session went</a>: your Torana and harness versions, provider/endpoint, whether streaming and tool calls worked, and the first confusing step. Keep credentials, private source, and sensitive prompts out of your report.</p>
   </article>
