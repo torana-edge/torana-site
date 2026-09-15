@@ -1,5 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import { meta } from "../../data/pages";
 const edgeSource = "https://github.com/torana-edge/torana-edge/blob/60e9fb9362bff7c1635395c7f44ee417aa7440f6";
 const providerEntry = `"local-messages": {
   "url": "http://127.0.0.1:8000",
@@ -16,7 +17,7 @@ const request = `curl --fail-with-body \\
   -H 'Content-Type: application/json' \\
   -d '{"model":"client-model","max_tokens":128,"messages":[{"role":"user","content":"Say hello"}]}'`;
 ---
-<Layout title="Protocol bridges — Torana" description="Connect an Anthropic Messages client to a local OpenAI-compatible model server. Configure Torana’s opt-in API translation from the CLI and understand its boundaries.">
+<Layout {...meta("/docs/protocol-bridges/")}>
   <article class="frame prose bridge-guide">
     <h1 class="display">Different APIs. One local proxy.</h1>
     <p>Your client sends Anthropic Messages, but your model server accepts OpenAI Chat Completions. A <strong>protocol bridge</strong> lets Torana translate between them: requests on the way out, JSON or streaming responses on the way back. It is built in; no plugin is required.</p>

@@ -16,7 +16,12 @@ test("every built page agrees with the explicit deployment config and generated 
   for (const name of pages) {
     const html = readFileSync(new URL(name, root), "utf8");
     const scripts = [...html.matchAll(/<script\b[^>]*src="\/analytics.js"[^>]*><\/script>/g)];
-    if (websiteId) {
+    // A noindex response is not a destination: it claims no canonical URL and is
+    // absent from the analytics page vocabulary, so it must carry no tracker.
+    if (/<meta name="robots" content="noindex/.test(html)) {
+      assert.equal(scripts.length, 0, `${name} is noindex and must not load the tracker`);
+      assert.doesNotMatch(html, /rel="canonical"/, `${name} is noindex and must not claim a canonical URL`);
+    } else if (websiteId) {
       assert.equal(scripts.length, 1, name);
       assert.ok(scripts[0][0].includes(`data-website-id="${websiteId}"`), name);
       const canonical = html.match(/rel="canonical" href="https:\/\/torana.sh([^"?#]*)"/)?.[1];

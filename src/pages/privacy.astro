@@ -1,8 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { meta } from "../data/pages";
 import { websiteId } from "../lib/analytics";
 ---
-<Layout title="Website privacy — Torana" description="What torana.sh measures, what it leaves out, and how browser privacy preferences are respected.">
+<Layout {...meta("/privacy/")}>
   <article class="frame prose">
     <h1 class="display">Website privacy.</h1>
     <p>This page describes the public website, <code>torana.sh</code>. It does not add telemetry to the Torana proxy running on your machine, or send your agent traffic to a website analytics service.</p>

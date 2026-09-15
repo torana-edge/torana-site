@@ -1,7 +1,8 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import { meta } from "../../data/pages";
 ---
-<Layout title="Install a plugin — Torana" description="Build a Torana plugin from source, review its requested capabilities, and approve the exact bundle on your machine.">
+<Layout {...meta("/docs/plugin-installation/")}>
   <article class="frame prose">
     <h1 class="display">Install a plugin you can inspect.</h1>
     <p>After the <a href="/quickstart/">quickstart</a>, choose a plugin in the <a href="/plugins/">registry</a>. Open its source and documentation before running the install command.</p>

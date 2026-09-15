@@ -1,12 +1,10 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import { meta } from "../../data/pages";
 import sdk from "../../data/sdk.json";
 const edgeSource = "https://github.com/torana-edge/torana-edge/blob/60e9fb9362bff7c1635395c7f44ee417aa7440f6";
 ---
-<Layout
-  title="Support matrix — Torana"
-  description="The exact provider endpoints, streaming and tool coverage, prompt-cache behavior, harness paths, and plugin SDK maturity Torana supports."
->
+<Layout {...meta("/docs/support/")}>
   <article class="frame prose" style="max-width:var(--page)">
     <p class="eyebrow">Support matrix · formats and harnesses</p>
     <h1 class="display">What works with Torana.</h1>

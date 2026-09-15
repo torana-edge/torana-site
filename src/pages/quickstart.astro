@@ -1,8 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { meta } from "../data/pages";
 import { installCommand } from "../data/install";
 ---
-<Layout title="Quickstart — Torana" description="Install Torana and route a coding agent through your local proxy.">
+<Layout {...meta("/quickstart/")}>
   <article class="frame prose">
     <p class="eyebrow">Quickstart · local machine</p>
     <h1 class="display">Your first session through Torana.</h1>
