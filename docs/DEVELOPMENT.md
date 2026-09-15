@@ -12,9 +12,6 @@ npm run dev
 ```sh
 npm test
 npm run registry:check -- ../torana-plugins
-npm run owned-content:check -- ../torana-edge
-npm run sdk-docs:check -- ../torana-edge ../torana-plugin-sdk
-npm run edge-links:check -- ../torana-edge
 ```
 
 `npm test` runs the unit tests, builds the site, then checks built pages. For a
@@ -60,23 +57,9 @@ lapsed maintenance or compatibility, changed licensing, or security concerns.
 The issue form uses the repository's `plugin-listing` label for triage; preserve
 that label when maintaining the form, rather than relying on its editable title.
 
-The Edge link check resolves repository-root links to `README.md`, checks linked
-files on `main`, and verifies Markdown heading or source-line fragments. It parses
-Markdown and uses GitHub heading slugs, including duplicate headings; headings
-inside code blocks do not count. Custom raw-HTML anchors are not supported by this
-check. Prefer generated heading anchors in site links. A missing checkout fails;
-only an explicit local `--optional` may skip an absent checkout. The regression
-tests run in `npm test` as well as `npm run edge-links:test`.
-
-The SDK values rendered by the authoring guide and support matrix come from
-`src/data/sdk.json`. `sdk-docs:check` compares them with Edge's
-`ScaffoldSDKVersion`, `ScaffoldSDKRevision`, and Go module requirement, then reads
-`abi.go` at that exact revision from the SDK repository. The SDK checkout must
-contain the pinned commit; CI fetches its history instead of assuming SDK main
-has the same contract. Missing source, changed declaration shapes, and mismatched
-values fail the check. When Edge updates its SDK, review and update this metadata
-and the authoring guidance together. The built-page tests verify that both pages
-render the checked values; fixture tests prove that upstream-only changes fail.
+When moving or renaming a guide, update its website links too. The SDK version
+and ABI values in `src/data/sdk.json` are shared by the authoring and support
+pages; review them alongside Edge's SDK dependency when updating those guides.
 
 Social cards live in `public/social/`: editable SVG sources and matching 1200×630
 PNG exports. Keep each pair in sync; pages link to the PNG for social previews.

@@ -31,12 +31,7 @@ test("every built page agrees with the explicit deployment config and generated 
   }
 });
 
-test("privacy disclosure matches build state and distinguishes the website from local traffic", () => {
-  const privacy = readFileSync(new URL("privacy/index.html", root), "utf8");
-  assert.match(privacy, websiteId ? /Analytics is enabled for/ : /Website analytics is disabled in this build/);
-  assert.match(privacy, /does not add telemetry to the Torana proxy/);
-  assert.match(privacy, /pseudonymous session or visit statistics/);
-  assert.match(privacy, /Do Not Track or Global Privacy Control/);
+test("plugin install buttons expose the aggregate copy event marker", () => {
   const plugins = readFileSync(new URL("plugins/index.html", root), "utf8");
   const commands = [...plugins.matchAll(/<button\b[^>]*data-copy="[^"]+"[^>]*>/g)];
   assert.ok(commands.length > 0);

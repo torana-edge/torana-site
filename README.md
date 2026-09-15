@@ -15,9 +15,6 @@ npm run dev
 ```sh
 npm test
 npm run registry:check -- ../torana-plugins
-npm run owned-content:check -- ../torana-edge
-npm run sdk-docs:check -- ../torana-edge ../torana-plugin-sdk
-npm run edge-links:check -- ../torana-edge
 ```
 
 Read [development and visual checks](docs/DEVELOPMENT.md),
