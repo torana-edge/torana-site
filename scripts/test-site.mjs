@@ -172,32 +172,53 @@ test("robots.txt points at a sitemap that exists", () => {
   assert.ok(existsSync(path.join(root, new URL(advertised).pathname)), `${advertised} is advertised but not built`);
 });
 
-test("llms.txt indexes every page and states the project's limits", () => {
+test("llms.txt renders every page, repository and product fact it is given", async () => {
+  const { product, repositories } = await import("../src/data/product.ts");
   const llms = readFileSync(path.join(root, "llms.txt"), "utf8");
-  assert.match(llms, /^# Torana/);
+  // Generator wiring, not wording: each assertion reads the same source the
+  // endpoint does, so editing a fact in product.ts never fails CI — only
+  // dropping one from the output does.
+  assert.ok(llms.startsWith(`# ${product.name}`));
   for (const route of builtRoutes()) {
     assert.ok(llms.includes(`https://torana.sh${route})`), `llms.txt is missing ${route}`);
   }
-  for (const repository of ["torana-edge", "torana-plugin-sdk", "torana-plugins", "torana-site"]) {
-    assert.ok(llms.includes(`github.com/torana-edge/${repository}`), `llms.txt is missing ${repository}`);
+  for (const { name } of repositories) {
+    assert.ok(llms.includes(`github.com/torana-edge/${name}`), `llms.txt is missing ${name}`);
   }
-  // A summary that lists only capabilities teaches an inaccurate description.
-  assert.match(llms, /installing a plugin neither enables it nor grants it access/);
-  assert.match(llms, /negative result/);
-  assert.doesNotMatch(llms, /nothing leaves your machine|guaranteed savings/i);
+  for (const limit of product.limits) {
+    assert.ok(llms.includes(limit), "llms.txt dropped a documented scope limit");
+  }
 });
 
-test("every page carries parseable structured data naming the project and its source", () => {
+test("structured data models the proxy and its plugins from the shared product facts", async () => {
+  const { product } = await import("../src/data/product.ts");
   const files = htmlFiles(root);
   assert.ok(files.length >= 10);
   for (const file of files) {
     const block = readFileSync(file, "utf8").match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
     assert.ok(block, `${file}: missing JSON-LD`);
     const graph = JSON.parse(block[1])["@graph"];
-    const source = graph.find(node => node["@type"] === "SoftwareSourceCode");
-    assert.equal(source.codeRepository, "https://github.com/torana-edge/torana-edge");
-    assert.equal(source.isAccessibleForFree, true);
-    assert.ok(graph.some(node => node["@type"] === "WebSite"));
+
+    const project = graph.find(node => node["@id"] === "https://torana.sh/#project");
+    assert.equal(project["@type"], "SoftwareSourceCode");
+    assert.equal(project.codeRepository, product.repository);
+    assert.equal(project.license, product.license);
+    assert.equal(project.isAccessibleForFree, true);
+    // The proxy is a native program. Describing it as running on the plugin
+    // runtime, or listing a plugin-only language against it, is what this
+    // catches — the mistake the first version of this graph actually made.
+    assert.equal(project.programmingLanguage, product.language);
+    assert.equal(project.runtimePlatform, undefined, "the proxy does not run on the plugin runtime");
+
+    const plugins = project.hasPart;
+    assert.equal(plugins.runtimePlatform, product.pluginRuntime);
+    assert.deepEqual(plugins.programmingLanguage, [...product.pluginLanguages]);
+
+    const site = graph.find(node => node["@type"] === "WebSite");
+    // schema.org expects an Organization or Person as publisher; the site is
+    // about the project, not published by it.
+    assert.equal(site.publisher, undefined);
+    assert.equal(site.about["@id"], project["@id"]);
   }
 });
 

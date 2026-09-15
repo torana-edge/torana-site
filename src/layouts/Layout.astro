@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import { websiteId } from "../lib/analytics";
 import { meta } from "../data/pages";
+import { product, repositoryURL } from "../data/product";
 
 interface Props {
   title?: string;
@@ -25,38 +26,52 @@ const {
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 
-// Machine-readable identity. Without this an agent has to infer what Torana is
-// from prose, and the two facts it most often gets wrong — that this is open
-// source, and that it is a local proxy rather than a hosted service — are
-// exactly the ones worth stating in a form that cannot be paraphrased away.
-// Claims here are deliberately limited to what the site already states.
+// Machine-readable identity, built from the shared product facts so a
+// correction lands here and in /llms.txt together.
+//
+// The proxy and its plugins are deliberately modelled as two things. Torana
+// itself is a native Go program; WebAssembly is the runtime its plugins are
+// compiled to, and Rust appears only as a plugin language. Collapsing those
+// into one entity told a reader the proxy ran on WebAssembly, which is wrong.
 const structuredData = {
   "@context": "https://schema.org",
   "@graph": [
     {
       "@type": "WebSite",
       "@id": "https://torana.sh/#website",
-      url: "https://torana.sh/",
-      name: "Torana",
+      url: product.url,
+      name: product.name,
       description:
         "A local-first programmable reverse proxy for coding agents, with WebAssembly plugins and an auditable local control plane.",
       inLanguage: "en",
-      publisher: { "@id": "https://torana.sh/#project" },
+      // The site is *about* the project. It is not published by it: schema.org
+      // expects an Organization or Person there, and inventing one would assert
+      // a legal entity that does not exist.
+      about: { "@id": "https://torana.sh/#project" },
     },
     {
       "@type": "SoftwareSourceCode",
       "@id": "https://torana.sh/#project",
-      name: "Torana",
-      description:
-        "An open-source reverse proxy that runs on your own machine between a coding agent and its model provider. It records traffic locally, applies configured policy, and runs sandboxed WebAssembly plugins that must be explicitly approved.",
-      url: "https://torana.sh/",
-      codeRepository: "https://github.com/torana-edge/torana-edge",
-      programmingLanguage: ["Go", "Rust"],
-      runtimePlatform: "WebAssembly",
+      name: product.name,
+      description: product.summary,
+      url: product.url,
+      codeRepository: product.repository,
+      programmingLanguage: product.language,
       applicationCategory: "DeveloperApplication",
-      operatingSystem: "Linux, macOS, Windows",
-      license: "https://github.com/torana-edge/torana-edge/blob/main/LICENSE",
+      operatingSystem: product.operatingSystems.join(", "),
+      license: product.license,
       isAccessibleForFree: true,
+      // Plugins are a distinct artefact with their own languages and runtime.
+      hasPart: {
+        "@type": "SoftwareSourceCode",
+        "@id": "https://torana.sh/#plugins",
+        name: `${product.name} plugins`,
+        description:
+          "Sandboxed plugins loaded by the proxy. Each declares its capabilities and must be explicitly approved before it runs.",
+        codeRepository: repositoryURL("torana-plugins"),
+        programmingLanguage: [...product.pluginLanguages],
+        runtimePlatform: product.pluginRuntime,
+      },
     },
   ],
 };
