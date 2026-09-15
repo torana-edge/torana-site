@@ -8,6 +8,8 @@ interface Props {
   image?: string;
   imageAlt?: string;
   article?: boolean;
+  /** Set on responses that are not destinations, such as the 404 page. */
+  noindex?: boolean;
 }
 
 const {
@@ -16,8 +18,45 @@ const {
   image = "/social/torana.png",
   imageAlt = "Torana — a programmable proxy for coding agents. Local-first. Open source.",
   article = false,
+  noindex = false,
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+
+// Machine-readable identity. Without this an agent has to infer what Torana is
+// from prose, and the two facts it most often gets wrong — that this is open
+// source, and that it is a local proxy rather than a hosted service — are
+// exactly the ones worth stating in a form that cannot be paraphrased away.
+// Claims here are deliberately limited to what the site already states.
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://torana.sh/#website",
+      url: "https://torana.sh/",
+      name: "Torana",
+      description:
+        "A local-first programmable reverse proxy for coding agents, with WebAssembly plugins and an auditable local control plane.",
+      inLanguage: "en",
+      publisher: { "@id": "https://torana.sh/#project" },
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "@id": "https://torana.sh/#project",
+      name: "Torana",
+      description:
+        "An open-source reverse proxy that runs on your own machine between a coding agent and its model provider. It records traffic locally, applies configured policy, and runs sandboxed WebAssembly plugins that must be explicitly approved.",
+      url: "https://torana.sh/",
+      codeRepository: "https://github.com/torana-edge/torana-edge",
+      programmingLanguage: ["Go", "Rust"],
+      runtimePlatform: "WebAssembly",
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "Linux, macOS, Windows",
+      license: "https://github.com/torana-edge/torana-edge/blob/main/LICENSE",
+      isAccessibleForFree: true,
+    },
+  ],
+};
 ---
 
 <!doctype html>
@@ -39,13 +78,16 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="twitter:image:alt" content={imageAlt} />
     <meta name="theme-color" content="oklch(13% 0.018 220)" />
     <script is:inline src="/theme.js"></script>
-    {websiteId && <script is:inline defer src="/analytics.js" data-website-id={websiteId} data-page={canonical.pathname}></script>}
-    <link rel="canonical" href={canonical} />
+    {websiteId && !noindex && <script is:inline defer src="/analytics.js" data-website-id={websiteId} data-page={canonical.pathname}></script>}
+    {noindex
+      ? <meta name="robots" content="noindex, follow" />
+      : <link rel="canonical" href={canonical} />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <title>{title}</title>
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)}></script>
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>

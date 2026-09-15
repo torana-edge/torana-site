@@ -142,3 +142,69 @@ test("website output does not bundle font assets", () => {
   assert.doesNotMatch(readdirSync(root, { recursive: true }).join("\n"), /\.(?:ttf|otf|woff2?)$/im,
     "Build-only social fonts must not be bundled into the website");
 });
+
+// --- machine readers ---------------------------------------------------------
+// The site is read by crawlers and agents as well as people. These check the
+// generated artifacts are present, complete and consistent with what was built;
+// the build itself fails if src/data/pages.ts and src/pages/ ever disagree.
+
+const builtRoutes = () =>
+  htmlFiles(root)
+    .map(file => `/${path.relative(root, file).replace(/index\.html$/, "").replaceAll(path.sep, "/")}`)
+    .filter(route => route !== "/404.html")
+    .sort();
+
+test("the sitemap lists every built page and nothing else", () => {
+  const sitemap = readFileSync(path.join(root, "sitemap.xml"), "utf8");
+  const listed = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]).sort();
+  assert.ok(listed.length > 0, "an empty sitemap has stopped seeing what it guards");
+  for (const location of listed) {
+    assert.ok(location.startsWith("https://torana.sh/"), `${location} must be an absolute production URL`);
+  }
+  assert.deepEqual(listed.map(location => new URL(location).pathname).sort(), builtRoutes());
+  assert.doesNotMatch(sitemap, /\/404/, "the not-found page must not be advertised for indexing");
+});
+
+test("robots.txt points at a sitemap that exists", () => {
+  const robots = readFileSync(path.join(root, "robots.txt"), "utf8");
+  const advertised = robots.match(/^Sitemap:\s*(\S+)$/m)?.[1];
+  assert.ok(advertised, "robots.txt must advertise a sitemap");
+  assert.ok(existsSync(path.join(root, new URL(advertised).pathname)), `${advertised} is advertised but not built`);
+});
+
+test("llms.txt indexes every page and states the project's limits", () => {
+  const llms = readFileSync(path.join(root, "llms.txt"), "utf8");
+  assert.match(llms, /^# Torana/);
+  for (const route of builtRoutes()) {
+    assert.ok(llms.includes(`https://torana.sh${route})`), `llms.txt is missing ${route}`);
+  }
+  for (const repository of ["torana-edge", "torana-plugin-sdk", "torana-plugins", "torana-site"]) {
+    assert.ok(llms.includes(`github.com/torana-edge/${repository}`), `llms.txt is missing ${repository}`);
+  }
+  // A summary that lists only capabilities teaches an inaccurate description.
+  assert.match(llms, /installing a plugin neither enables it nor grants it access/);
+  assert.match(llms, /negative result/);
+  assert.doesNotMatch(llms, /nothing leaves your machine|guaranteed savings/i);
+});
+
+test("every page carries parseable structured data naming the project and its source", () => {
+  const files = htmlFiles(root);
+  assert.ok(files.length >= 10);
+  for (const file of files) {
+    const block = readFileSync(file, "utf8").match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+    assert.ok(block, `${file}: missing JSON-LD`);
+    const graph = JSON.parse(block[1])["@graph"];
+    const source = graph.find(node => node["@type"] === "SoftwareSourceCode");
+    assert.equal(source.codeRepository, "https://github.com/torana-edge/torana-edge");
+    assert.equal(source.isAccessibleForFree, true);
+    assert.ok(graph.some(node => node["@type"] === "WebSite"));
+  }
+});
+
+test("a not-found page is built for Cloudflare to serve with a 404 status", () => {
+  const html = readFileSync(path.join(root, "404.html"), "utf8");
+  assert.match(html, /<title>[^<]*not found[^<]*<\/title>/i);
+  for (const route of ["/quickstart/", "/docs/", "/plugins/"]) {
+    assert.ok(html.includes(`href="${route}"`), `the 404 page should offer ${route}`);
+  }
+});
