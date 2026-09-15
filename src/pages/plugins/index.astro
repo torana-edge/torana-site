@@ -1,11 +1,12 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import { meta } from "../../data/pages";
 import registry from "../../../public/registry/v1/index.json";
 import descriptions from "../../data/plugin-copy.json";
 const copy: Record<string, { title: string; description: string; guide: string }> = descriptions;
 const plugins = registry.plugins;
 ---
-<Layout title="Plugin registry — Torana" description="Curated Torana plugins and their requested capability classes.">
+<Layout {...meta("/plugins/")}>
   <section class="frame prose" style="max-width:var(--page)">
     <h1 class="display">Pick a plugin. Make it yours.</h1>
     <p>Start with the <a href="#usage_logger">usage logger</a>, change the tools your model sees, or experiment with context. Install only what you need. Each entry includes its source, requested capabilities, and an install command.</p>

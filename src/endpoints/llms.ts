@@ -43,7 +43,7 @@ ${sections
   .map(section => {
     const items = listed
       .filter(page => page.section === section)
-      .map(page => `- [${page.title}](${SITE}${page.path}): ${page.summary}`)
+      .map(page => `- [${page.label}](${SITE}${page.path}): ${page.description}`)
       .join("\n");
     return `## ${section}\n\n${items}`;
   })

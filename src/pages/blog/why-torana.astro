@@ -1,7 +1,8 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import { meta } from "../../data/pages";
 ---
-<Layout title="This was supposed to be a compactor. — Torana" description="A compaction experiment, some architectural scope creep, and the local-first proxy that became Torana." article image="/social/origin.png" imageAlt="This was supposed to be a compactor. The story behind Torana.">
+<Layout {...meta("/blog/why-torana/")} article image="/social/origin.png" imageAlt="This was supposed to be a compactor. The story behind Torana.">
   <article class="frame prose">
     <p class="article-meta">Building Torana · the origin story</p>
     <h1 class="display">This was supposed to be a compactor.</h1>

@@ -1,7 +1,8 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import { meta } from "../../data/pages";
 ---
-<Layout title="Docs — Torana">
+<Layout {...meta("/docs/")}>
   <article class="frame prose">
     <p class="eyebrow">Documentation</p>
     <h1 class="display">Get Torana running.</h1>

@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import { websiteId } from "../lib/analytics";
+import { meta } from "../data/pages";
 
 interface Props {
   title?: string;
@@ -12,9 +13,11 @@ interface Props {
   noindex?: boolean;
 }
 
+// Defaults are the homepage's own entry, so there is no second copy of them.
+const home = meta("/");
 const {
-  title = "Torana — a programmable proxy for coding agents",
-  description = "Keep your coding agent and model. Observe traffic locally, apply your own policy, and build Go or Rust plugins with Torana, an open-source reverse proxy.",
+  title = home.title,
+  description = home.description,
   image = "/social/torana.png",
   imageAlt = "Torana — a programmable proxy for coding agents. Local-first. Open source.",
   article = false,

@@ -208,3 +208,20 @@ test("a not-found page is built for Cloudflare to serve with a 404 status", () =
     assert.ok(html.includes(`href="${route}"`), `the 404 page should offer ${route}`);
   }
 });
+
+test("every page serves the title and description from the one inventory", async () => {
+  const { pages } = await import("../src/data/pages.ts");
+  const decode = value => value.replaceAll("&#39;", "'").replaceAll("&quot;", '"').replaceAll("&amp;", "&");
+  for (const page of pages) {
+    const file = page.path === "/404/" ? "404.html" : path.join(page.path.slice(1), "index.html");
+    const html = readFileSync(path.join(root, file), "utf8");
+    assert.equal(decode(html.match(/<title>([\s\S]*?)<\/title>/)[1]), page.title, `${file} title`);
+    assert.equal(decode(html.match(/<meta name="description" content="([^"]*)"/)[1]), page.description, `${file} description`);
+  }
+  // Four pages used to fall through to the homepage's description, so search
+  // results described them all identically. Keep them distinct.
+  const descriptions = pages.map(page => page.description);
+  assert.equal(new Set(descriptions).size, descriptions.length, "two pages share a description");
+  const titles = pages.map(page => page.title);
+  assert.equal(new Set(titles).size, titles.length, "two pages share a title");
+});
