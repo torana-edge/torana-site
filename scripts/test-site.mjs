@@ -304,5 +304,7 @@ test("public copy and social-card sources keep the focus on the project", () => 
   assert.match(origin, /Bring your workflow hacks/);
   const result = readFileSync(path.join(root, "blog/context-compaction-negative-result/index.html"), "utf8");
   assert.match(result, /I built a context compactor/);
+  assert.ok(result.includes('href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/compactor/DEEPSEEK_RESULTS.md"'),
+    "Compaction results must link to the plugin-owned reference");
   assert.match(result, /I stopped treating savings as the product promise/);
 });
