@@ -39,6 +39,7 @@ done`}</code></pre>
     </details>
     <h3>Codex, Antigravity, pi, or oh-my-pi</h3>
     <p>Use the <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/HARNESS_SETUP.md">harness setup guide</a> for their routing settings and current verification results. Codex’s ChatGPT login and an OpenAI API key use different upstream endpoints. Antigravity’s signed-in Code Assist path uses the optional local TLS ingress. These are not interchangeable base-URL settings.</p>
+    <p>Using Codex with plugins? Follow the guide’s HTTP/SSE configuration (<code>supports_websockets = false</code>) so response hooks and usage logging run. For Antigravity, start interactively to approve tool actions, or follow its guide for a single headless task with explicit permissions.</p>
     <p>Ask your harness to read a small, non-sensitive file. Open the local control plane’s <strong>Feed</strong> and find the request, model, and status. A reply alone is not proof that response plugins ran.</p>
     <details id="api-key">
     <summary>Alternatively: use a provider API key directly</summary>
