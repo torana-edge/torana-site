@@ -167,7 +167,11 @@ test("the sitemap lists every built page and nothing else", () => {
 
 test("robots.txt points at a sitemap that exists", () => {
   const robots = readFileSync(path.join(root, "robots.txt"), "utf8");
-  assert.match(robots, /^Content-Signal:\s*ai-train=yes,\s*search=yes,\s*ai-input=yes$/m);
+  const robotsSignal = robots.match(/^Content-Signal:\s*(.+)$/m)?.[1];
+  const headerSource = readFileSync(new URL("../src/config/security-headers.txt", import.meta.url), "utf8");
+  const headerSignal = headerSource.match(/^\s+Content-Signal:\s*(.+)$/m)?.[1];
+  assert.equal(robotsSignal, headerSignal);
+  assert.equal(robotsSignal, "ai-train=yes, search=yes, ai-input=yes");
   const advertised = robots.match(/^Sitemap:\s*(\S+)$/m)?.[1];
   assert.ok(advertised, "robots.txt must advertise a sitemap");
   assert.ok(existsSync(path.join(root, new URL(advertised).pathname)), `${advertised} is advertised but not built`);
