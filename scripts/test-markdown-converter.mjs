@@ -16,6 +16,8 @@ test("pure HTML conversion preserves code, hierarchy, links, and accessible figu
     '\t"inner": [1, 2],',
     "  }",
     "",
+    "",
+    "",
     '  "literal": "```",',
     '  "end": true',
     "}",
@@ -37,8 +39,9 @@ test("pure HTML conversion preserves code, hierarchy, links, and accessible figu
   const markdown = toMarkdown(html, "/docs/");
   const fence = "`".repeat(4);
   const inlineFence = "`".repeat(3);
+  const expectedCodeBlock = `${fence}json\n${code}\n${fence}`;
   assert.match(markdown, /^# Heading$/m);
-  assert.match(markdown, new RegExp(`${escapeRegExp(fence)}json\\n${escapeRegExp(code)}\\n${escapeRegExp(fence)}`));
+  assert.equal(markdown.includes(expectedCodeBlock), true);
   assert.match(markdown, /^- outer\n  - inner$/m);
   assert.match(markdown, new RegExp(`${escapeRegExp(inlineFence)} ${escapeRegExp(backtickRun)}x${escapeRegExp(backtickRun)} ${escapeRegExp(inlineFence)}`));
   assert.match(markdown, /\[\\\[label\\\]\]\(https:\/\/torana\.sh\/docs\/%28guide%29\?x=\[1\]\)/);

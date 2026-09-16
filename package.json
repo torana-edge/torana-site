@@ -30,6 +30,7 @@
   "devDependencies": {
     "@resvg/resvg-wasm": "2.6.2",
     "node-html-markdown": "^2.0.0",
+    "node-html-parser": "^6.1.13",
     "playwright-core": "1.63.0",
     "wrangler": "^4.123.0",
     "yaml": "2.9.1"
