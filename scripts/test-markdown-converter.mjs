@@ -31,6 +31,7 @@ test("pure HTML conversion preserves code, hierarchy, links, and accessible figu
     `<pre><code class="language-json">${escapeHTML(code)}</code></pre>`,
     "<ul><li>outer<ul><li>inner</li></ul></li></ul>",
     `<p><a href="../docs/(guide)?x=[1]">[label]</a><a href="/next">next</a> <code>${backtickRun}x${backtickRun}</code></p>`,
+    "<table><tr><th>Header</th></tr><tr><td><code>left</code><br><code>right</code></td></tr></table>",
     '<figure><img src="../diagrams/flow.svg" alt="Flow diagram"><figcaption>Caption</figcaption></figure>',
     '<div title="quoted > attribute"><p>alpha &amp; omega</p></div>',
     "</article></main></body></html>",
@@ -46,6 +47,7 @@ test("pure HTML conversion preserves code, hierarchy, links, and accessible figu
   assert.match(markdown, new RegExp(`${escapeRegExp(inlineFence)} ${escapeRegExp(backtickRun)}x${escapeRegExp(backtickRun)} ${escapeRegExp(inlineFence)}`));
   assert.match(markdown, /\[\\\[label\\\]\]\(https:\/\/torana\.sh\/docs\/%28guide%29\?x=\[1\]\)/);
   assert.match(markdown, /\)\s+\[next\]\(https:\/\/torana\.sh\/next\)/);
+  assert.match(markdown, /^\| [^|]+<br>[^|]+ \|$/m);
   assert.match(markdown, /!\[Flow diagram\]\(https:\/\/torana\.sh\/diagrams\/flow\.svg\)/);
   assert.match(markdown, /Caption/);
   assert.match(markdown, /alpha & omega/);

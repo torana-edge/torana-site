@@ -41,6 +41,8 @@ test("build emits one Markdown sidecar for each indexed HTML page and no chrome"
   const docs = readFileSync(path.join(root, "_markdown/docs/index.md"), "utf8");
   assert.match(docs, /^\| .+ \| .+ \|$/m);
   assert.match(docs, /^\| [-\s|]+\|$/m, "table delimiter row");
+  const support = readFileSync(path.join(root, "_markdown/docs/support/index.md"), "utf8");
+  assert.match(support, /^\| .+<br>.+ \|$/m, "table cell line break");
   const quickstart = readFileSync(path.join(root, "_markdown/quickstart/index.md"), "utf8");
   assert.match(quickstart, /```[\s\S]*\n[\s\S]*\n```/);
   const how = readFileSync(path.join(root, "_markdown/how-it-works/index.md"), "utf8");

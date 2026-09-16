@@ -89,6 +89,13 @@ function removeChrome(main) {
   }
 }
 
+function preserveTableBreaks(main) {
+  // The maintained converter intentionally omits <br> from its table-cell
+  // translator. Encode it as literal Markdown table-cell HTML so adjacent
+  // inline values do not silently concatenate.
+  for (const node of main.querySelectorAll("td br, th br")) node.replaceWith("&lt;br&gt;");
+}
+
 function frontmatter(document) {
   const title = cleanMetadata(document.querySelector("title")?.textContent ?? "");
   const description = cleanMetadata(document.querySelector('meta[name="description"]')?.getAttribute("content") ?? "");
@@ -104,6 +111,7 @@ export function toMarkdown(html, route = "/") {
   if (!main) throw new Error(`No #main content found for ${route}`);
   const pageURL = new URL(route, SITE).href;
   removeChrome(main);
+  preserveTableBreaks(main);
   absolutizeLinks(main, pageURL);
   insertInlineBoundaries(main);
   const body = translate(main).trim();
