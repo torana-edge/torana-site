@@ -25,7 +25,7 @@ function parseAccept(value) {
       if (raw.length >= 2 && raw.startsWith('"') && raw.endsWith('"')) raw = raw.slice(1, -1);
       // RFC 9110 qvalues have at most three decimal places and are bounded
       // between zero and one. Invalid ranges do not opt a client in.
-      if (!/^(?:0(?:\.\d{1,3})?|1(?:\.0{1,3})?)$/.test(raw)) return [];
+      if (!/^(?:0(?:\.\d{0,3})?|1(?:\.0{0,3})?)$/.test(raw)) return [];
       quality = Number(raw);
     }
     return [{ type, subtype, quality, specificity: type === "*" ? 0 : subtype === "*" ? 1 : 2, order }];

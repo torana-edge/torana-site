@@ -9,6 +9,8 @@ test("Markdown negotiation honors explicit media ranges, q weights, wildcards an
     ["TEXT/MARKDOWN", true],
     ["TEXT/MARKDOWN;Q=0.7, TEXT/HTML;Q=0.6", true],
     ["text/markdown; q=0.9, text/html; q=0.8", true],
+    ["text/markdown;q=0., text/html;q=0.1", false],
+    ["text/markdown;q=1., text/html;q=1.000", false],
     ["text/html, text/markdown; q=0.5", false],
     ["text/markdown; q=0, */*;q=1", false],
     ["text/markdown;q=0.9, text/*;q=1", false],
