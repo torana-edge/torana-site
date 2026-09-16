@@ -30,11 +30,18 @@ test("Vary appends Accept once without disturbing existing dimensions", () => {
 });
 
 test("Pages middleware negotiates page variants while preserving other routes and headers", async () => {
-  const manifest = { "/": "/_markdown/index.md" };
+  const manifest = { "/": "/_markdown/index.md", "/special/": "/_markdown/special/index.md" };
   const calls = [];
   const env = { ASSETS: { fetch: async request => {
     calls.push(new URL(request.url).pathname);
     if (request.url.endsWith("routes.json")) return new Response(JSON.stringify(manifest), { headers: { "Content-Type": "application/json" } });
+    if (request.url.endsWith("runtime-headers.json")) return new Response(JSON.stringify({
+      "/": {
+        "content-security-policy": "default-src 'self'",
+        "content-signal": "ai-train=yes, search=yes, ai-input=yes",
+      },
+      "/special/": { "x-route-policy": "special" },
+    }), { headers: { "Content-Type": "application/json" } });
     return new Response("---\ntitle: Test\n---\n\n# Test\n", { headers: { ETag: "sidecar" } });
   } } };
   const next = async () => new Response("<html>test</html>", {
@@ -53,7 +60,7 @@ test("Pages middleware negotiates page variants while preserving other routes an
   assert.equal(markdown.headers.get("Accept-Ranges"), null);
   assert.equal(markdown.headers.get("Content-Signal"), "ai-train=yes, search=yes, ai-input=yes");
   assert.match(await markdown.text(), /^---\ntitle: Test/);
-  assert.deepEqual(calls, ["/_markdown/routes.json", "/_markdown/index.md"]);
+  assert.deepEqual(calls, ["/_markdown/routes.json", "/_markdown/index.md", "/_markdown/runtime-headers.json"]);
 
   const html = await onRequest({ request: new Request("https://torana.sh/", { headers: { Accept: "text/html, text/markdown;q=0" } }), env, next });
   assert.equal(html.headers.get("Content-Type"), "text/html; charset=utf-8");
@@ -67,7 +74,7 @@ test("Pages middleware negotiates page variants while preserving other routes an
   const missing = await onRequest({ request: new Request("https://torana.sh/missing/", { headers: { Accept: "text/markdown" } }), env, next: async () => new Response("not found", { status: 404 }) });
   assert.equal(missing.status, 404);
   assert.equal(await missing.text(), "not found");
-  assert.equal(calls.length, 2);
+  assert.equal(calls.length, 3);
 
   const conditional = await onRequest({ request: new Request("https://torana.sh/", {
     headers: { Accept: "text/markdown", "If-None-Match": "\"html\"" },
@@ -77,4 +84,8 @@ test("Pages middleware negotiates page variants while preserving other routes an
   assert.equal(conditional.headers.get("Content-Type"), "text/markdown; charset=utf-8");
   assert.equal(conditional.headers.get("ETag"), null);
   assert.match(await conditional.text(), /^---\ntitle: Test/);
+
+  const special = await onRequest({ request: new Request("https://torana.sh/special/", { headers: { Accept: "text/markdown" } }), env, next: async () => new Response("<html>special</html>") });
+  assert.equal(special.headers.get("X-Route-Policy"), "special");
+  assert.equal(special.headers.get("Content-Security-Policy"), null);
 });

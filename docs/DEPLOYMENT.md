@@ -4,7 +4,9 @@ The site is a static Astro build on Cloudflare Pages, not a Worker. The build
 derives Markdown sidecars from the rendered HTML pages; a small Pages Function
 selects those sidecars only for canonical page routes when `Accept` prefers
 `text/markdown`. Cloudflare's paid Markdown for Agents/content converter is not
-required or configured.
+required or configured. The build also emits a per-page runtime header policy
+from `dist/_headers` for those generated responses; the policy is an artifact,
+not tracked Functions source.
 `wrangler.jsonc` names `torana-site` and uses `./dist`.
 GitHub Actions owns production deployment; do not configure a second
 Git-integrated deploy pipeline for the same Pages project.

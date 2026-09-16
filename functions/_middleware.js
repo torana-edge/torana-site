@@ -1,9 +1,10 @@
 import { appendVaryAccept, prefersMarkdown } from "../src/lib/markdown-negotiation.mjs";
-import { RUNTIME_HEADERS } from "./runtime-headers.js";
 
 const MANIFEST_PATH = "/_markdown/routes.json";
+const RUNTIME_HEADERS_PATH = "/_markdown/runtime-headers.json";
 const BODY_VARIANT_HEADERS = ["accept-ranges", "content-encoding", "content-length", "content-range", "etag", "last-modified", "transfer-encoding"];
 let manifestPromise;
+let runtimePolicyPromise;
 
 function htmlResponse(response, request) {
   const headers = new Headers(response.headers);
@@ -26,6 +27,21 @@ async function markdownManifest(env, requestURL) {
     }).catch(() => ({}));
   }
   return manifestPromise;
+}
+
+async function runtimeHeaders(env, requestURL, pathname) {
+  if (!env?.ASSETS?.fetch) return {};
+  if (!runtimePolicyPromise) {
+    const url = new URL(RUNTIME_HEADERS_PATH, requestURL);
+    runtimePolicyPromise = env.ASSETS.fetch(new Request(url)).then(async response => {
+      if (!response.ok) return {};
+      const value = await response.json();
+      return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+    }).catch(() => ({}));
+  }
+  const policy = await runtimePolicyPromise;
+  const routeHeaders = policy[pathname];
+  return routeHeaders && typeof routeHeaders === "object" && !Array.isArray(routeHeaders) ? routeHeaders : {};
 }
 
 export async function onRequest(context) {
@@ -56,7 +72,10 @@ export async function onRequest(context) {
 
   const headers = new Headers(html.headers);
   for (const name of BODY_VARIANT_HEADERS) headers.delete(name);
-  for (const [name, value] of Object.entries(RUNTIME_HEADERS)) headers.set(name, value);
+  for (const [name, value] of Object.entries(await runtimeHeaders(env, request.url, url.pathname))) {
+    if (/^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/.test(name) && typeof value === "string") headers.set(name, value);
+    else if (/^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/.test(name) && value === null) headers.delete(name);
+  }
   headers.set("Content-Type", "text/markdown; charset=utf-8");
   appendVaryAccept(headers);
   return new Response(request.method === "HEAD" ? null : markdown.body, {

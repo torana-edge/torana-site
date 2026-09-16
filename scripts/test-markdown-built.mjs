@@ -23,6 +23,9 @@ test("build emits one Markdown sidecar for each indexed HTML page and no chrome"
   const routesConfig = JSON.parse(readFileSync(path.join(root, "_routes.json"), "utf8"));
   assert.deepEqual(routesConfig.include.sort(), routes.slice().sort());
   assert.deepEqual(routesConfig.exclude, []);
+  const runtimePolicy = JSON.parse(readFileSync(path.join(root, "_markdown/runtime-headers.json"), "utf8"));
+  assert.deepEqual(Object.keys(runtimePolicy).sort(), routes.slice().sort());
+  assert.equal(runtimePolicy["/"]["content-signal"], "ai-train=yes, search=yes, ai-input=yes");
   assert.ok(!routes.includes("/404/"));
   for (const sidecar of Object.values(manifest)) {
     const markdown = readFileSync(path.join(root, sidecar.slice(1)), "utf8");
@@ -37,7 +40,7 @@ test("build emits one Markdown sidecar for each indexed HTML page and no chrome"
   assert.match(home, /^- .+$/m);
   const docs = readFileSync(path.join(root, "_markdown/docs/index.md"), "utf8");
   assert.match(docs, /^\| .+ \| .+ \|$/m);
-  assert.match(docs, /^\| --- \|/m);
+  assert.match(docs, /^\| [-\s|]+\|$/m, "table delimiter row");
   const quickstart = readFileSync(path.join(root, "_markdown/quickstart/index.md"), "utf8");
   assert.match(quickstart, /```[\s\S]*\n[\s\S]*\n```/);
   const how = readFileSync(path.join(root, "_markdown/how-it-works/index.md"), "utf8");
