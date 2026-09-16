@@ -39,3 +39,10 @@ Operator instructions belong in Edge, authoring in the SDK, individual behavior
 in Plugins. Keep website summaries concise and link to the owner. Internal
 release coordination and account-bootstrap history do not belong in these
 public guides.
+
+Lead with what readers can do and their next useful step. Keep first-use pages
+inviting: setup, a visible result, and an invitation to share a workflow or rough
+edge. Put troubleshooting and detailed compatibility contracts in their owning
+references, not a list of untested scenarios beside every example. Keep safety,
+privacy, billing, and setup-critical guidance visible. Describe existing
+capabilities accurately without promising that every future integration exists.
