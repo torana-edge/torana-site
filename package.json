@@ -12,10 +12,10 @@
     "check:deploy": "./scripts/test-cloudflare-deploy-ready.sh && node --test scripts/test-cloudflare-deployment.mjs",
     "check:security": "node scripts/check-security-headers.mjs",
     "test": "npm run test:unit && npm run build && npm run test:built",
-    "test:unit": "node --test scripts/test-theme.mjs scripts/test-social-cards.mjs scripts/test-analytics.mjs",
-    "test:built": "node --test scripts/test-site.mjs scripts/test-analytics-built.mjs",
+    "test:unit": "node --test scripts/test-theme.mjs scripts/test-social-cards.mjs scripts/test-analytics.mjs scripts/test-markdown.mjs scripts/test-markdown-converter.mjs",
+    "test:built": "node --test scripts/test-site.mjs scripts/test-analytics-built.mjs scripts/test-markdown-built.mjs",
     "test:layout": "node --test scripts/test-diagram-layout.mjs",
-    "build": "npm run check:security && npm run check:deploy && npm run social:check && ASTRO_TELEMETRY_DISABLED=1 astro check && ASTRO_TELEMETRY_DISABLED=1 astro build",
+    "build": "npm run check:security && npm run check:deploy && npm run social:check && ASTRO_TELEMETRY_DISABLED=1 astro check && ASTRO_TELEMETRY_DISABLED=1 astro build && node scripts/generate-markdown.mjs",
     "social:build": "node scripts/social-cards.mjs",
     "social:check": "node scripts/social-cards.mjs --check",
     "preview": "ASTRO_TELEMETRY_DISABLED=1 astro preview",
@@ -29,6 +29,8 @@
   },
   "devDependencies": {
     "@resvg/resvg-wasm": "2.6.2",
+    "node-html-markdown": "2.0.0",
+    "node-html-parser": "6.1.13",
     "playwright-core": "1.63.0",
     "wrangler": "^4.123.0",
     "yaml": "2.9.1"
