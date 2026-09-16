@@ -39,7 +39,7 @@ const edgeSource = "https://github.com/torana-edge/torana-edge/blob/60e9fb9362bf
     <p>Under any configured bridge, model discovery, token-counting, files, batch APIs, response retrieval, and other auxiliary APIs are not emulated or forwarded; they return 400. This includes bridges whose client and upstream contracts match. Changing a base URL alone does not make a harness that requires these APIs compatible.</p>
 
     <h2 id="harnesses" data-evidence="automated-contract">Coding harnesses</h2>
-    <p>Keep the login you already use. Claude Code, Codex, and Antigravity have completed file-read and tool-follow-up workflows through Torana, with local usage logging. Pick your recipe in the <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/HARNESS_SETUP.md">harness guide</a> and try it with your own project.</p>
+    <p>Keep the login you already use. File-read and tool-follow-up checks passed through Torana with Claude Code, Codex, and Antigravity on September 16, 2026, including local usage logging. Pick your recipe in the <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/HARNESS_SETUP.md">harness guide</a> and try it with your own project.</p>
     <p>For Codex response plugins, choose HTTP/SSE with <code>supports_websockets = false</code>: WebSocket connections pass through as opaque streams, outside the response-plugin pipeline. For Antigravity, follow the <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/GEMINI_ANTIGRAVITY.md">local TLS setup</a> and choose your tool permissions; the verified headless run used explicit auto-approval. The guide includes tested versions and setup details.</p>
     <p>The table below maps native routes to their automated API coverage. Connecting a different kind of backend? Start with the <a href="/docs/protocol-bridges/">bridge guide</a>.</p>
     <div class="table-scroll" tabindex="0" role="region" aria-label="Coding harness support matrix">
@@ -54,6 +54,11 @@ const edgeSource = "https://github.com/torana-edge/torana-edge/blob/60e9fb9362bf
       </table>
     </div>
 
+    <details>
+      <summary>About the live checks and API coverage</summary>
+      <p>The <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/HARNESS_SETUP.md#live-checks-and-what-they-prove">dated harness results</a> record the versions, models, authentication routes, and workflows checked. Resume, login refresh, and long conversations were not part of those runs; they do not establish every tool or provider account.</p>
+      <p>Automated API fixtures exercise protocol behavior, including the 20 bridge directions. They are separate from credentialed harness checks, not evidence that every real harness/backend combination has been run.</p>
+    </details>
     <p>Have a favorite harness or a workflow you want to bring to Torana? <a href="https://github.com/torana-edge/torana-edge/issues">Share your setup or the first rough edge</a>. Working recipes, bug reports, and small plugins all help shape what comes next.</p>
 
     <h2>Plugin SDKs</h2>
@@ -61,8 +66,12 @@ const edgeSource = "https://github.com/torana-edge/torana-edge/blob/60e9fb9362bf
     <table><tbody>
       <tr><th>Go</th><td>ABI v1 SDK, helpers, native test harness, official plugins, and host conformance. Generated projects pin the Go module to <code>{sdk.version}</code>.</td></tr>
       <tr><th>Rust</th><td>ABI v1 bindings, typed results, and safe wrappers. The logger and all-hooks guests run through the shared host conformance harness. Generated projects pin the SDK’s exact Git revision with <code>git</code> and <code>rev</code>; this authoring path does not depend on crates.io availability.</td></tr>
-      <tr><th>More languages</th><td>Want to bring another language? The documented plugin ABI is the starting point for a new SDK. Open an issue to discuss it; use Go or Rust for the ready-to-use authoring path.</td></tr>
     </tbody></table>
+    <details>
+      <summary>Want to build an SDK for another language?</summary>
+      <p>Go and Rust are the ready-to-use SDKs today. For TypeScript, AssemblyScript, or another WASI language, a new SDK needs to implement Torana’s protobuf ABI, allocator, framed host calls, and hook contract, then run a guest through host conformance. Compiling to WASM is one part of that work.</p>
+      <p>Start with the <a href="https://github.com/torana-edge/torana-plugin-sdk/blob/main/docs/WASM_PLUGIN_GUIDE.md">plugin ABI guide</a> and <a href="https://github.com/torana-edge/torana-plugin-sdk/issues">open an SDK issue</a> to discuss your language and approach.</p>
+    </details>
 
     <h2>How to read this matrix</h2>
     <p>Coverage is endpoint-specific: matching a provider name alone is not enough. Use the format and harness rows above to choose your route and distinguish automated wire tests from credentialed client checks.</p>
