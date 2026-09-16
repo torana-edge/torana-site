@@ -55,6 +55,18 @@ test("check deployed bytes and headers without sending credentials or following 
   } });
 });
 
+test("verify a negotiated Markdown artifact with an explicit Accept request", async () => {
+  await verifyFiles(deployment.url, [{
+    ...file,
+    route: "/",
+    requestHeaders: { Accept: "text/markdown" },
+  }], { fetchImpl: async (url, options) => {
+    assert.equal(new URL(url).pathname, "/");
+    assert.equal(options.headers.Accept, "text/markdown");
+    return response();
+  } });
+});
+
 test("reject old content, missing headers and HTTP failures with bounded retries", async () => {
   for (const makeResponse of [
     () => new Response("old site", { headers: file.headers }),
@@ -149,6 +161,7 @@ test("a matching detach rule verifies absence, not just absence of an expectatio
 
 test("summary states the deployment-only boundary for both public aliases", () => {
   const summary = verificationSummary(commit, deployment.url);
+  assert.match(summary, /Ten routes/);
   assert.match(summary, /unique deployment URL/);
   assert.match(summary, /does not verify that torana-site.pages.dev or torana.sh serves this revision/);
 });

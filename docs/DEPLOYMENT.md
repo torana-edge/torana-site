@@ -1,6 +1,10 @@
 # Deploying torana.sh
 
-The site is a static Astro build on Cloudflare Pages, not a Worker.
+The site is a static Astro build on Cloudflare Pages, not a Worker. The build
+derives Markdown sidecars from the rendered HTML pages; a small Pages Function
+selects those sidecars only for canonical page routes when `Accept` prefers
+`text/markdown`. Cloudflare's paid Markdown for Agents/content converter is not
+required or configured.
 `wrangler.jsonc` names `torana-site` and uses `./dist`.
 GitHub Actions owns production deployment; do not configure a second
 Git-integrated deploy pipeline for the same Pages project.
@@ -27,8 +31,9 @@ production branch with the exact Git commit recorded.
 The final step consumes Wrangler's structured deployment output and verifies:
 
 - the project, production environment, and commit match;
-- eight routes at the unique deployment URL serve bytes identical to the build, including the homepage,
-  quickstart, both articles, registry, scripts, and social image;
+- ten routes at the unique deployment URL serve bytes identical to the build, including the homepage,
+  quickstart, technical guide, both articles, registry, scripts, and social image; the homepage Markdown
+  variant is fetched with `Accept: text/markdown` and checked against its generated sidecar;
 - each checked route serves its applicable generated `dist/_headers` rules, respecting
   path/host patterns, combined headers and detach rules;
 - this check does **not** establish that `torana-site.pages.dev` or `torana.sh`

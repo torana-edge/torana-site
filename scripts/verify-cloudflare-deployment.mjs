@@ -97,15 +97,16 @@ export function headersForURL(source, target) {
 // Compare the actual uploaded artifact, not merely a 200 response from an old site.
 export async function verifyFiles(baseURL, files, { fetchImpl = fetch, attempts = 4, wait = delay } = {}) {
   check(Number.isInteger(attempts) && attempts > 0 && attempts <= 4, "Invalid verification retry count");
-  for (const { route, body, headers = {} } of files) {
+  for (const { route, body, headers = {}, requestHeaders } of files) {
     check(/^\/[a-zA-Z0-9/_.-]*$/.test(route), "Invalid verification route");
     check(Object.keys(headers).every(name => /^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/.test(name)), `${route}: invalid expected header name`);
+    check(requestHeaders === undefined || Object.keys(requestHeaders).every(name => /^[!#$%&'*+.^_`|~0-9A-Za-z-]+$/.test(name)), `${route}: invalid request header name`);
     let lastError;
     for (let attempt = 0; attempt < attempts; attempt++) {
       try {
-        const response = await fetchImpl(new URL(route, baseURL), {
-          redirect: "error", signal: AbortSignal.timeout(10_000),
-        });
+        const options = { redirect: "error", signal: AbortSignal.timeout(10_000) };
+        if (requestHeaders) options.headers = requestHeaders;
+        const response = await fetchImpl(new URL(route, baseURL), options);
         check(response.status === 200, `${route}: expected HTTP 200`);
         for (const [name, value] of Object.entries(headers)) {
           check(response.headers.get(name) === value, `${route}: wrong ${name}`);
@@ -126,7 +127,7 @@ export async function verifyFiles(baseURL, files, { fetchImpl = fetch, attempts 
 
 export function verificationSummary(commit, origin) {
   return `### Uploaded build verified\n\nVerified production deployment of ${commit}: ${origin}\n\n`
-    + "- Eight routes at this unique deployment URL match the tested build and their applicable _headers rules.\n"
+    + "- Ten routes at this unique deployment URL match the tested build and their applicable _headers rules, including the technical guide and homepage Markdown variant.\n"
     + "- This does not verify that torana-site.pages.dev or torana.sh serves this revision. Alias freshness and custom-domain DNS/TLS require separate checks.\n";
 }
 
@@ -138,6 +139,7 @@ async function main() {
   const headers = await readFile(new URL("../dist/_headers", import.meta.url), "utf8");
   const routes = [
     ["/", "index.html"], ["/quickstart/", "quickstart/index.html"],
+    ["/how-it-works/", "how-it-works/index.html"],
     ["/blog/why-torana/", "blog/why-torana/index.html"],
     ["/blog/context-compaction-negative-result/", "blog/context-compaction-negative-result/index.html"],
     ["/registry/v1/index.json", "registry/v1/index.json"],
@@ -148,6 +150,16 @@ async function main() {
     route, body: await readFile(new URL(`../dist/${file}`, import.meta.url)),
     headers: headersForURL(headers, new URL(route, origin)),
   })));
+  files.push({
+    route: "/",
+    body: await readFile(new URL("../dist/_markdown/index.md", import.meta.url)),
+    requestHeaders: { Accept: "text/markdown" },
+    headers: {
+      ...headersForURL(headers, new URL("/", origin)),
+      "content-type": "text/markdown; charset=utf-8",
+      vary: "Accept",
+    },
+  });
   phase = "checking public routes against the tested build and security headers";
   await verifyFiles(origin, files);
   const message = verificationSummary(process.env.GITHUB_SHA, origin);
