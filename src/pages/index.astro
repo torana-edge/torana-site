@@ -5,7 +5,7 @@ import { plugins } from "../data/plugins";
 import descriptions from "../data/plugin-copy.json";
 const copy: Record<string, { description: string }> = descriptions;
 import RequestFlow from "../components/RequestFlow.astro";
-const featuredPlugins = ["usage_logger", "tool_governor", "keyword_compactor"]
+const featuredPlugins = ["pii", "pii_guard", "tool_governor"]
   .map(name => plugins.find(plugin => plugin.name === name)!);
 ---
 
@@ -66,7 +66,7 @@ const featuredPlugins = ["usage_logger", "tool_governor", "keyword_compactor"]
     <div class="frame quick-grid">
       <div>
         <h2 class="display">One binary. One local port.</h2>
-        <p>Start, stop, inspect requests and manage your plugins from the terminal. The local UI uses the same controls. You need Git, Go 1.26.6 or newer, and a model endpoint. Start with no plugins, then add the usage logger.</p>
+        <p>Start, stop, inspect requests and manage your plugins from the terminal. The local UI uses the same controls. Start with no plugins, then add the PII guard backed by a local model—or the deterministic guard if you do not run one yet.</p>
         <a class="button" href="/quickstart/">Open the walkthrough →</a>
       </div>
       <p class="quick-outcome">Send one request through the proxy. See it in the local feed. Then add a plugin.</p>

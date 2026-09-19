@@ -159,14 +159,16 @@
     {
       "id": "torana/pii",
       "name": "pii",
-      "latest": "0.1.0",
+      "latest": "0.2.0",
       "description": "Scans tool results through an operator-bound model plus a regex pre-filter and blocks the request if PII is detected",
       "failure_mode": "block",
       "requires_upstream": false,
       "hooks": [
         "run_before_request"
       ],
-      "conflicts_with": [],
+      "conflicts_with": [
+        "torana/pii_guard"
+      ],
       "capabilities": [
         "env.block_request",
         "env.cache_get",
@@ -175,6 +177,25 @@
         "env.plugin_config"
       ],
       "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii"
+    },
+    {
+      "id": "torana/pii_guard",
+      "name": "pii_guard",
+      "latest": "0.1.0",
+      "description": "Blocks high-confidence PII and secret patterns in tool results without calling a model or network service",
+      "failure_mode": "block",
+      "requires_upstream": false,
+      "hooks": [
+        "run_before_request"
+      ],
+      "conflicts_with": [
+        "torana/pii"
+      ],
+      "capabilities": [
+        "env.block_request",
+        "env.plugin_config"
+      ],
+      "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii_guard"
     },
     {
       "id": "torana/schema_translator",
