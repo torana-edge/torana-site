@@ -66,10 +66,15 @@ curl --fail-with-body --silent \\
     <h3><strong>Don’t have a local model running?</strong></h3>
     <p>Install the deterministic guard instead. It catches high-confidence PII and common secret shapes without a model:</p>
     <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii_guard</code></pre>
-    <p>Select <strong>pii_guard</strong>, review its two permissions, then choose <strong>Approve and enable</strong>. It makes no model or network calls. Its <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii_guard/README.md">setup guide</a> also covers the CLI path.</p>
-    <p>Install only one guard; they are alternatives. Create an obviously synthetic credential, then ask your routed harness to read the file:</p>
-    <pre><code>{`printf '%s\\n' 'PAYMENT_API_KEY=sk_test_torana_demo_not_a_real_key_123' > .keys`}</code></pre>
-    <p>Either guard should return a value-free <code>sensitive_data_detected</code> block before the tool result reaches the primary provider. Obvious values take the deterministic fast path in both plugins; <code>pii</code> also sends eligible ambiguous content to your bound local scanner. Remove <code>.keys</code> after the walkthrough.</p>
+    <p>Select <strong>pii_guard</strong>, review its two permissions, then choose <strong>Approve and enable</strong>. It makes no model or network calls. Its <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii_guard/README.md">setup guide</a> also covers the CLI path. Install only one guard; they are alternatives.</p>
+    <h3>Test either choice</h3>
+    <p>Both paths rejoin here. Create a file containing an obviously synthetic credential. Do not use a real key:</p>
+    <pre><code>{`echo 'PAYMENT_API_KEY=sk_test_torana_demo_not_a_real_key_123' > .keys`}</code></pre>
+    <p>In the coding harness you routed through Torana, enter:</p>
+    <pre><code>Read the .keys file in this directory and tell me what it contains.</code></pre>
+    <p>The harness reads the file locally and tries to send the tool result in its next model request. Either guard should stop that request and return a value-free <code>sensitive_data_detected</code> block before the synthetic value reaches the primary provider. You can also see the blocked request in Torana’s Feed.</p>
+    <p>This obvious value takes the deterministic fast path in both plugins. The model-backed <code>pii</code> plugin additionally sends eligible ambiguous content to the local scanner you bound earlier. After the check, remove the test file:</p>
+    <pre><code>rm .keys</code></pre>
     <p>Next, <a href="/plugins/">explore the other plugins</a> or <a href="https://github.com/torana-edge/torana-plugin-sdk">write your own</a>.</p>
     <h2>Switch back whenever you want</h2>
     <p>Exit the harness and launch it normally. The command-scoped Claude Code example does not change your saved settings or later shell commands. If you edited a harness configuration file, restore its previous settings. Once your agent connects directly again, stop Torana with <code>./torana stop --yes</code>. Use <code>./torana serve</code> if you prefer foreground serving. The evaluation directory remains on disk until you remove it.</p>
