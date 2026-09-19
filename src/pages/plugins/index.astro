@@ -19,7 +19,9 @@ const plugins = [...registry.plugins].sort((left, right) => {
 <Layout {...meta("/plugins/")}>
   <section class="frame prose" style="max-width:var(--page)">
     <h1 class="display">Pick a plugin. Make it yours.</h1>
-    <p>Already running a local model? Start with the contextual <a href="#pii">PII guard</a>. If not, choose the zero-model <a href="#pii_guard">deterministic guard</a>. Install only one of them. Each entry includes its source, requested capabilities, and an install command.</p>
+    <p>Torana plugins run in the request and response path. With permissions you approve, they can inspect or change traffic, block a request, or call another endpoint such as a local model. Your agent can keep using its hosted model while focused local models take on narrow jobs.</p>
+    <p><strong>Already have a local model running?</strong> Start with the contextual <a href="#pii">PII guard</a>.</p>
+    <p><strong>Don’t have a local model running?</strong> Start with the zero-model <a href="#pii_guard">deterministic guard</a>. Install only one of the two guards. Each entry includes its source, requested capabilities, and an install command.</p>
     <p>Run commands from your Torana checkout after the <a href="/quickstart/">quickstart</a>. Installation builds source code; it does not approve or enable the plugin. Review the source first, then approve and enable the built bundle in the local control plane. <a href="/docs/plugin-installation/">How installation and approval work →</a></p>
     <p>These are the {plugins.length} plugins maintained in the Torana plugins repository. Your plugin can live in your own repo too. Hack together something useful for your workflow, or move a harness-specific extension into a reusable plugin. <a href="/plugins/submit/">Share it and request a catalogue listing →</a></p>
     <div>
