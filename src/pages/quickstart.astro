@@ -61,12 +61,14 @@ curl --fail-with-body --silent \\
     <h3><strong>Already have a local model running?</strong></h3>
     <p>Try the contextual PII guard first. It catches recognizable sensitive values directly, then asks your Ollama or other OpenAI-compatible local model about ambiguous tool output before it reaches the hosted model:</p>
     <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii</code></pre>
-    <p>In the local control plane, add a provider such as <code>local-scanner</code> with your existing local endpoint, format <strong>OpenAI</strong>, and authentication <strong>None</strong>. Select <strong>pii</strong>, keep its fail-closed defaults, and bind the required <code>scanner</code> service to that provider, the model you loaded, and <code>/v1/chat/completions</code>. Review its permissions and limits, then choose <strong>Approve and enable</strong>.</p>
+    <p>In the local control plane, add a provider such as <code>local-scanner</code> with your existing local endpoint, format <strong>OpenAI</strong>, and authentication <strong>None</strong>. Select <strong>pii</strong>, keep its fail-closed defaults, and bind the required <code>scanner</code> service to that provider, the model you loaded, and <code>/v1/chat/completions</code>.</p>
     <p>The <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii/README.md">model-backed PII guide</a> has the complete CLI configuration and approval document. Eligible tool output goes to the scanner you bind; keep that binding local if you do not want an additional remote model call.</p>
     <h3><strong>Don’t have a local model running?</strong></h3>
     <p>Install the deterministic guard instead. It catches high-confidence PII and common secret shapes without a model:</p>
     <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii_guard</code></pre>
-    <p>Select <strong>pii_guard</strong>, review its two permissions, then choose <strong>Approve and enable</strong>. It makes no model or network calls. Its <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii_guard/README.md">setup guide</a> also covers the CLI path. Install only one guard; they are alternatives.</p>
+    <p><strong>pii_guard</strong> requests two permissions and makes no model or network calls. Its <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii_guard/README.md">setup guide</a> also covers the CLI path. Install only one guard; they are alternatives.</p>
+    <h3>Enable the plugin</h3>
+    <p>In the local control plane, select the plugin you installed and review its digest and requested permissions. For <strong>pii</strong>, also confirm the <code>scanner</code> binding and model-call limits. Then choose <strong>Approve and enable</strong>. The install command alone does not enable a plugin, and a rebuilt bundle needs a new approval.</p>
     <h3>Test either choice</h3>
     <p>Both paths rejoin here. Create a file containing an obviously synthetic credential. Do not use a real key:</p>
     <pre><code>{`echo 'PAYMENT_API_KEY=sk_test_torana_demo_not_a_real_key_123' > .keys`}</code></pre>
