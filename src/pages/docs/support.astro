@@ -64,7 +64,7 @@ const edgeSource = "https://github.com/torana-edge/torana-edge/blob/60e9fb9362bf
     <h2>Plugin SDKs</h2>
     <p>SDK <code>{sdk.version}</code> implements ABI major {sdk.abiMajor}, contract revision {sdk.contractRevision}. The SDK package version, plugin ABI, and Edge binary release are separate version numbers. Start with the <a href="/docs/plugin-authoring/">plugin-authoring guide</a> for a project pinned to the host’s SDK.</p>
     <table><tbody>
-      <tr><th>Go</th><td>ABI v1 SDK, helpers, native test harness, official plugins, and host conformance. Generated projects pin the Go module to <code>{sdk.version}</code>.</td></tr>
+      <tr><th>Go</th><td>ABI v1 SDK, helpers, native test harness, maintained plugin examples, and host conformance. Generated projects pin the Go module to <code>{sdk.version}</code>.</td></tr>
       <tr><th>Rust</th><td>ABI v1 bindings, typed results, and safe wrappers. The logger and all-hooks guests run through the shared host conformance harness. Generated projects pin the SDK’s exact Git revision with <code>git</code> and <code>rev</code>; this authoring path does not depend on crates.io availability.</td></tr>
     </tbody></table>
     <details>
