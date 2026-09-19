@@ -4,12 +4,22 @@ import { meta } from "../../data/pages";
 import registry from "../../../public/registry/v1/index.json";
 import descriptions from "../../data/plugin-copy.json";
 const copy: Record<string, { title: string; description: string; guide: string }> = descriptions;
-const plugins = registry.plugins;
+const featuredOrder = ["pii", "pii_guard"];
+const plugins = [...registry.plugins].sort((left, right) => {
+  const leftPriority = featuredOrder.indexOf(left.name);
+  const rightPriority = featuredOrder.indexOf(right.name);
+  if (leftPriority !== -1 || rightPriority !== -1) {
+    if (leftPriority === -1) return 1;
+    if (rightPriority === -1) return -1;
+    return leftPriority - rightPriority;
+  }
+  return left.name.localeCompare(right.name);
+});
 ---
 <Layout {...meta("/plugins/")}>
   <section class="frame prose" style="max-width:var(--page)">
     <h1 class="display">Pick a plugin. Make it yours.</h1>
-    <p>Start with the <a href="#usage_logger">usage logger</a>, change the tools your model sees, or experiment with context. Install only what you need. Each entry includes its source, requested capabilities, and an install command.</p>
+    <p>Already running a local model? Start with the contextual <a href="#pii">PII guard</a>. If not, choose the zero-model <a href="#pii_guard">deterministic guard</a>. Install only one of them. Each entry includes its source, requested capabilities, and an install command.</p>
     <p>Run commands from your Torana checkout after the <a href="/quickstart/">quickstart</a>. Installation builds source code; it does not approve or enable the plugin. Review the source first, then approve and enable the built bundle in the local control plane. <a href="/docs/plugin-installation/">How installation and approval work →</a></p>
     <p>These are the {plugins.length} plugins maintained in the Torana plugins repository. Your plugin can live in your own repo too. Hack together something useful for your workflow, or move a harness-specific extension into a reusable plugin. <a href="/plugins/submit/">Share it and request a catalogue listing →</a></p>
     <div>

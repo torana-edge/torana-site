@@ -35,9 +35,14 @@
     "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/compactor/README.md"
   },
   "pii": {
-    "title": "Check tool output before forwarding it",
-    "description": "Scan selected tool results with deterministic patterns and an operator-bound contextual model. Block the request when a finding is detected.",
+    "title": "Check tool output with your local model",
+    "description": "Catch obvious sensitive values first, then use an operator-bound local model for contextual checks before tool output reaches the primary provider.",
     "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii/README.md"
+  },
+  "pii_guard": {
+    "title": "Block recognizable sensitive values without a model",
+    "description": "Use deterministic checks for recognizable PII and secret shapes. It needs no model, network destination, credential, or clean-result cache.",
+    "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii_guard/README.md"
   },
   "cache_tier_selector": {
     "title": "Choose a cache lifetime for a conversation",

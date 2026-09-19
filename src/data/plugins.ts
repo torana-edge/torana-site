@@ -37,6 +37,11 @@ export const plugins = [
     "failureMode": "block"
   },
   {
+    "name": "pii_guard",
+    "description": "Blocks high-confidence PII and secret patterns in tool results without calling a model or network service",
+    "failureMode": "block"
+  },
+  {
     "name": "schema_translator",
     "description": "KV-array schema translation: converts additionalProperties maps to arrays on the way in and reverses on the stream",
     "failureMode": "pass"
