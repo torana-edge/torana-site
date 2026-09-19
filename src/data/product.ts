@@ -9,7 +9,7 @@
 export const repositories = [
   { name: "torana-edge", role: "The proxy itself: routing, plugin host, control plane, and CLI." },
   { name: "torana-plugin-sdk", role: "Go and Rust SDKs for writing plugins against ABI v1." },
-  { name: "torana-plugins", role: "The official plugin catalogue, one setup guide per plugin." },
+  { name: "torana-plugins", role: "Maintained plugin examples, with one setup guide per plugin." },
   { name: "torana-site", role: "Source for this website, including its analytics implementation." },
 ] as const;
 

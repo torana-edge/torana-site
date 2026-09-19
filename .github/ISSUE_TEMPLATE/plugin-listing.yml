@@ -8,7 +8,7 @@ body:
       value: |
         Thanks for sharing your plugin! Small, useful workflow fixes are welcome.
         Your code can stay in your repository. A listing is reviewed by maintainers;
-        it is not a security certification or inclusion in `plugin install --official`.
+        it is not a security certification or automatic approval.
         Community listings identify the reviewed revision, not future branch updates.
         Maintainers may remove listings if source disappears, maintenance or
         compatibility lapses, licensing changes, or security concerns emerge.
