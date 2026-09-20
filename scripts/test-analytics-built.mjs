@@ -32,6 +32,7 @@ test("every built page agrees with the explicit deployment config and generated 
       assert.doesNotMatch(html, /data-website-id=/, name);
     }
     assert.doesNotMatch(html, /<(?:script|link)\b[^>]*(?:src|href)="https:\/\/(?:cloud|gateway)\.umami\.is/, "Remote tracker must only load after browser privacy checks");
+    assert.doesNotMatch(html, /static\.cloudflareinsights\.com/, "Cloudflare injects its beacon at the production edge, not in the built artifact");
     assert.match(html.match(/<footer\b[\s\S]*?<\/footer>/)?.[0] || "", /href="\/privacy\/"/);
   }
 });
@@ -41,6 +42,13 @@ test("plugin install buttons expose the aggregate copy event marker", () => {
   const commands = [...plugins.matchAll(/<button\b[^>]*data-copy="[^"]+"[^>]*>/g)];
   assert.ok(commands.length > 0);
   assert.ok(commands.every(([tag]) => tag.includes('data-analytics-copy="plugin-install"')));
+});
+
+test("privacy disclosure distinguishes optional Cloudflare collection from the Umami privacy gate", () => {
+  const privacy = readFileSync(new URL("privacy/index.html", root), "utf8");
+  assert.match(privacy, /when that feature is enabled in the Cloudflare dashboard/);
+  assert.match(privacy, /signals do not suppress Cloudflare’s edge-injected Web Analytics beacon/);
+  assert.match(privacy, /does not load the Umami tracker/);
 });
 
 test("production uses repo variables while CI separately checks a fixed nonproduction fixture", () => {
