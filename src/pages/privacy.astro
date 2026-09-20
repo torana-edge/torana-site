@@ -8,10 +8,11 @@ import { websiteId } from "../lib/analytics";
     <h1 class="display">Website privacy.</h1>
     <p>This page describes the public website, <code>torana.sh</code>. It does not add telemetry to the Torana proxy running on your machine, or send your agent traffic to a website analytics service.</p>
     <h2>Website analytics</h2>
+    <p>Cloudflare serves the production website and provides privacy-focused Web Analytics for aggregate page views, visits, referral sources, browser characteristics, and page-load performance. Cloudflare injects its analytics beacon at the production edge; local and preview builds do not include it in their generated HTML.</p>
     {websiteId ? (
-      <p>Analytics is enabled for <code>https://torana.sh</code> in this build. We use <a href="https://umami.is/">Umami</a> to count page views and a small set of useful actions: opening project links and successfully copying a plugin install command. Collection stays off on local and preview addresses.</p>
+      <p>We also use <a href="https://umami.is/">Umami</a> on <code>https://torana.sh</code> to count page views and a small set of useful actions that Cloudflare Web Analytics does not record: opening project links and successfully copying a plugin install command. Umami collection stays off on local and preview addresses.</p>
     ) : (
-      <p>Website analytics is disabled in this build. No Umami tracker is loaded. If we enable it for <code>https://torana.sh</code>, this page will say so; the setup described below limits what it can collect.</p>
+      <p>The optional Umami integration is disabled in this build, so no Umami tracker is loaded. The production Cloudflare edge may still provide the aggregate Web Analytics described above.</p>
     )}
     <p>These counts help us improve the documentation and routes into the project. A quickstart visit or a copied command does not tell us whether someone installed Torana or used it successfully.</p>
     <h2>What is sent when enabled</h2>
@@ -19,10 +20,11 @@ import { websiteId } from "../lib/analytics";
     <p>Analytics payloads exclude URL query strings and fragments, referrer paths, page text, form values, clipboard contents, credentials, and information from your local Torana instance. We do not call Umami’s identify feature, attach account identities, or enable session recordings, heatmaps, or automatic interaction capture.</p>
     <p>When analytics is enabled and your browser permits it, requests go to Umami Cloud. Like other web requests, they expose request metadata such as an IP address and browser information to the service. Umami may derive location and pseudonymous session or visit statistics from that metadata. We use aggregate reports; this is not a claim that the provider receives no data or cannot group events within a session.</p>
     <p>The site adds no analytics cookies or persistent visitor identifier. Umami keeps a response cache in memory and can read its own browser opt-out setting. See <a href="https://docs.umami.is/docs/metric-definitions">Umami’s metric definitions</a> and <a href="https://umami.is/privacy">privacy policy</a> for the provider’s handling of data.</p>
+    <p>Cloudflare documents Web Analytics as collecting aggregate page and performance measurements without collecting or using visitors’ personal data. The production beacon reports through Cloudflare’s infrastructure independently of Umami.</p>
     <h2>Your browser preferences</h2>
-    <p>If your browser signals Do Not Track or Global Privacy Control, the site does not load the tracker. It checks those preferences again before sending an event. Content blockers can stop analytics too. Navigation, command copying, and the rest of the site work without analytics.</p>
+    <p>If your browser signals Do Not Track or Global Privacy Control, the site does not load the Umami tracker. It checks those preferences again before sending an Umami event. Content blockers can stop either analytics beacon. Navigation, command copying, and the rest of the site work without analytics.</p>
     <h2>Hosting and appearance</h2>
-    <p>Cloudflare serves this website, and Google Fonts serves its typefaces. Those services receive normal web-request metadata independently of Umami. The optional theme control stores your appearance choice in this browser; that setting is not used for analytics.</p>
+    <p>Cloudflare serves this website, and Google Fonts serves its typefaces. Those services receive normal web-request metadata independently of the browser analytics described above. The optional theme control stores your appearance choice in this browser; that setting is not used for analytics.</p>
     <p>Read <a href="https://www.cloudflare.com/privacypolicy/">Cloudflare’s privacy policy</a> and <a href="https://policies.google.com/privacy">Google’s privacy policy</a> for those services. For the proxy’s local behavior, start with the <a href="/quickstart/">quickstart</a> and <a href="/docs/support/">support matrix</a>.</p>
   </article>
 </Layout>

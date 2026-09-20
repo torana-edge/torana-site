@@ -14,6 +14,9 @@ const scriptDirective = csp.split(";").find((part) => part.includes("script-src"
 if (!scriptDirective || !scriptDirective.includes("'self'") || scriptDirective.includes("'unsafe-inline'")) {
   throw new Error("script-src must allow self and forbid unsafe-inline");
 }
+if (!scriptDirective.includes("https://static.cloudflareinsights.com")) {
+  throw new Error("script-src must allow Cloudflare Web Analytics injected at the production edge");
+}
 if (!headers.includes("Strict-Transport-Security: max-age=31536000; includeSubDomains")) {
   throw new Error("security-headers.txt is missing the required HSTS policy");
 }

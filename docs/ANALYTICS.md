@@ -1,8 +1,19 @@
 # Aggregate website analytics
 
-Website analytics uses the official Umami Cloud script with manual, allowlisted
-page views and key events. The local Torana proxy is not instrumented by this
-integration. `/privacy/` describes the active build's configuration.
+Website analytics uses two deliberately separate sources. Cloudflare Web
+Analytics measures aggregate browser traffic and page-load performance. The
+official Umami Cloud script records manual, allowlisted page views and key
+events, including successful command copies that Cloudflare does not observe.
+The local Torana proxy is not instrumented by either integration. `/privacy/`
+describes the active build's configuration.
+
+Cloudflare injects its Web Analytics beacon at the production edge. The source
+build does not contain the beacon tag, but its baseline Content Security Policy
+permits `https://static.cloudflareinsights.com`. The automatically injected
+beacon reports to the same-origin `/cdn-cgi/rum` endpoint, already covered by
+`connect-src 'self'`. Local builds and unique Pages preview responses do not
+gain a beacon merely because the CSP permits its source. Cloudflare dashboard
+configuration remains the authority for whether edge injection is enabled.
 
 Collection is off by default. For the production **Deploy website** workflow,
 set these repository **Actions variables** (not dashboard API credentials):
@@ -26,8 +37,9 @@ before loading the script and before sending each event.
 The source security-header baseline is `src/config/security-headers.txt`.
 Astro explicitly injects a static `/_headers` endpoint (underscore-prefixed files
 are otherwise ignored as routes) to generate `dist/_headers` with the same config
-as the page layout. Disabled builds retain the exact baseline bytes. Enabled
-builds add only `https://cloud.umami.is` to `script-src` and
+as the page layout. Disabled Umami builds retain the exact baseline bytes,
+including the Cloudflare Web Analytics source. Enabled Umami builds additionally
+add only `https://cloud.umami.is` to `script-src` and
 `https://gateway.umami.is` to `connect-src`. The official Cloud tracker and its
 collector were verified on 2026-09-14; changes to these hosts need deliberate
 source review and matching tests. There is no inline script exception, wildcard,
@@ -93,12 +105,14 @@ sanitized payloads, duplicate initialization, copy success/failure, and provider
 failures. Built checks require a file at `dist/_headers`, exact CSP agreement,
 matching script/disclosure state on every page, and production-only workflow vars.
 
-After the reviewed production deployment, verify one page view and key event in
-the real Umami dashboard, then check that a DNT/GPC browser and the unique Pages
-preview URL make no Umami requests. A passing build does not prove live ingestion.
+After the reviewed production deployment, verify a page view in Cloudflare Web
+Analytics plus one page view and key event in the real Umami dashboard. Check
+that Cloudflare's injected script and same-origin `/cdn-cgi/rum` request are not
+blocked by CSP. Then check that a DNT/GPC browser and the unique Pages preview URL
+make no Umami requests. A passing build does not prove live ingestion.
 To stop collection, unset `PUBLIC_ANALYTICS_ENABLED` and rebuild/deploy; changing a
-build variable alone cannot alter files already served. Do not enable a second
-website tracker to answer the same questions.
+build variable alone cannot alter files already served. This stops Umami only;
+Cloudflare Web Analytics is controlled separately in the Cloudflare dashboard.
 
 References: [manual payloads](https://docs.umami.is/docs/tracker-functions),
 [tracker configuration](https://docs.umami.is/docs/tracker-configuration),

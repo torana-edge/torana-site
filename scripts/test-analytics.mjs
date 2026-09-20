@@ -73,11 +73,12 @@ test("build config requires the explicit enable flag, production mode, and a val
   }
 });
 
-test("CSP preserves the baseline when off and adds only verified Umami origins when on", () => {
+test("CSP always permits Cloudflare Web Analytics and adds only verified Umami origins when on", () => {
   assert.equal(analyticsHeaders(baseline, undefined), baseline);
+  assert.match(baseline, /script-src 'self' https:\/\/static\.cloudflareinsights\.com;/);
   const enabled = analyticsHeaders(baseline, website);
   assert.equal(enabled.replace(" https://cloud.umami.is", "").replace(" https://gateway.umami.is", ""), baseline);
-  assert.match(enabled, /script-src 'self' https:\/\/cloud\.umami\.is;/);
+  assert.match(enabled, /script-src 'self' https:\/\/static\.cloudflareinsights\.com https:\/\/cloud\.umami\.is;/);
   assert.match(enabled, /connect-src 'self' https:\/\/gateway\.umami\.is\n/);
   assert.doesNotMatch(enabled, /\*\.umami|script-src[^;]*unsafe-inline/);
 });

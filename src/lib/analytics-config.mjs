@@ -18,6 +18,9 @@ export function analyticsWebsiteId(production, enabled, websiteId) {
 export function analyticsHeaders(baseline, websiteId) {
   if (!websiteId) return baseline;
   return baseline
-    .replace("script-src 'self';", "script-src 'self' https://cloud.umami.is;")
+    .replace(
+      "script-src 'self' https://static.cloudflareinsights.com;",
+      "script-src 'self' https://static.cloudflareinsights.com https://cloud.umami.is;",
+    )
     .replace("connect-src 'self'", "connect-src 'self' https://gateway.umami.is");
 }
