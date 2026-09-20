@@ -7,14 +7,17 @@ import { meta } from "../../data/pages";
     <h1 class="display">Install a plugin you can inspect.</h1>
     <p>After the <a href="/quickstart/">quickstart</a>, choose a plugin in the <a href="/plugins/">registry</a>. Open its source and documentation before running the install command.</p>
     <h2>Build, approve, enable.</h2>
+    <p>With permissions you approve, plugins can inspect or change requests and responses, block a request, or call another endpoint such as a local model. That lets a focused local model handle one job while your coding agent continues using its hosted model.</p>
     <p>With the default quickstart setup, run the command from the same Torana checkout you used to start the server. Plugins install into <code>./plugins</code>, relative to your working directory. If you configured a different plugin directory, pass <code>--dir</code> with the absolute path to that directory to the install command. Setting <code>TORANA_DATA_DIR</code> alone does not select the plugin directory.</p>
+    <h3>Already have a local model running?</h3>
     <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii</code></pre>
     <p>The command builds and installs the bundle. It does not approve its permissions or enable it.</p>
-    <h3>Enable it in the local UI</h3>
-    <p>Open <code>http://127.0.0.1:8080/_torana/</code> and select <strong>pii</strong>. Bind its required scanner service to the OpenAI-compatible local provider and model you already run, review its permissions and limits, then choose <strong>Approve and enable</strong>.</p>
-    <p>No local model endpoint? Install <code>pii_guard</code> instead. It performs deterministic checks without a model or network resource:</p>
+    <h3>Don’t have a local model running?</h3>
+    <p>Install <code>pii_guard</code> instead. It performs deterministic checks without a model or network resource:</p>
     <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii_guard</code></pre>
-    <p>Choose only one guard. The <a href="/quickstart/#first-guard">quickstart</a> walks through the decision and a safe synthetic-credential check. For terminal or agent automation, use the model-backed <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii/README.md">PII guide</a> or the <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii_guard/README.md">deterministic guard guide</a>; each contains its exact configuration and approval commands.</p>
+    <h3>Enable the plugin</h3>
+    <p>Open <code>http://127.0.0.1:8080/_torana/</code> and select the plugin you installed. For <strong>pii</strong>, bind its required scanner service to the OpenAI-compatible local provider and model you already run. Review the plugin digest, requested permissions and any resource limits, then choose <strong>Approve and enable</strong>.</p>
+    <p>Choose only one guard. The <a href="/quickstart/#first-plugin">quickstart</a> walks through the decision and a safe synthetic-credential check. For terminal or agent automation, use the model-backed <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii/README.md">PII guide</a> or the <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii_guard/README.md">deterministic guard guide</a>; each contains its exact configuration and approval commands.</p>
     <h2 id="community">Install from any plugin repository.</h2>
     <p>You do not need a registry listing to install a plugin. For a Go plugin, use its repository URL and plugin path, following the author’s installation instructions. Prefer a tag or commit you have reviewed over a moving branch.</p>
     <p>For a local Go or Rust project, pass its directory instead. This example assumes you have already cloned and reviewed a plugin in <code>../my-plugin</code>:</p>

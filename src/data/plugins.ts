@@ -18,7 +18,7 @@ export const plugins = [
   },
   {
     "name": "intent",
-    "description": "Captures WHY each tool call is made: injects the required 'i' field into tool schemas (plus a system-prompt example), extracts it from streamed tool calls into the shared cache, and strips it before the harness sees it. On later requests it rehydrates cached intents onto history tool calls (bridging them to the request's tool_call_ids for the compactors) and heuristically fills never-captured ones so no tool establishes an 'i'-less precedent. Run before keyword_compactor OR compactor — both consume the intent cache.",
+    "description": "Captures WHY each tool call is made: injects the required 'i' field into tool schemas (plus a system-prompt example), extracts it from streamed and non-streamed tool calls into the shared cache, and strips it before the harness sees it. On later requests it rehydrates cached intents onto history tool calls (bridging them to the request's tool_call_ids for the compactors) and heuristically fills never-captured ones so no tool establishes an 'i'-less precedent. Run before keyword_compactor OR compactor — both consume the intent cache.",
     "failureMode": "pass"
   },
   {
@@ -28,22 +28,22 @@ export const plugins = [
   },
   {
     "name": "otel",
-    "description": "OpenTelemetry per-request metrics: request shape on the way in; latency, status class, and token usage on the way out",
+    "description": "OpenTelemetry per-request metrics: request shape on the way in; latency, status class, and input/output/cache token usage on the way out",
     "failureMode": "pass"
   },
   {
     "name": "pii",
-    "description": "Scans tool results through an operator-bound model plus a regex pre-filter and blocks the request if PII is detected",
+    "description": "Scans new tool results through an operator-bound model plus a regex pre-filter and replaces sensitive output with a recoverable tool error",
     "failureMode": "block"
   },
   {
     "name": "pii_guard",
-    "description": "Blocks high-confidence PII and secret patterns in tool results without calling a model or network service",
+    "description": "Replaces high-confidence PII and secret patterns in new tool results with recoverable tool errors, without calling a model or network service",
     "failureMode": "block"
   },
   {
     "name": "schema_translator",
-    "description": "KV-array schema translation: converts additionalProperties maps to arrays on the way in and reverses on the stream",
+    "description": "KV-array schema translation: converts additionalProperties maps to arrays on the way in and reverses the recorded conversion on both the streamed and non-streamed response",
     "failureMode": "pass"
   },
   {

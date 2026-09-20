@@ -27,7 +27,7 @@ import { installCommand } from "../data/install";
     <pre><code>ANTHROPIC_BASE_URL=http://127.0.0.1:8080/provider/anthropic claude</code></pre>
     <p>Do not add a DeepSeek key or replace your login. If your shell already sets an Anthropic key/token or your Claude configuration uses a key helper, that credential may take precedence. The <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/HARNESS_SETUP.md#claude-code">Claude Code guide</a> explains the distinction.</p>
     <details>
-      <summary>Claude replies, but the Feed is empty?</summary>
+      <summary>Claude replies, but the Live Feed is empty?</summary>
       <p>Check <code>./torana status</code> and open that instance’s control plane. Exit Claude Code and start a fresh session with the command above, using your Torana instance’s port and provider name. A session launched normally will not inherit that command-scoped routing setting.</p>
       <p>Separately, to check for credentials that could override your Claude login, run this in the shell where you launch Claude. It prints variable names only, never their values. Also check whether your Claude configuration uses a key helper. Credential overrides affect authentication and billing; they do not by themselves mean that traffic bypasses Torana.</p>
       <pre><code>{`for name in ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN; do
@@ -40,7 +40,7 @@ done`}</code></pre>
     <h3>Codex, Antigravity, pi, or oh-my-pi</h3>
     <p>Keep your usual harness and follow its recipe in the <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/HARNESS_SETUP.md">setup guide</a>. Choose the Codex recipe for your ChatGPT login or API key; for Antigravity, the guide connects your existing Google login through Torana’s local TLS ingress.</p>
     <p>Using Codex with plugins? Follow the guide’s HTTP/SSE configuration (<code>supports_websockets = false</code>) so response hooks and usage logging run. For Antigravity, start interactively to approve tool actions, or follow its guide for a single headless task with explicit permissions.</p>
-    <p>Ask your harness to read a small, non-sensitive file. Open the local control plane’s <strong>Feed</strong> to see the request, model, and status. Next, add one of the PII guards below and verify that it stops a synthetic credential before the tool result reaches your primary provider.</p>
+    <p>Ask your harness to read a small, non-sensitive file. Open the local control plane’s <strong>Live Feed</strong> to see the request, model, and status. Next, add one of the PII guards below and verify that it keeps a synthetic credential out of the tool result sent to your primary provider.</p>
     <details id="api-key">
     <summary>Alternatively: use a provider API key directly</summary>
     <p>Have an API key and want to send a request without a harness? This example uses DeepSeek. For another provider, change the provider URL, format and authentication in Settings, then adapt the request endpoint, model and payload to that provider’s API.</p>
@@ -56,19 +56,27 @@ curl --fail-with-body --silent \\
     <pre><code>{`./torana feed
 ./torana stats`}</code></pre>
     <p>Find the matching request in the feed. You can also inspect it in the local UI. <code>./torana status</code> reports the instance and log path.</p>
-    <h2 id="first-guard">4. Add your first guard</h2>
-    <h3>Recommended: use your local model</h3>
-    <p>Already running Ollama or another OpenAI-compatible local model endpoint? Install the contextual PII guard:</p>
+    <h2 id="first-plugin">4. Add your first plugin</h2>
+    <p>Torana plugins run in the request and response path. With permissions you approve, they can inspect or change a request or response, block it, or call another endpoint before the workflow continues. That endpoint can be a local model: your coding agent can keep using its hosted model while a focused local model handles a narrow job. Combining the two unlocks useful workflows without moving the whole session to a local model.</p>
+    <h3>Already have a local model running?</h3>
+    <p>Try the contextual PII guard first. It catches recognizable sensitive values directly, then asks your Ollama or other OpenAI-compatible local model about ambiguous tool output before it reaches the hosted model:</p>
     <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii</code></pre>
-    <p>In the local control plane, add a provider such as <code>local-scanner</code> with your existing local endpoint, format <strong>OpenAI</strong>, and authentication <strong>None</strong>. Select <strong>pii</strong>, keep its fail-closed defaults, and bind the required <code>scanner</code> service to that provider, the model you loaded, and <code>/v1/chat/completions</code>. Review its permissions and limits, then choose <strong>Approve and enable</strong>.</p>
+    <p>In the local control plane, add a provider such as <code>local-scanner</code> with your existing local endpoint, format <strong>OpenAI</strong>, and authentication <strong>None</strong>. Select <strong>pii</strong>, keep its fail-closed defaults, and bind the required <code>scanner</code> service to that provider, the model you loaded, and <code>/v1/chat/completions</code>.</p>
     <p>The <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii/README.md">model-backed PII guide</a> has the complete CLI configuration and approval document. Eligible tool output goes to the scanner you bind; keep that binding local if you do not want an additional remote model call.</p>
-    <h3>No local model? Use deterministic checks</h3>
-    <p>Install the zero-model guard instead:</p>
+    <h3>Don’t have a local model running?</h3>
+    <p>Install the deterministic guard instead. It catches high-confidence PII and common secret shapes without a model:</p>
     <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii_guard</code></pre>
-    <p>Select <strong>pii_guard</strong>, review its two permissions, then choose <strong>Approve and enable</strong>. It makes no model or network calls. Its <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii_guard/README.md">setup guide</a> also covers the CLI path.</p>
-    <p>Install only one guard; they are alternatives. Create an obviously synthetic credential, then ask your routed harness to read the file:</p>
-    <pre><code>{`printf '%s\\n' 'PAYMENT_API_KEY=sk_test_torana_demo_not_a_real_key_123' > .keys`}</code></pre>
-    <p>Either guard should return a value-free <code>sensitive_data_detected</code> block before the tool result reaches the primary provider. Obvious values take the deterministic fast path in both plugins; <code>pii</code> also sends eligible ambiguous content to your bound local scanner. Remove <code>.keys</code> after the walkthrough.</p>
+    <p><strong>pii_guard</strong> makes no model or network calls. Review its requested tool-result and state permissions before enabling it. Its <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii_guard/README.md">setup guide</a> also covers the CLI path. Install only one guard; they are alternatives.</p>
+    <h3>Enable the plugin</h3>
+    <p>In the local control plane, select the plugin you installed and review its digest and requested permissions. For <strong>pii</strong>, also confirm the <code>scanner</code> binding and model-call limits. Then choose <strong>Approve and enable</strong>. The install command alone does not enable a plugin, and a rebuilt bundle needs a new approval.</p>
+    <h3>Test either choice</h3>
+    <p>Both paths rejoin here. Create a file containing an obviously synthetic credential. Do not use a real key:</p>
+    <pre><code>{`echo 'PAYMENT_API_KEY=sk_test_torana_demo_not_a_real_key_123' > demo-sensitive.txt`}</code></pre>
+    <p>In the coding harness you routed through Torana, enter:</p>
+    <pre><code>Read the demo-sensitive.txt file in this directory and tell me what it contains.</code></pre>
+    <p>The harness reads the file locally and includes the tool result in its next model request. Either guard should replace the sensitive result with a recoverable error beginning <strong>Sensitive output withheld</strong>. The safe request continues to the primary provider without the synthetic value, so the agent can acknowledge it and move on. You can inspect the request in Torana’s <strong>Live Feed</strong>.</p>
+    <p>This obvious value takes the deterministic fast path in both plugins. The model-backed <code>pii</code> plugin additionally sends eligible ambiguous content to the local scanner you bound earlier. After the check, remove the test file:</p>
+    <pre><code>rm demo-sensitive.txt</code></pre>
     <p>Next, <a href="/plugins/">explore the other plugins</a> or <a href="https://github.com/torana-edge/torana-plugin-sdk">write your own</a>.</p>
     <h2>Switch back whenever you want</h2>
     <p>Exit the harness and launch it normally. The command-scoped Claude Code example does not change your saved settings or later shell commands. If you edited a harness configuration file, restore its previous settings. Once your agent connects directly again, stop Torana with <code>./torana stop --yes</code>. Use <code>./torana serve</code> if you prefer foreground serving. The evaluation directory remains on disk until you remove it.</p>
