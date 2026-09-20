@@ -2,8 +2,9 @@
 import Layout from "../layouts/Layout.astro";
 import { meta } from "../data/pages";
 import HowItWorksFlow from "../components/HowItWorksFlow.astro";
+import sdk from "../data/sdk.json";
 const edgeSource = "https://github.com/torana-edge/torana-edge/blob/60e9fb9362bff7c1635395c7f44ee417aa7440f6";
-const sdkSource = "https://github.com/torana-edge/torana-plugin-sdk/blob/ad98c6d3467f628dd2f630c054715f8b347daa29";
+const sdkSource = `https://github.com/torana-edge/torana-plugin-sdk/blob/${sdk.version}`;
 ---
 
 <Layout {...meta("/how-it-works/")}>
