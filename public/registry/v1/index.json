@@ -30,7 +30,7 @@
     {
       "id": "torana/cache_warmer",
       "name": "cache_warmer",
-      "latest": "0.1.0",
+      "latest": "0.2.0",
       "description": "Keeps a chosen conversation's prompt cache alive across an idle gap. Opt-in per conversation and bounded by a deadline and a break-even refresh budget, because refreshing forever costs more than the cache miss it avoids.",
       "failure_mode": "pass",
       "requires_upstream": false,
@@ -81,12 +81,13 @@
     {
       "id": "torana/intent",
       "name": "intent",
-      "latest": "0.1.0",
-      "description": "Captures WHY each tool call is made: injects the required 'i' field into tool schemas (plus a system-prompt example), extracts it from streamed tool calls into the shared cache, and strips it before the harness sees it. On later requests it rehydrates cached intents onto history tool calls (bridging them to the request's tool_call_ids for the compactors) and heuristically fills never-captured ones so no tool establishes an 'i'-less precedent. Run before keyword_compactor OR compactor — both consume the intent cache.",
+      "latest": "0.2.0",
+      "description": "Captures WHY each tool call is made: injects the required 'i' field into tool schemas (plus a system-prompt example), extracts it from streamed and non-streamed tool calls into the shared cache, and strips it before the harness sees it. On later requests it rehydrates cached intents onto history tool calls (bridging them to the request's tool_call_ids for the compactors) and heuristically fills never-captured ones so no tool establishes an 'i'-less precedent. Run before keyword_compactor OR compactor — both consume the intent cache.",
       "failure_mode": "pass",
       "requires_upstream": false,
       "hooks": [
         "run_before_request",
+        "run_after_response",
         "run_on_stream_chunk"
       ],
       "conflicts_with": [],
@@ -140,8 +141,8 @@
     {
       "id": "torana/otel",
       "name": "otel",
-      "latest": "0.5.0",
-      "description": "OpenTelemetry per-request metrics: request shape on the way in; latency, status class, and token usage on the way out",
+      "latest": "0.6.0",
+      "description": "OpenTelemetry per-request metrics: request shape on the way in; latency, status class, and input/output/cache token usage on the way out",
       "failure_mode": "pass",
       "requires_upstream": false,
       "hooks": [
@@ -160,7 +161,7 @@
       "id": "torana/pii",
       "name": "pii",
       "latest": "0.2.0",
-      "description": "Scans tool results through an operator-bound model plus a regex pre-filter and blocks the request if PII is detected",
+      "description": "Scans new tool results through an operator-bound model plus a regex pre-filter and replaces sensitive output with a recoverable tool error",
       "failure_mode": "block",
       "requires_upstream": false,
       "hooks": [
@@ -170,11 +171,16 @@
         "torana/pii_guard"
       ],
       "capabilities": [
-        "env.block_request",
         "env.cache_get",
         "env.cache_set",
         "env.model_complete",
-        "env.plugin_config"
+        "env.plugin_config",
+        "env.state_get",
+        "env.state_set",
+        "ir.cache_control.write",
+        "ir.tool_result_content.write",
+        "ir.tool_result_errors.write",
+        "ir.tool_results.write"
       ],
       "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii"
     },
@@ -182,7 +188,7 @@
       "id": "torana/pii_guard",
       "name": "pii_guard",
       "latest": "0.1.0",
-      "description": "Blocks high-confidence PII and secret patterns in tool results without calling a model or network service",
+      "description": "Replaces high-confidence PII and secret patterns in new tool results with recoverable tool errors, without calling a model or network service",
       "failure_mode": "block",
       "requires_upstream": false,
       "hooks": [
@@ -192,20 +198,26 @@
         "torana/pii"
       ],
       "capabilities": [
-        "env.block_request",
-        "env.plugin_config"
+        "env.plugin_config",
+        "env.state_get",
+        "env.state_set",
+        "ir.cache_control.write",
+        "ir.tool_result_content.write",
+        "ir.tool_result_errors.write",
+        "ir.tool_results.write"
       ],
       "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii_guard"
     },
     {
       "id": "torana/schema_translator",
       "name": "schema_translator",
-      "latest": "0.3.0",
-      "description": "KV-array schema translation: converts additionalProperties maps to arrays on the way in and reverses on the stream",
+      "latest": "0.4.0",
+      "description": "KV-array schema translation: converts additionalProperties maps to arrays on the way in and reverses the recorded conversion on both the streamed and non-streamed response",
       "failure_mode": "pass",
       "requires_upstream": false,
       "hooks": [
         "run_before_request",
+        "run_after_response",
         "run_on_stream_chunk"
       ],
       "conflicts_with": [],
