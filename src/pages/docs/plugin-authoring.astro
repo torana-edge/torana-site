@@ -2,7 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import { meta } from "../../data/pages";
 import sdk from "../../data/sdk.json";
-const rustDependency = `torana-plugin-sdk = { git = "https://github.com/torana-edge/torana-plugin-sdk", rev = "${sdk.revision}" }`;
+const rustDependency = `torana-plugin-sdk = "=${sdk.version.slice(1)}"`;
 const scenario = `{
   "request": {
     "model": "example",
@@ -26,7 +26,7 @@ const scenario = `{
     <p>SDK <code>{sdk.version}</code> implements ABI major {sdk.abiMajor}, contract revision {sdk.contractRevision}. The SDK package version, plugin ABI, and Edge binary release are separate version numbers. The manifest declares <code>"abi_version": "v1"</code>; the SDK exports the exact contract value that the host checks when loading the bundle.</p>
     <p><code>plugin new</code> pins the SDK used by the Edge build that generates your project. Current Go scaffolds use module tag <code>{sdk.version}</code>. Current Rust scaffolds include this dependency in <code>Cargo.toml</code>:</p>
     <pre><code>{rustDependency}</code></pre>
-    <p>This Git revision is the SDK {sdk.version} source used by the host. Keep the exact <code>git</code> and <code>rev</code> pin; this authoring path does not depend on crates.io availability.</p>
+    <p>Keep the exact crate version and the generated <code>Cargo.lock</code> so the project stays on the SDK release used by the host.</p>
 
     <h2 id="go">Create a Go plugin.</h2>
     <p>The Go SDK requires Go 1.25 or newer; the Go toolchain used to build Edge also satisfies that requirement. Choose a new or empty destination directory:</p>
