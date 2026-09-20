@@ -14,6 +14,11 @@ beacon reports to the same-origin `/cdn-cgi/rum` endpoint, already covered by
 `connect-src 'self'`. Local builds and unique Pages preview responses do not
 gain a beacon merely because the CSP permits its source. Cloudflare dashboard
 configuration remains the authority for whether edge injection is enabled.
+The same-origin collector depends on the automatically injected tag carrying
+Cloudflare's version configuration. Do not paste the manual dashboard snippet
+into the site: that form can send to `https://cloudflareinsights.com/cdn-cgi/rum`
+and would require a separately reviewed `connect-src` change, disclosure, and
+tests.
 
 Collection is off by default. For the production **Deploy website** workflow,
 set these repository **Actions variables** (not dashboard API credentials):
@@ -113,6 +118,8 @@ make no Umami requests. A passing build does not prove live ingestion.
 To stop collection, unset `PUBLIC_ANALYTICS_ENABLED` and rebuild/deploy; changing a
 build variable alone cannot alter files already served. This stops Umami only;
 Cloudflare Web Analytics is controlled separately in the Cloudflare dashboard.
+Unlike the site's Umami loader, Cloudflare's edge-injected beacon does not honor
+the site's DNT/GPC gate; the public privacy page states this distinction.
 
 References: [manual payloads](https://docs.umami.is/docs/tracker-functions),
 [tracker configuration](https://docs.umami.is/docs/tracker-configuration),

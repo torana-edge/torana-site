@@ -14,6 +14,8 @@ const scriptDirective = csp.split(";").find((part) => part.includes("script-src"
 if (!scriptDirective || !scriptDirective.includes("'self'") || scriptDirective.includes("'unsafe-inline'")) {
   throw new Error("script-src must allow self and forbid unsafe-inline");
 }
+// Product policy: production may use Cloudflare Web Analytics. This is not a
+// general security-header requirement and should be removed if that product is.
 if (!scriptDirective.includes("https://static.cloudflareinsights.com")) {
   throw new Error("script-src must allow Cloudflare Web Analytics injected at the production edge");
 }

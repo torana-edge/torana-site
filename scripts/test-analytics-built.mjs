@@ -44,6 +44,13 @@ test("plugin install buttons expose the aggregate copy event marker", () => {
   assert.ok(commands.every(([tag]) => tag.includes('data-analytics-copy="plugin-install"')));
 });
 
+test("privacy disclosure distinguishes optional Cloudflare collection from the Umami privacy gate", () => {
+  const privacy = readFileSync(new URL("privacy/index.html", root), "utf8");
+  assert.match(privacy, /when that feature is enabled in the Cloudflare dashboard/);
+  assert.match(privacy, /signals do not suppress Cloudflare’s edge-injected Web Analytics beacon/);
+  assert.match(privacy, /does not load the Umami tracker/);
+});
+
 test("production uses repo variables while CI separately checks a fixed nonproduction fixture", () => {
   const deploy = parseYAML(readFileSync(new URL("../.github/workflows/deploy.yml", import.meta.url), "utf8"));
   const build = deploy.jobs.deploy.steps.find(step => step.run === "npm test");
