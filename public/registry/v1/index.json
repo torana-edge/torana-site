@@ -79,6 +79,38 @@
       "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/compactor"
     },
     {
+      "id": "torana/decision_router",
+      "name": "decision_router",
+      "latest": "0.6.0",
+      "description": "Offers costed model advice, consent-based switches, or guarded automatic escalation.",
+      "failure_mode": "pass",
+      "requires_upstream": false,
+      "hooks": [
+        "run_before_request",
+        "run_after_response",
+        "run_on_http_request"
+      ],
+      "conflicts_with": [],
+      "capabilities": [
+        "env.credential_get",
+        "env.emit_metric",
+        "env.http_request",
+        "env.log",
+        "env.meta_get",
+        "env.meta_set",
+        "env.model_capabilities",
+        "env.plugin_config",
+        "env.route_request",
+        "env.route_request.effort",
+        "env.serve_http",
+        "env.state_get",
+        "env.state_keys",
+        "env.state_set",
+        "env.suggest"
+      ],
+      "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/decision_router"
+    },
+    {
       "id": "torana/intent",
       "name": "intent",
       "latest": "0.2.0",
@@ -187,18 +219,20 @@
     {
       "id": "torana/pii_guard",
       "name": "pii_guard",
-      "latest": "0.1.0",
+      "latest": "0.2.0",
       "description": "Replaces high-confidence PII and secret patterns in new tool results with recoverable tool errors, without calling a model or network service",
       "failure_mode": "block",
       "requires_upstream": false,
       "hooks": [
-        "run_before_request"
+        "run_before_request",
+        "run_on_http_request"
       ],
       "conflicts_with": [
         "torana/pii"
       ],
       "capabilities": [
         "env.plugin_config",
+        "env.serve_http",
         "env.state_get",
         "env.state_set",
         "ir.cache_control.write",
@@ -233,16 +267,18 @@
     {
       "id": "torana/tool_governor",
       "name": "tool_governor",
-      "latest": "0.1.0",
+      "latest": "0.2.0",
       "description": "Restricts or replaces the tool definitions advertised to the model",
       "failure_mode": "block",
       "requires_upstream": false,
       "hooks": [
+        "run_on_http_request",
         "run_before_request"
       ],
       "conflicts_with": [],
       "capabilities": [
         "env.plugin_config",
+        "env.serve_http",
         "ir.cache_control.write",
         "ir.tools.write"
       ],
@@ -251,16 +287,18 @@
     {
       "id": "torana/usage_logger",
       "name": "usage_logger",
-      "latest": "0.1.0",
+      "latest": "0.2.0",
       "description": "Write content-free request, latency, and token usage records to a rotating private JSONL file",
       "failure_mode": "pass",
       "requires_upstream": false,
       "hooks": [
-        "run_after_response"
+        "run_after_response",
+        "run_on_http_request"
       ],
       "conflicts_with": [],
       "capabilities": [
-        "env.file_append"
+        "env.file_append",
+        "env.serve_http"
       ],
       "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/usage_logger"
     }
