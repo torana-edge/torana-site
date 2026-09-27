@@ -6,12 +6,12 @@
   },
   "usage_logger": {
     "title": "See usage without saving prompts",
-    "description": "Write one content-free JSONL record for each completed response: provider, model, status, latency and reported token counts.",
+    "description": "Write one content-free JSONL record for each completed response, then let your harness read best-effort token totals for its verified session without exposing prompts or log contents.",
     "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/usage_logger/README.md"
   },
   "tool_governor": {
     "title": "Choose the tools your model sees",
-    "description": "Restrict or replace model-visible tool definitions. For example, expose search and read tools while omitting deployment tools during a review.",
+    "description": "Restrict or replace model-visible tool definitions. Your harness can also request a reversible, user-confirmed allowance for a tool your allowlist omits; explicit denies always apply, and execution approval still belongs to the harness.",
     "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/tool_governor/README.md"
   },
   "otel": {
@@ -36,17 +36,17 @@
   },
   "compactor": {
     "title": "Summarize selected historical tool results",
-    "description": "Use an operator-bound model for eligible older tool output, only when the estimated benefit clears the cache-rewrite and summarizer-cost gate.",
+    "description": "Use an operator-bound model for eligible older tool output, only when the estimated benefit clears the cache-rewrite and summarizer-cost gate. Your harness can inspect the active limits without triggering a model call.",
     "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/compactor/README.md"
   },
   "pii": {
     "title": "Check tool output with your local model",
-    "description": "Catch obvious sensitive values first, then use an operator-bound local model for contextual checks before tool output reaches the primary provider.",
+    "description": "Catch obvious sensitive values first, then use an operator-bound local model for contextual checks before tool output reaches the primary provider. Your harness can ask for value-free categories and line numbers from the latest protection.",
     "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii/README.md"
   },
   "pii_guard": {
     "title": "Block recognizable sensitive values without a model",
-    "description": "Use deterministic checks for recognizable PII and secret shapes. It needs no model, network destination, credential, or clean-result cache.",
+    "description": "Use deterministic checks for recognizable PII and secret shapes. It needs no model or network destination, and your harness can ask why the latest tool result was protected without receiving the sensitive value.",
     "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii_guard/README.md"
   },
   "cache_tier_selector": {
