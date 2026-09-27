@@ -54,12 +54,13 @@
     {
       "id": "torana/compactor",
       "name": "compactor",
-      "latest": "0.5.0",
+      "latest": "0.6.0",
       "description": "Economically gated cheap-model tool-result compaction; uses cached intent when available and a bounded local fallback otherwise. Alternative to keyword_compactor — run ONE of the two; running after intent improves relevance.",
       "failure_mode": "pass",
       "requires_upstream": false,
       "hooks": [
-        "run_before_request"
+        "run_before_request",
+        "run_on_http_request"
       ],
       "conflicts_with": [
         "torana/keyword_compactor"
@@ -73,6 +74,7 @@
         "env.model_complete",
         "env.model_pricing",
         "env.plugin_config",
+        "env.serve_http",
         "env.shared_cache_get",
         "ir.tool_results.write"
       ],
@@ -192,12 +194,13 @@
     {
       "id": "torana/pii",
       "name": "pii",
-      "latest": "0.2.0",
+      "latest": "0.3.0",
       "description": "Scans new tool results through an operator-bound model plus a regex pre-filter and replaces sensitive output with a recoverable tool error",
       "failure_mode": "block",
       "requires_upstream": false,
       "hooks": [
-        "run_before_request"
+        "run_before_request",
+        "run_on_http_request"
       ],
       "conflicts_with": [
         "torana/pii_guard"
@@ -207,6 +210,7 @@
         "env.cache_set",
         "env.model_complete",
         "env.plugin_config",
+        "env.serve_http",
         "env.state_get",
         "env.state_set",
         "ir.cache_control.write",
@@ -267,7 +271,7 @@
     {
       "id": "torana/tool_governor",
       "name": "tool_governor",
-      "latest": "0.2.0",
+      "latest": "0.3.0",
       "description": "Restricts or replaces the tool definitions advertised to the model",
       "failure_mode": "block",
       "requires_upstream": false,
@@ -279,6 +283,8 @@
       "capabilities": [
         "env.plugin_config",
         "env.serve_http",
+        "env.state_get",
+        "env.state_set",
         "ir.cache_control.write",
         "ir.tools.write"
       ],
@@ -287,7 +293,7 @@
     {
       "id": "torana/usage_logger",
       "name": "usage_logger",
-      "latest": "0.2.0",
+      "latest": "0.3.0",
       "description": "Write content-free request, latency, and token usage records to a rotating private JSONL file",
       "failure_mode": "pass",
       "requires_upstream": false,
@@ -298,7 +304,9 @@
       "conflicts_with": [],
       "capabilities": [
         "env.file_append",
-        "env.serve_http"
+        "env.serve_http",
+        "env.state_get",
+        "env.state_set"
       ],
       "source": "https://github.com/torana-edge/torana-plugins/tree/main/plugins/usage_logger"
     }
