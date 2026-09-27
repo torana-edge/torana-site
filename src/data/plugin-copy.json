@@ -11,7 +11,7 @@
   },
   "tool_governor": {
     "title": "Choose the tools your model sees",
-    "description": "Restrict or replace model-visible tool definitions. Your harness can also request one reversible, user-confirmed tool allowance for its verified session; execution approval still belongs to the harness.",
+    "description": "Restrict or replace model-visible tool definitions. Your harness can also request a reversible, user-confirmed allowance for a tool your allowlist omits; explicit denies always apply, and execution approval still belongs to the harness.",
     "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/tool_governor/README.md"
   },
   "otel": {
