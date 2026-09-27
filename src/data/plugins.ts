@@ -17,6 +17,11 @@ export const plugins = [
     "failureMode": "pass"
   },
   {
+    "name": "decision_router",
+    "description": "Offers costed model advice, consent-based switches, or guarded automatic escalation.",
+    "failureMode": "pass"
+  },
+  {
     "name": "intent",
     "description": "Captures WHY each tool call is made: injects the required 'i' field into tool schemas (plus a system-prompt example), extracts it from streamed and non-streamed tool calls into the shared cache, and strips it before the harness sees it. On later requests it rehydrates cached intents onto history tool calls (bridging them to the request's tool_call_ids for the compactors) and heuristically fills never-captured ones so no tool establishes an 'i'-less precedent. Run before keyword_compactor OR compactor — both consume the intent cache.",
     "failureMode": "pass"

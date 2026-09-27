@@ -3,6 +3,25 @@ import Layout from "../../layouts/Layout.astro";
 import { meta } from "../../data/pages";
 import sdk from "../../data/sdk.json";
 const rustDependency = `torana-plugin-sdk = "=${sdk.version.slice(1)}"`;
+const agentDescriptor = `{
+  "schema_version": 2,
+  "namespace": {
+    "title": "My plugin",
+    "summary": "Inspect and control my workflow.",
+    "categories": ["workflow"]
+  },
+  "operations": [{
+    "id": "session.status",
+    "method": "GET",
+    "path": "/status",
+    "description": "Read this conversation's status.",
+    "risk": "read",
+    "idempotent": true,
+    "model_access": "read",
+    "conversation_binding": "required",
+    "output_schema": {"type": "object"}
+  }]
+}`;
 const scenario = `{
   "request": {
     "model": "example",
@@ -58,6 +77,14 @@ cargo test --manifest-path ../my-rust-plugin/Cargo.toml
     <h2 id="permissions">Declare what the hook needs.</h2>
     <p>Use typed pass-through or replacement results and handle helper errors. Declare every host call and the narrow <code>ir.*.write</code> permissions your changes exercise in <code>plugin.json</code>. Resource access also needs manifest declarations and operator bindings; the host checks those permissions when the plugin runs.</p>
     <p>Keep request mutations deterministic and use the SDK’s provenance-aware helpers when changing content. Ordered blocks, signed content, tool results, and prompt-cache markers have preservation rules. The SDK’s <a href="https://github.com/torana-edge/torana-plugin-sdk/blob/main/docs/WRITING_A_PLUGIN.md">author guide ↗</a> and <a href="https://github.com/torana-edge/torana-plugin-sdk/blob/main/docs/PLUGIN_SEMANTICS.md">plugin semantics ↗</a> explain those rules.</p>
+
+    <h2 id="agent-operations">Give every harness the same plugin tools.</h2>
+    <p>A plugin can expose a small typed interface through Torana’s MCP server. Define the operation once and any connected harness can discover it—without rebuilding the same command for Claude Code, Codex, or another agent.</p>
+    <p>Add <code>agent.json</code> beside the plugin manifest and WASM bundle:</p>
+    <pre><code>{agentDescriptor}</code></pre>
+    <p>The plugin’s manifest name is its namespace. <code>model_access</code> controls what the model may do: reads can run directly, changes can require the user’s confirmation, and private maintenance operations can stay model-inaccessible. Use <code>conversation_binding: "required"</code> for conversation-specific state; Torana supplies the verified conversation and tool-call identity instead of accepting an ID from the model.</p>
+    <p>Confirmed changes must declare a separate, model-inaccessible <code>undo_operation</code>. Store the previous value under the verified tool-call ID, and refuse an undo if something newer has replaced it. Torana keeps the confirmed input and binding encrypted; the user confirms and undoes through their harness, the local UI, or the CLI.</p>
+    <p>See the <a href="https://github.com/torana-edge/torana-plugin-sdk/blob/main/docs/AGENT_OPERATIONS.md">agent-operation authoring contract ↗</a> for the complete reversible-write example, and the <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/AGENT_CONTROL_PLANE.md">control-plane guide ↗</a> for local API and CLI access.</p>
 
     <h2 id="bridges">Write for shared content, check both APIs.</h2>
     <p><a href="/docs/protocol-bridges/">Protocol bridges</a> use the existing SDK {sdk.version} and ABI v1; the bridge feature itself does not require an SDK pin change or a rebuild of existing plugins. Request hooks receive shared client content with the upstream model alias; response hooks receive the actual upstream’s shared response before client serialization. Host accounting uses upstream-native usage, which can differ from the converted client counters.</p>

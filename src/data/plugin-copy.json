@@ -1,4 +1,9 @@
 {
+  "decision_router": {
+    "title": "Route harder requests with explicit control",
+    "description": "Compare configured model candidates, suggest a switch you can confirm, or apply an approved automatic escalation policy while keeping routing decisions visible.",
+    "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/decision_router/README.md"
+  },
   "usage_logger": {
     "title": "See usage without saving prompts",
     "description": "Write one content-free JSONL record for each completed response: provider, model, status, latency and reported token counts.",
