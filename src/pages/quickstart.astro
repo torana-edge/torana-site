@@ -15,16 +15,16 @@ import { installCommand } from "../data/install";
     <p>This walkthrough builds from source. To reproduce a particular revision, check out its reviewed commit SHA before building.</p>
     <h2>2. Start without plugins</h2>
     <pre><code>{`export TORANA_DATA_DIR="$PWD/.torana-data"
-./torana --debug start
+./torana --debug start --port 8143
 ./torana status`}</code></pre>
-    <p>This keeps evaluation state in <code>.torana-data</code> inside the checkout. On first run Torana imports <code>config.json</code>; later changes belong in the local control plane, not the seed file. This directory can contain credentials and plugin files: keep it private. Open <code>http://127.0.0.1:8080/_torana/</code> to inspect activity or edit providers. The listener and control plane default to loopback. The server runs in the background. In the same shell, verify it:</p>
-    <pre><code>curl --fail-with-body --silent http://127.0.0.1:8080/health</code></pre>
+    <p>This keeps evaluation state in <code>.torana-data</code> inside the checkout. On first run Torana imports <code>config.json</code>; later changes belong in the local control plane, not the seed file. This directory can contain credentials and plugin files: keep it private. Run <code>./torana open</code> to inspect activity or edit providers. The listener and control plane default to loopback. The server runs in the background. Verify the live endpoint:</p>
+    <pre><code>curl --fail-with-body --silent "$(./torana endpoint)/health"</code></pre>
     <p>A healthy process returns <code>{`{"status":"ok"}`}</code>. A failed plugin reload keeps the last known-good pipeline serving but reports a degraded health status.</p>
     <h2>3. Which harness do you use?</h2>
     <p>Pick one route. You do not need to configure every provider.</p>
     <h3>Claude Code</h3>
     <p>Already signed in? Keep the example’s <code>anthropic</code> provider on <strong>Use harness credentials</strong>, then launch Claude Code with a command-scoped address:</p>
-    <pre><code>ANTHROPIC_BASE_URL=http://127.0.0.1:8080/provider/anthropic claude</code></pre>
+    <pre><code>ANTHROPIC_BASE_URL="$(./torana endpoint anthropic)" claude</code></pre>
     <p>Do not add a DeepSeek key or replace your login. If your shell already sets an Anthropic key/token or your Claude configuration uses a key helper, that credential may take precedence. The <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/HARNESS_SETUP.md#claude-code">Claude Code guide</a> explains the distinction.</p>
     <details>
       <summary>Claude replies, but the Live Feed is empty?</summary>
@@ -47,7 +47,7 @@ done`}</code></pre>
     <pre><code>{`export DEEPSEEK_API_KEY='replace-with-your-deepseek-key'
 
 curl --fail-with-body --silent \\
-  http://127.0.0.1:8080/provider/deepseek/v1/chat/completions \\
+  "$(./torana endpoint deepseek)/v1/chat/completions" \\
   -H "Authorization: Bearer $DEEPSEEK_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{"model":"deepseek-flash","messages":[{"role":"user","content":"Reply with exactly: Torana works"}]}'`}</code></pre>

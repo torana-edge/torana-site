@@ -32,7 +32,7 @@ const sdkSource = `https://github.com/torana-edge/torana-plugin-sdk/blob/${sdk.v
         <h2 id="routing">The path chooses the provider.</h2>
         <p>A provider entry in your configuration names an upstream URL, its API format, and its authentication policy. The name in <code>/provider/&lt;name&gt;/…</code> selects that entry. On a native route, with no <code>bridge</code> configured, Torana removes the prefix and joins the remaining path to the upstream URL.</p>
         <dl class="route-example" aria-label="Example native route using a provider named primary">
-          <div><dt>Harness sends</dt><dd><code>http://localhost:8080/<wbr />provider/primary/<wbr />v1/messages</code></dd></div>
+          <div><dt>Harness sends</dt><dd><code>&lt;Torana origin&gt;/<wbr />provider/primary/<wbr />v1/messages</code></dd></div>
           <div><dt>Torana selects</dt><dd>The <code>primary</code> provider entry</dd></div>
           <div><dt>Upstream receives</dt><dd><code>/v1/messages</code> at that entry’s URL</dd></div>
         </dl>
@@ -85,7 +85,7 @@ const sdkSource = `https://github.com/torana-edge/torana-plugin-sdk/blob/${sdk.v
 
       <section aria-labelledby="local-controls">
         <h2 id="local-controls">A local view, for people and agents.</h2>
-        <p>The dashboard at <code>http://localhost:8080/<wbr />_torana/</code> shows request activity and usage, provider configuration, and the installed plugin pipeline. You can inspect permissions and configure the plugins you enable.</p>
+        <p>Run <code>torana open</code> to open the dashboard for the live instance. It shows request activity and usage, provider configuration, and the installed plugin pipeline. You can inspect permissions and configure the plugins you enable.</p>
         <p>The JSON API at <code>/_torana/api/v1/</code> describes available operations with their paths, input and output schemas, and declared risk. Local software agents can read the request feed and configuration, manage plugins, and discover operations contributed by enabled, approved plugins.</p>
         <p>These control routes are loopback-only. Browser mutations require a matching local origin; non-browser mutations require <code>X-Torana-Local-Request: 1</code>. The conversation list contains metadata, not a copy of the conversation’s messages. Treat software with access to the local administration API as an operator.</p>
         <p>The CLI uses this same local API to inspect traffic, apply revision-checked settings including bridges, and manage the pipeline. Source-build users run <code>./torana</code> from their checkout; the reference uses <code>torana</code> on PATH.</p>
