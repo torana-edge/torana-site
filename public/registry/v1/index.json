@@ -194,17 +194,15 @@
     {
       "id": "torana/pii",
       "name": "pii",
-      "latest": "0.3.0",
-      "description": "Scans new tool results through an operator-bound model plus a regex pre-filter and replaces sensitive output with a recoverable tool error",
+      "latest": "0.4.0",
+      "description": "Scans new tool results through an operator-bound model and replaces sensitive output with a recoverable tool error",
       "failure_mode": "block",
       "requires_upstream": false,
       "hooks": [
         "run_before_request",
         "run_on_http_request"
       ],
-      "conflicts_with": [
-        "torana/pii_guard"
-      ],
+      "conflicts_with": [],
       "capabilities": [
         "env.cache_get",
         "env.cache_set",
@@ -223,7 +221,7 @@
     {
       "id": "torana/pii_guard",
       "name": "pii_guard",
-      "latest": "0.2.0",
+      "latest": "0.3.0",
       "description": "Replaces high-confidence PII and secret patterns in new tool results with recoverable tool errors, without calling a model or network service",
       "failure_mode": "block",
       "requires_upstream": false,
@@ -231,9 +229,7 @@
         "run_before_request",
         "run_on_http_request"
       ],
-      "conflicts_with": [
-        "torana/pii"
-      ],
+      "conflicts_with": [],
       "capabilities": [
         "env.plugin_config",
         "env.serve_http",

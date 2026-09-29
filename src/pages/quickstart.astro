@@ -59,14 +59,14 @@ curl --fail-with-body --silent \\
     <h2 id="first-plugin">4. Add your first plugin</h2>
     <p>Torana plugins run in the request and response path. With permissions you approve, they can inspect or change a request or response, block it, or call another endpoint before the workflow continues. That endpoint can be a local model: your coding agent can keep using its hosted model while a focused local model handles a narrow job. Combining the two unlocks useful workflows without moving the whole session to a local model.</p>
     <h3>Already have a local model running?</h3>
-    <p>Try the contextual PII guard first. It catches recognizable sensitive values directly, then asks your Ollama or other OpenAI-compatible local model about ambiguous tool output before it reaches the hosted model:</p>
+    <p>Try the contextual PII guard first. It asks your Ollama or other OpenAI-compatible local model to inspect new tool output before it reaches the hosted model:</p>
     <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii</code></pre>
-    <p>In the local control plane, add a provider such as <code>local-scanner</code> with your existing local endpoint, format <strong>OpenAI</strong>, and authentication <strong>None</strong>. Select <strong>pii</strong>, keep its fail-closed defaults, and bind the required <code>scanner</code> service to that provider, the model you loaded, and <code>/v1/chat/completions</code>.</p>
+    <p>In the local control plane, add a provider such as <code>local-scanner</code> with your existing local endpoint, format <strong>OpenAI</strong>, and authentication <strong>None</strong>. Add a default model if your server needs one. Select <strong>pii</strong>, keep its fail-closed defaults, and choose that provider for the required <code>scanner</code> service. Torana derives the normal inference path.</p>
     <p>The <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii/README.md">model-backed PII guide</a> has the complete CLI configuration and approval document. Eligible tool output goes to the scanner you bind; keep that binding local if you do not want an additional remote model call.</p>
     <h3>Don’t have a local model running?</h3>
     <p>Install the deterministic guard instead. It catches high-confidence PII and common secret shapes without a model:</p>
     <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii_guard</code></pre>
-    <p><strong>pii_guard</strong> makes no model or network calls. Review its requested tool-result and state permissions before enabling it. Its <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii_guard/README.md">setup guide</a> also covers the CLI path. Install only one guard; they are alternatives.</p>
+    <p><strong>pii_guard</strong> makes no model or network calls. Review its requested tool-result and state permissions before enabling it. Its <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii_guard/README.md">setup guide</a> also covers the CLI path. You can start with either plugin or run both with <code>pii_guard</code> first.</p>
     <h3>Enable the plugin</h3>
     <p>In the local control plane, select the plugin you installed and review its digest and requested permissions. For <strong>pii</strong>, also confirm the <code>scanner</code> binding and model-call limits. Then choose <strong>Approve and enable</strong>. The install command alone does not enable a plugin, and a rebuilt bundle needs a new approval.</p>
     <h3>Test either choice</h3>
@@ -75,7 +75,7 @@ curl --fail-with-body --silent \\
     <p>In the coding harness you routed through Torana, enter:</p>
     <pre><code>Read the demo-sensitive.txt file in this directory and tell me what it contains.</code></pre>
     <p>The harness reads the file locally and includes the tool result in its next model request. Either guard should replace the sensitive result with a recoverable error beginning <strong>Sensitive output withheld</strong>. The safe request continues to the primary provider without the synthetic value, so the agent can acknowledge it and move on. You can inspect the request in Torana’s <strong>Live Feed</strong>.</p>
-    <p>This obvious value takes the deterministic fast path in both plugins. The model-backed <code>pii</code> plugin additionally sends eligible ambiguous content to the local scanner you bound earlier. After the check, remove the test file:</p>
+    <p>With <code>pii_guard</code> first, this obvious value is caught without a model call and <code>pii</code> skips the resulting tool error. With only <code>pii</code>, the local scanner decides it. After the check, remove the test file:</p>
     <pre><code>rm demo-sensitive.txt</code></pre>
     <p>Next, <a href="/plugins/">explore the other plugins</a> or <a href="https://github.com/torana-edge/torana-plugin-sdk">write your own</a>.</p>
     <h2>Switch back whenever you want</h2>
