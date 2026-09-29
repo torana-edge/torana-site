@@ -38,7 +38,7 @@ export const plugins = [
   },
   {
     "name": "pii",
-    "description": "Scans new tool results through an operator-bound model plus a regex pre-filter and replaces sensitive output with a recoverable tool error",
+    "description": "Scans new tool results through an operator-bound model and replaces sensitive output with a recoverable tool error",
     "failureMode": "block"
   },
   {

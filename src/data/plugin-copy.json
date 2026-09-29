@@ -41,7 +41,7 @@
   },
   "pii": {
     "title": "Check tool output with your local model",
-    "description": "Catch obvious sensitive values first, then use an operator-bound local model for contextual checks before tool output reaches the primary provider. Your harness can ask for value-free categories and line numbers from the latest protection.",
+    "description": "Use an operator-bound local model for contextual checks before new tool output—including failed commands—reaches the primary provider. Your harness can ask for value-free categories and line numbers from the latest protection.",
     "guide": "https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii/README.md"
   },
   "pii_guard": {
