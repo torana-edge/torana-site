@@ -13,7 +13,7 @@ const providerEntry = `"local-messages": {
   }
 }`;
 const request = `curl --fail-with-body \\
-  http://127.0.0.1:8080/provider/local-messages/v1/messages \\
+  "$(./torana endpoint local-messages)/v1/messages" \\
   -H 'Content-Type: application/json' \\
   -d '{"model":"client-model","max_tokens":128,"messages":[{"role":"user","content":"Say hello"}]}'`;
 ---
@@ -40,7 +40,7 @@ const request = `curl --fail-with-body \\
     <h2 id="request">Send an Anthropic-shaped request.</h2>
     <pre data-example="bridge-request"><code>{request}</code></pre>
     <p>The local server receives <code>/v1/chat/completions</code> with <code>your-loaded-model</code>. You receive an Anthropic Messages response. Add <code>"stream": true</code> to the JSON body and <code>--no-buffer</code> to curl for an Anthropic event stream.</p>
-    <p>An Anthropic-compatible client can use <code>http://127.0.0.1:8080/provider/local-messages</code> as its base URL, if it exposes that setting. Start with a short conversation, then check a tool call and its follow-up turn. The harness still executes tools and handles their approvals.</p>
+    <p>An Anthropic-compatible client can use the value printed by <code>./torana endpoint local-messages</code> as its base URL, if it exposes that setting. Start with a short conversation, then check a tool call and its follow-up turn. The harness still executes tools and handles their approvals.</p>
     <p>Send complete conversation history on every turn. Translation does not emulate server-managed history. A successful curl request verifies this inference path, not every feature of a coding harness.</p>
     <p>Only this example’s provider hop stays local. A remote upstream or an approved plugin’s network calls can still send data off your machine. See <a href="/how-it-works/#data-boundary">data boundaries</a>.</p>
 
