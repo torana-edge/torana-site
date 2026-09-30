@@ -60,8 +60,16 @@ curl --fail-with-body --silent \\
     <p>Torana plugins run in the request and response path. With permissions you approve, they can inspect or change a request or response, block it, or call another endpoint before the workflow continues. That endpoint can be a local model: your coding agent can keep using its hosted model while a focused local model handles a narrow job. Combining the two unlocks useful workflows without moving the whole session to a local model.</p>
     <h3>Already have a local model running?</h3>
     <p>Try the contextual PII guard first. It asks your Ollama or other OpenAI-compatible local model to inspect new tool output before it reaches the hosted model:</p>
+    <p><strong>Register your local model first.</strong> Run <code>./torana open</code>, open <strong>Settings</strong>, and choose <strong>Add provider</strong>:</p>
+    <ul>
+      <li><strong>Provider name:</strong> <code>local-scanner</code>.</li>
+      <li><strong>Upstream URL:</strong> your model server's address, such as <code>http://127.0.0.1:8081/v1</code> for an OpenAI-compatible local server or <code>http://127.0.0.1:11434</code> for Ollama. Use your server's actual port.</li>
+      <li><strong>Provider format:</strong> <code>openai</code>. <strong>Authentication:</strong> <strong>No authentication</strong> for an unauthenticated local server.</li>
+      <li><strong>Plugin model defaults → Default model:</strong> enter your loaded model's ID if the server requires one (for Ollama, its model name). Single-model servers that accept requests without a model can leave this blank. Leave <strong>Inference path override</strong> blank.</li>
+    </ul>
+    <p>Choose <strong>Save settings</strong>, then install the plugin:</p>
     <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii</code></pre>
-    <p>In the local control plane, add a provider such as <code>local-scanner</code> with your existing local endpoint, format <strong>OpenAI</strong>, and authentication <strong>None</strong>. Add a default model if your server needs one. Select <strong>pii</strong>, keep its fail-closed defaults, and choose that provider for the required <code>scanner</code> service. Torana derives the normal inference path.</p>
+    <p>Return to <strong>Pipeline</strong>, select <strong>pii</strong>, and choose <code>local-scanner</code> in the required <code>scanner</code> service's <strong>Provider</strong> dropdown. Torana derives the normal inference path. If the dropdown is empty, check that you saved the provider with format <code>openai</code> and authentication <strong>No authentication</strong>; plugins make their own model calls and cannot use your harness's login.</p>
     <p>The <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii/README.md">model-backed PII guide</a> has the complete CLI configuration and approval document. Eligible tool output goes to the scanner you bind; keep that binding local if you do not want an additional remote model call.</p>
     <h3>Don’t have a local model running?</h3>
     <p>Install the deterministic guard instead. It catches high-confidence PII and common secret shapes without a model:</p>
