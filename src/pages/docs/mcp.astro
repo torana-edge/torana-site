@@ -31,6 +31,17 @@ import { pluginMCP } from "../../data/mcp";
     <p>The agent can inspect proxy status, aggregate statistics and installed plugin identities. For the current chat, it can read recent request events, recorded usage, suggestions and confirmed-change history. Plugin-specific questions need the corresponding approved, enabled plugin.</p>
     <p>Conversation-specific operations need Torana to observe and verify the model’s tool call. Connect both paths: model requests through the proxy, and MCP through the adapter. If you see <code>unbound_conversation</code>, check that routing first; Torana will not guess a conversation from model-supplied IDs.</p>
 
+    <h2 id="review-pii">Review a result the scanner got wrong.</h2>
+    <p>A local PII model can make mistakes. When the <code>pii</code> plugin withholds a result, its tool error includes an opaque reference. Ask your agent to request review, not to retry smaller reads to evade the check:</p>
+    <pre><code>{JSON.stringify({ namespace: "torana", operation: "redactions.request_release", input: { reference: "tr_REPLACE_WITH_THE_REFERENCE_FROM_THE_TOOL_ERROR" } }, null, 2)}</code></pre>
+    <p>The agent calls this through <code>torana_invoke</code>. Requesting review does not approve anything. Run <code>torana open</code>, open <strong>Approvals</strong>, check the original result locally, and choose <strong>Allow upstream</strong> or <strong>Keep withheld</strong>. You can also use:</p>
+    <pre><code>{`torana approvals list
+torana approvals show <reference>
+torana approvals approve <reference> --yes
+torana approvals decline <reference> --yes
+torana approvals revoke <reference> --yes`}</code></pre>
+    <p>An allowance applies only to that conversation, tool call, exact content and plugin bundle. It persists across restarts, is not a clean verdict, and does not bypass other plugins. Torana stores metadata, not the original output: the harness must resend the original result for it to pass. Revocation withholds it again on future requests; it cannot recall content already sent. Allowing or revoking an older result may rebuild that part of the prompt cache once.</p>
+
     <h2 id="operations">What the plugins expose.</h2>
     <p>These are the custom operations in the current official plugin source. Your installed bundle may differ; use discovery to see what is actually callable.</p>
     <dl class="operations">
