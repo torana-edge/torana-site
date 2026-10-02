@@ -63,7 +63,7 @@ test("homepage exposes named capabilities and registry-backed featured plugins",
   // Named markers identify capabilities, independent of headlines, element type,
   // or an unmarked article nested inside a panel. Duplicates still fail.
   const names = [...capabilities.matchAll(/\bdata-capability="([^"]+)"/g)].map(match => match[1]);
-  assert.deepEqual(names.sort(), ["community", "harness", "permissions", "shared-format", "wasm-sdk"],
+  assert.deepEqual(names.sort(), ["community", "harness", "mcp", "permissions", "shared-format", "wasm-sdk"],
     "Each platform capability must appear once; inspect missing or duplicate named panels");
   assert.match(capabilities, /href="\/plugins\/submit\/"/);
   const featured = [...html.matchAll(/\bdata-featured-plugin="([^"]+)"/g)].map(match => match[1]);
