@@ -37,9 +37,11 @@ import { pluginMCP } from "../../data/mcp";
     <p>The agent calls this through <code>torana_invoke</code>. Requesting review does not approve anything. Run <code>./torana open</code>, open <strong>Approvals</strong>, check the original result locally, and choose <strong>Allow upstream</strong> or <strong>Keep withheld</strong>. You can also use:</p>
     <pre><code>{`./torana approvals list
 ./torana approvals show <reference>
-./torana approvals approve <reference> --yes
-./torana approvals decline <reference> --yes
-./torana approvals revoke <reference> --yes`}</code></pre>
+./torana approvals approve <reference>
+./torana approvals decline <reference>
+./torana approvals revoke <reference>`}</code></pre>
+    <p>Run decision commands yourself in an interactive terminal and type the reference suffix when prompted. They reject <code>--yes</code> and piped input. Your agent must request review through MCP, not run approval commands. Restrict operator commands and control-plane writes through your harness permissions or sandbox: these interaction safeguards do not isolate an unrestricted same-user shell. Separate operator authorization is a <a href="https://github.com/torana-edge/torana-edge/issues/467">release prerequisite</a> for human exceptions.</p>
+    <p>Each conversation can request five new reviews per hour. Replaying a pending request does not consume another slot. Decisions keep a bounded, value-free audit history.</p>
     <p>An allowance applies only to that conversation, tool call, exact content and plugin bundle. It persists across restarts, is not a clean verdict, and does not bypass other plugins. Torana stores metadata, not the original output: the harness must resend the original result for it to pass. Revocation withholds it again on future requests; it cannot recall content already sent. Allowing or revoking an older result may rebuild that part of the prompt cache once.</p>
 
     <h2 id="operations">What the plugins expose.</h2>
