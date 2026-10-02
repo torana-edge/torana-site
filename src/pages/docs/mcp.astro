@@ -35,6 +35,7 @@ import { pluginMCP } from "../../data/mcp";
     <p>A local PII model can make mistakes. When the <code>pii</code> plugin withholds a result, its tool error includes an opaque reference. Ask your agent to request review, not to retry smaller reads to evade the check:</p>
     <pre><code>{JSON.stringify({ namespace: "torana", operation: "redactions.request_release", input: { reference: "tr_REPLACE_WITH_THE_REFERENCE_FROM_THE_TOOL_ERROR" } }, null, 2)}</code></pre>
     <p>The agent calls this through <code>torana_invoke</code>. Requesting review does not approve anything. Run <code>./torana open</code>, open <strong>Approvals</strong>, check the original result locally, and choose <strong>Allow upstream</strong> or <strong>Keep withheld</strong>. You can also use:</p>
+    <p>Each review shows the tool, a recognized read tool’s file path, the first-withheld time, and the initial scanner categories/output lines or <strong>scan failure</strong>. These are scanner reports, not proof of sensitive data or verified file positions. Torana keeps the initial context fixed and stores no original output or arbitrary tool arguments.</p>
     <pre><code>{`./torana approvals list
 ./torana approvals show <reference>
 ./torana approvals approve <reference>

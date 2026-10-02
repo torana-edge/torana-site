@@ -91,6 +91,7 @@ curl --fail-with-body --silent \\
     <pre><code>rm demo-sensitive.txt</code></pre>
     <h3>Review a mistaken PII block</h3>
     <p>If <code>pii</code> withholds harmless content, ask your agent to request review through <a href="/docs/mcp/">Torana MCP</a>, using the result reference in the error. Run <code>./torana open</code> and open <strong>Approvals</strong>. Check the original content locally, then choose <strong>Allow upstream</strong> or <strong>Keep withheld</strong>.</p>
+    <p>The review identifies the tool, file path when available, first-withheld time, and the scanner’s initial categories/output lines or <strong>scan failure</strong>. It does not contain the original output. Reported lines are not verified file positions; inspect the source yourself.</p>
     <pre><code>{`./torana approvals list
 ./torana approvals show <reference>
 ./torana approvals approve <reference>`}</code></pre>
