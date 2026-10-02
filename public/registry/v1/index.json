@@ -202,7 +202,7 @@
     {
       "id": "torana/pii",
       "name": "pii",
-      "latest": "0.4.1",
+      "latest": "0.4.2",
       "description": "Scans new tool results through an operator-bound model and replaces sensitive output with a recoverable tool error",
       "failure_mode": "block",
       "requires_upstream": false,

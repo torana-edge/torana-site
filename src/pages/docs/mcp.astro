@@ -31,6 +31,20 @@ import { pluginMCP } from "../../data/mcp";
     <p>The agent can inspect proxy status, aggregate statistics and installed plugin identities. For the current chat, it can read recent request events, recorded usage, suggestions and confirmed-change history. Plugin-specific questions need the corresponding approved, enabled plugin.</p>
     <p>Conversation-specific operations need Torana to observe and verify the model’s tool call. Connect both paths: model requests through the proxy, and MCP through the adapter. If you see <code>unbound_conversation</code>, check that routing first; Torana will not guess a conversation from model-supplied IDs.</p>
 
+    <h2 id="review-pii">Review a result the scanner got wrong.</h2>
+    <p>A local PII model can make mistakes. When the <code>pii</code> plugin withholds a result, its tool error includes an opaque reference. Ask your agent to request review, not to retry smaller reads to evade the check:</p>
+    <pre><code>{JSON.stringify({ namespace: "torana", operation: "redactions.request_release", input: { reference: "tr_REPLACE_WITH_THE_REFERENCE_FROM_THE_TOOL_ERROR" } }, null, 2)}</code></pre>
+    <p>The agent calls this through <code>torana_invoke</code>. Requesting review does not approve anything. Run <code>./torana open</code>, open <strong>Approvals</strong>, check the original result locally, and choose <strong>Allow upstream</strong> or <strong>Keep withheld</strong>. You can also use:</p>
+    <p>Each review shows the tool, a recognized read tool’s file path, the first-withheld time, and the initial scanner categories/output lines or <strong>scan failure</strong>. These are scanner reports, not proof of sensitive data or verified file positions. Torana keeps the initial context fixed and stores no original output or arbitrary tool arguments.</p>
+    <pre><code>{`./torana approvals list
+./torana approvals show <reference>
+./torana approvals approve <reference>
+./torana approvals decline <reference>
+./torana approvals revoke <reference>`}</code></pre>
+    <p>Run decision commands yourself in an interactive terminal and type the reference suffix when prompted. They reject <code>--yes</code> and piped input. Your agent must request review through MCP, not run approval commands. Restrict operator commands and control-plane writes through your harness permissions or sandbox: these interaction safeguards do not isolate an unrestricted same-user shell. Separate operator authorization is a <a href="https://github.com/torana-edge/torana-edge/issues/467">release prerequisite</a> for human exceptions.</p>
+    <p>Each conversation can request five new reviews per hour. Replaying a pending request does not consume another slot. Decisions keep a bounded, value-free audit history.</p>
+    <p>An allowance applies only to that conversation, tool call, exact content and plugin bundle. It persists across restarts, is not a clean verdict, and does not bypass other plugins. Torana stores metadata, not the original output: the harness must resend the original result for it to pass. Revocation withholds it again on future requests; it cannot recall content already sent. Allowing or revoking an older result may rebuild that part of the prompt cache once.</p>
+
     <h2 id="operations">What the plugins expose.</h2>
     <p>These are the custom operations in the current official plugin source. Your installed bundle may differ; use discovery to see what is actually callable.</p>
     <dl class="operations">
