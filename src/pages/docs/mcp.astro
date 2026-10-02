@@ -50,7 +50,7 @@ import { pluginMCP } from "../../data/mcp";
     <p>For example, the agent can invoke the PII explanation with:</p>
     <pre><code>{JSON.stringify({ namespace: "pii", operation: "redaction.explain_last", input: {} }, null, 2)}</code></pre>
     <p>Read operations can run directly. Eligible plugin configuration, enable/disable and custom changes require your confirmation. For example, <code>tool_governor.session.allow_tool</code> requests a session allowance for a tool omitted by an allowlist; it cannot override an explicit deny. Changing the model-visible tool list may rebuild its prompt cache.</p>
-    <p>Torana presents confirmation through supported MCP consent flows or its local controls. If the agent reports <code>pending_confirmation</code>, review it in Torana’s UI or CLI. Confirmation codes stay with you; do not give them to the model.</p>
+    <p>Torana presents confirmation through supported MCP consent flows or its local controls. If the agent reports <code>pending_confirmation</code>, confirm or decline it in Torana’s UI, CLI or your harness’s consent prompt. The model never receives a code to approve on your behalf.</p>
     <p>MCP is intentionally narrower than the operator CLI: it does not return current plugin configuration values or approve arbitrary plugin capabilities. Model-facing changes to <code>pii</code>, <code>pii_guard</code> and <code>auth</code> are blocked by default. A harness with unrestricted shell access can still use the operator CLI; its own permissions remain important.</p>
 
     <h2 id="extend">Build a tool once. Reuse it.</h2>
