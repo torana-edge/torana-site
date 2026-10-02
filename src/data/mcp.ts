@@ -8,4 +8,8 @@ export const pluginMCP: Record<string, { operations: string[]; description: stri
   compactor: { operations: ["status.get"], description: "Inspect configured input limits, expected reuse and policy count. This does not run compaction or test the model." },
   tool_governor: { operations: ["status", "session.allow_tool"], description: "Inspect restriction counts or request a confirmed tool allowance for this session. Explicit operator denies still apply; undo stays user-controlled." },
   otel: { operations: ["status"], description: "Inspect plugin identity and metric-emission readiness—not collector delivery or a trace browser." },
+  intent: { operations: ["status"], description: "Inspect the intent-field convention and history-fill mode without returning captured intent text." },
+  keyword_compactor: { operations: ["status"], description: "Inspect compaction limits and policy count without exposing tool output, patterns or rerun commands." },
+  cache_tier_selector: { operations: ["status"], description: "Inspect configured cache-tier mode, idle-gap threshold and retention without changing cache markers." },
+  cache_warmer: { operations: ["status"], description: "Inspect configured opt-in count and timing without exposing conversation IDs or sending refresh requests." },
 };
