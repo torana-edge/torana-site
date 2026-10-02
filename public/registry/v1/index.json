@@ -6,7 +6,7 @@
     {
       "id": "torana/cache_tier_selector",
       "name": "cache_tier_selector",
-      "latest": "0.1.1",
+      "latest": "0.1.2",
       "description": "Buys the cheapest prompt-cache lifetime for a conversation based on how long it actually goes idle. Keeps each decision fixed until the provider cache tier expires, because changing a live breakpoint marker would invalidate the entry it is protecting.",
       "failure_mode": "pass",
       "requires_upstream": false,
@@ -58,7 +58,7 @@
     {
       "id": "torana/compactor",
       "name": "compactor",
-      "latest": "0.6.0",
+      "latest": "0.6.1",
       "description": "Economically gated cheap-model tool-result compaction; uses cached intent when available and a bounded local fallback otherwise. Alternative to keyword_compactor — run ONE of the two; running after intent improves relevance.",
       "failure_mode": "pass",
       "requires_upstream": false,
@@ -119,7 +119,7 @@
     {
       "id": "torana/intent",
       "name": "intent",
-      "latest": "0.2.1",
+      "latest": "0.2.2",
       "description": "Captures WHY each tool call is made: injects the required 'i' field into tool schemas (plus a system-prompt example), extracts it from streamed and non-streamed tool calls into the shared cache, and strips it before the harness sees it. On later requests it rehydrates cached intents onto history tool calls (bridging them to the request's tool_call_ids for the compactors) and heuristically fills never-captured ones so no tool establishes an 'i'-less precedent. Run before keyword_compactor OR compactor — both consume the intent cache.",
       "failure_mode": "pass",
       "requires_upstream": false,
@@ -156,7 +156,7 @@
     {
       "id": "torana/keyword_compactor",
       "name": "keyword_compactor",
-      "latest": "0.6.1",
+      "latest": "0.6.2",
       "description": "Deterministic keyword-based tool-result compaction; uses cached intent when available and a bounded local fallback otherwise. Alternative to compactor — run ONE of the two; running after intent improves relevance.",
       "failure_mode": "pass",
       "requires_upstream": false,
@@ -202,7 +202,7 @@
     {
       "id": "torana/pii",
       "name": "pii",
-      "latest": "0.4.1",
+      "latest": "0.4.2",
       "description": "Scans new tool results through an operator-bound model and replaces sensitive output with a recoverable tool error",
       "failure_mode": "block",
       "requires_upstream": false,
@@ -253,7 +253,7 @@
     {
       "id": "torana/schema_translator",
       "name": "schema_translator",
-      "latest": "0.4.0",
+      "latest": "0.4.1",
       "description": "KV-array schema translation: converts additionalProperties maps to arrays on the way in and reverses the recorded conversion on both the streamed and non-streamed response",
       "failure_mode": "pass",
       "requires_upstream": false,
