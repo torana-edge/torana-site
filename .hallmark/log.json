@@ -1,5 +1,19 @@
 [
   {
+    "date": "2026-10-02",
+    "scope": "additive-mcp-guide-and-discovery",
+    "macrostructure": "Long Document",
+    "theme": "existing studied-DNA teal, system/light/dark retained",
+    "nav": "existing N1b + native mobile disclosure",
+    "footer": "existing Ft5",
+    "enrichment": "none",
+    "motion": "none",
+    "verification": "Astro build passes; 40 offline route/theme/viewport checks at 320/375/414/768/1280px; guide screenshots inspected",
+    "critique": "P5 H4 E4 S5 R5 V4",
+    "brief": "Connect MCP and discover actual plugin operations with a shared guide/catalogue inventory",
+    "preservation": "Additive documentation request: established tokens, shared shell and document family retained"
+  },
+  {
     "date": "2026-09-14",
     "scope": "additive-guide-and-content-alignment",
     "macrostructure": "Long Document",

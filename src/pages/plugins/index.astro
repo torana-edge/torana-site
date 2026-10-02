@@ -3,6 +3,7 @@ import Layout from "../../layouts/Layout.astro";
 import { meta } from "../../data/pages";
 import registry from "../../../public/registry/v1/index.json";
 import descriptions from "../../data/plugin-copy.json";
+import { pluginMCP } from "../../data/mcp";
 const copy: Record<string, { title: string; description: string; guide: string }> = descriptions;
 const featuredOrder = ["pii", "pii_guard"];
 const plugins = [...registry.plugins].sort((left, right) => {
@@ -24,11 +25,16 @@ const plugins = [...registry.plugins].sort((left, right) => {
     <p><strong>Don’t have a local model running?</strong> Start with the zero-model <a href="#pii_guard">deterministic guard</a>. You can later add the contextual guard after it. Each entry includes its source, requested capabilities, and an install command.</p>
     <p>Run commands from your Torana checkout after the <a href="/quickstart/">quickstart</a>. Installation builds source code; it does not approve or enable the plugin. Review the source first, then approve and enable the built bundle in the local control plane. <a href="/docs/plugin-installation/">How installation and approval work →</a></p>
     <p>These are the {plugins.length} plugins maintained in the Torana plugins repository. Your plugin can live in your own repo too. Hack together something useful for your workflow, or move a harness-specific extension into a reusable plugin. <a href="/plugins/submit/">Share it and request a catalogue listing →</a></p>
+    <p>Some plugins also offer tools your agent can call through Torana’s local MCP server. <a href="/docs/mcp/">Connect your harness →</a> to inspect usage, ask about decisions or request confirmed changes.</p>
     <div>
       {plugins.map((plugin) => (
         <article class="plugin-detail" id={plugin.name}>
           <h2><a href={plugin.source}>{plugin.name}</a></h2>
           <p>{copy[plugin.name].description}</p>
+          {pluginMCP[plugin.name] && <div>
+            <p><strong>Agent tools via MCP</strong> — {pluginMCP[plugin.name].description}</p>
+            <p>{pluginMCP[plugin.name].operations.map((operation, index) => <>{index > 0 && " · "}<code>{operation}</code></>)} · <a href="/docs/mcp/#operations">MCP guide →</a></p>
+          </div>}
           <p class="article-meta">On plugin failure: {plugin.failure_mode === "block" ? "block the request" : "let the request continue"}.</p>
           {plugin.conflicts_with.length > 0 && <p>Use separately from: {plugin.conflicts_with.join(", ")}.</p>}
           <details>

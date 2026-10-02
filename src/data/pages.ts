@@ -58,6 +58,13 @@ export const pages: SitePage[] = [
     section: "Documentation",
   },
   {
+    path: "/docs/mcp/",
+    label: "MCP tools",
+    title: "MCP tools — Torana",
+    description: "Connect Claude Code, Codex or another MCP client to Torana. Ask about session usage, plugin decisions and routing, or build reusable agent-facing plugin operations.",
+    section: "Documentation",
+  },
+  {
     path: "/docs/protocol-bridges/",
     label: "Protocol bridges",
     title: "Protocol bridges — Torana",

@@ -79,6 +79,7 @@ cargo test --manifest-path ../my-rust-plugin/Cargo.toml
     <p>Keep request mutations deterministic and use the SDK’s provenance-aware helpers when changing content. Ordered blocks, signed content, tool results, and prompt-cache markers have preservation rules. The SDK’s <a href="https://github.com/torana-edge/torana-plugin-sdk/blob/main/docs/WRITING_A_PLUGIN.md">author guide ↗</a> and <a href="https://github.com/torana-edge/torana-plugin-sdk/blob/main/docs/PLUGIN_SEMANTICS.md">plugin semantics ↗</a> explain those rules.</p>
 
     <h2 id="agent-operations">Give every harness the same plugin tools.</h2>
+    <p>For setup and examples from the current plugins, start with the <a href="/docs/mcp/">MCP tools guide</a>.</p>
     <p>A plugin can expose a small typed interface through Torana’s MCP server. Define the operation once and any connected harness can discover it—without rebuilding the same command for Claude Code, Codex, or another agent.</p>
     <p>Add <code>agent.json</code> beside the plugin manifest and WASM bundle:</p>
     <pre><code>{agentDescriptor}</code></pre>

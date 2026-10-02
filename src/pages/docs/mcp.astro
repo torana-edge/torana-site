@@ -1,0 +1,77 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { meta } from "../../data/pages";
+import { pluginMCP } from "../../data/mcp";
+---
+<Layout {...meta("/docs/mcp/")}>
+  <article class="frame prose">
+    <h1 class="display">Give your agent Torana tools.</h1>
+    <p>Ask your agent how many tokens this chat used, why a plugin withheld a tool result, or what routing mode is active. Torana’s local MCP server gives connected harnesses one interface to the proxy and its plugins.</p>
+    <p>Traffic plugins act automatically on requests and responses. MCP adds a separate channel: your agent can discover operations and call them explicitly. You do not need MCP to use PII scanning or other traffic hooks.</p>
+
+    <h2 id="connect">Connect your harness.</h2>
+    <p>First follow the <a href="/quickstart/">quickstart</a> so Torana is running and your harness’s model requests pass through it. From your Torana checkout, enable MCP:</p>
+    <pre><code>{`./torana mcp enable --yes
+./torana mcp status`}</code></pre>
+    <p><strong>Claude Code</strong></p>
+    <pre><code>./torana harness setup claude-code --yes</code></pre>
+    <p><strong>Codex</strong></p>
+    <pre><code>./torana harness setup codex --yes</code></pre>
+    <p>Choose your harness, then restart it to load the connection. Setup defaults to user scope and keeps your harness’s approval and workspace-trust settings unchanged. Add <code>--scope project</code> for a project-local connection or <code>--dry-run</code> to preview the change.</p>
+    <p>The stdio adapter resolves the running Torana instance and adds authentication itself—no port or token to paste into your harness configuration. Setup may record the checkout binary’s absolute path; rerun setup if you move it. With an installed binary on your PATH, use <code>torana</code> instead of <code>./torana</code>.</p>
+    <p>For another MCP client, add a server named <code>torana</code> with command <code>torana</code> (or your binary’s absolute path) and arguments <code>["mcp", "stdio"]</code>. Torana must already be running with MCP enabled. See the <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/CLI.md#connect-mcp-tools">CLI reference ↗</a> for direct HTTP clients and explicit instance selection.</p>
+
+    <h2 id="try">Try a question in your chat.</h2>
+    <ul>
+      <li>“Use Torana’s tools to list the available plugins and check proxy status.”</li>
+      <li>“How many tokens has this conversation used? Include cache usage when reported.”</li>
+      <li>“Ask the PII plugin why it withheld the last tool result. Do not retrieve the secret.”</li>
+      <li>“Check the decision router’s mode and this session’s routing summaries.”</li>
+    </ul>
+    <p>The agent can inspect proxy status, aggregate statistics and installed plugin identities. For the current chat, it can read recent request events, recorded usage, suggestions and confirmed-change history. Plugin-specific questions need the corresponding approved, enabled plugin.</p>
+    <p>Conversation-specific operations need Torana to observe and verify the model’s tool call. Connect both paths: model requests through the proxy, and MCP through the adapter. If you see <code>unbound_conversation</code>, check that routing first; Torana will not guess a conversation from model-supplied IDs.</p>
+
+    <h2 id="operations">What the plugins expose.</h2>
+    <p>These are the custom operations in the current official plugin source. Your installed bundle may differ; use discovery to see what is actually callable.</p>
+    <dl class="operations">
+      {Object.entries(pluginMCP).map(([name, info]) => <div>
+        <dt><a href={`/plugins/#${name}`}>{name}</a></dt>
+        <dd><p>{info.operations.map((operation, index) => <>{index > 0 && " · "}<code>{operation}</code></>)}</p><p>{info.description}</p></dd>
+      </div>)}
+    </dl>
+
+    <h2 id="discovery">Four tools, growing possibilities.</h2>
+    <ol>
+      <li><code>torana_namespaces</code> lists Torana and installed plugin namespaces.</li>
+      <li><code>torana_search</code> finds reachable operations by intent.</li>
+      <li><code>torana_describe</code> explains inputs and access requirements.</li>
+      <li><code>torana_invoke</code> calls a named operation.</li>
+    </ol>
+    <p>For example, the agent can invoke the PII explanation with:</p>
+    <pre><code>{JSON.stringify({ namespace: "pii", operation: "redaction.explain_last", input: {} }, null, 2)}</code></pre>
+    <p>Read operations can run directly. Eligible plugin configuration, enable/disable and custom changes require your confirmation. For example, <code>tool_governor.session.allow_tool</code> requests a session allowance for a tool omitted by an allowlist; it cannot override an explicit deny. Changing the model-visible tool list may rebuild its prompt cache.</p>
+    <p>Torana presents confirmation through supported MCP consent flows or its local controls. If the agent reports <code>pending_confirmation</code>, review it in Torana’s UI or CLI. Confirmation codes stay with you; do not give them to the model.</p>
+    <p>MCP is intentionally narrower than the operator CLI: it does not return current plugin configuration values or approve arbitrary plugin capabilities. Model-facing changes to <code>pii</code>, <code>pii_guard</code> and <code>auth</code> are blocked by default. A harness with unrestricted shell access can still use the operator CLI; its own permissions remain important.</p>
+
+    <h2 id="extend">Build a tool once. Reuse it.</h2>
+    <p>Add <code>agent.json</code> to your plugin with named operations, descriptions, JSON schemas and an access policy. Implement those operations through the SDK’s HTTP hook. Torana discovers and dispatches them in the same WASM runtime—no separate MCP server process for your plugin.</p>
+    <p>Use <code>model_access: "read"</code> for reads, <code>"confirm"</code> for user-approved changes and <code>"never"</code> for private maintenance. Conversation-scoped operations use a verified host binding. Confirmed changes declare a safe undo companion.</p>
+    <p><a href="/docs/plugin-authoring/#agent-operations">Add plugin operations →</a> · <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/tool_governor/agent.json">Read a working descriptor ↗</a></p>
+
+    <h2 id="disconnect">Disconnect when you want.</h2>
+    <pre><code>{`./torana harness teardown claude-code --yes
+# Or: ./torana harness teardown codex --yes
+./torana mcp disable --yes`}</code></pre>
+    <p>Teardown removes the selected harness connection. Disabling MCP closes MCP sessions; it does not stop Torana’s proxy or traffic plugins.</p>
+  </article>
+</Layout>
+<style>
+  /* Hallmark · macrostructure: Long Document · theme: existing studied-DNA teal
+   * tone: approachable technical · nav/footer: existing shared shell · motion: none
+   * pre-emit critique: P5 H4 E4 S5 R5 V4 · tokens: src/styles/tokens.css */
+  .operations > div { border-bottom: 1px solid var(--rule); padding-block: var(--space-4); }
+  .operations dt { font-weight: 600; }
+  .operations dd { margin: 0; }
+  .operations p { margin-block: var(--space-2); }
+  code { overflow-wrap: anywhere; }
+</style>
