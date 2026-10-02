@@ -87,7 +87,7 @@
     {
       "id": "torana/decision_router",
       "name": "decision_router",
-      "latest": "0.6.0",
+      "latest": "0.6.1",
       "description": "Offers costed model advice, consent-based switches, or guarded automatic escalation.",
       "failure_mode": "pass",
       "requires_upstream": false,
