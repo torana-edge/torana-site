@@ -23,6 +23,7 @@ const sdkSource = `https://github.com/torana-edge/torana-plugin-sdk/blob/${sdk.v
       <a href="#hooks">Plugin hooks</a>
       <a href="#permissions">Permissions</a>
       <a href="#local-controls">Local controls</a>
+      <a href="#mcp">MCP tools</a>
       <a href="#data-boundary">Data boundaries</a>
       <a href="#cache-and-signatures">Cache and signatures</a>
     </nav>
@@ -110,6 +111,13 @@ const sdkSource = `https://github.com/torana-edge/torana-plugin-sdk/blob/${sdk.v
         <p>Those preservation rules describe native routes. A mismatched protocol bridge cannot carry provider-specific signatures or cache breakpoints into an unrelated API. Prefer a native route for workflows relying on them.</p>
         <p>A compaction plugin also changes what the next model call can see. Its value depends on the workload, retained information, extra model calls, and provider cache behavior. Torana provides the hooks and measurements; it does not promise that compaction saves money.</p>
         <p class="source-link"><a href={`${edgeSource}/docs/PROMPT_CACHING.md`}>Read the caching rules ↗</a><a href={`${edgeSource}/internal/plugin/writegrant.go`}>Read mutation checks ↗</a></p>
+      </section>
+
+      <section aria-labelledby="mcp">
+        <h2 id="mcp">Your agent can ask Torana, too.</h2>
+        <p>Traffic interception and MCP are separate paths. Hooks run automatically as model requests and responses pass through the proxy. Torana’s optional local MCP server lets your harness discover and call explicit operations: inspect usage, ask why PII withheld a result, or request a confirmed plugin change.</p>
+        <p>Plugins declare operations in <code>agent.json</code> and handle them through their existing WASM HTTP hook. Torana exposes four discovery/invocation tools rather than adding every plugin operation to the harness’s tool list. Session-specific calls require a verified match to the model tool call observed in proxied traffic; user confirmation governs eligible changes.</p>
+        <p class="source-link"><a href="/docs/mcp/">Connect MCP tools →</a><a href="/docs/plugin-authoring/#agent-operations">Expose an operation →</a></p>
       </section>
 
       <section aria-labelledby="next-steps" class="next-steps">
