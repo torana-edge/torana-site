@@ -39,7 +39,7 @@ const edgeSource = "https://github.com/torana-edge/torana-edge/blob/60e9fb9362bf
     <p>Under any configured bridge, model discovery, token-counting, files, batch APIs, response retrieval, and other auxiliary APIs are not emulated or forwarded; they return 400. This includes bridges whose client and upstream contracts match. Changing a base URL alone does not make a harness that requires these APIs compatible.</p>
 
     <h2 id="harnesses" data-evidence="automated-contract">Coding harnesses</h2>
-    <p>Keep the login you already use. File-read and tool-follow-up checks passed through Torana with Claude Code, Codex, and Antigravity on September 16, 2026, including local usage logging. Pick your recipe in the <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/HARNESS_SETUP.md">harness guide</a> and try it with your own project.</p>
+    <p>Bring the harness you already use: <strong>Claude Code, Codex, pi, oh-my-pi, or OpenCode</strong>. Our October 3 walkthrough checked real file reads, usage logging, and recoverable PII-guard responses in all five. Claude and Codex kept their existing logins; pi, oh-my-pi, and OpenCode used a DeepSeek API key. Pick your recipe in the <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/HARNESS_SETUP.md">harness guide</a> and try it with your own project. Antigravity also has a separately verified setup.</p>
     <p>For Codex response plugins, choose HTTP/SSE with <code>supports_websockets = false</code>: WebSocket connections pass through as opaque streams, outside the response-plugin pipeline. For Antigravity, follow the <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/GEMINI_ANTIGRAVITY.md">local TLS setup</a> and choose your tool permissions; the verified headless run used explicit auto-approval. The guide includes tested versions and setup details.</p>
     <p>The table below maps native routes to their automated API coverage. Connecting a different kind of backend? Start with the <a href="/docs/protocol-bridges/">bridge guide</a>.</p>
     <div class="table-scroll" tabindex="0" role="region" aria-label="Coding harness support matrix">
@@ -48,7 +48,8 @@ const edgeSource = "https://github.com/torana-edge/torana-edge/blob/60e9fb9362bf
         <tbody>
           <tr><th>Claude Code via <code>ANTHROPIC_BASE_URL</code></th><td>Anthropic Messages</td><td>System prompts, streaming tool use/results, cache markers, signatures, and auxiliary pass-through</td></tr>
           <tr><th>Codex custom provider</th><td>OpenAI Responses</td><td>Responses layout, opaque input items, streaming tools, and model-list pass-through</td></tr>
-          <tr><th>OpenCode / Aider base URL</th><td>OpenAI or Anthropic</td><td>The selected provider wire has automated coverage</td></tr>
+          <tr><th>pi, oh-my-pi, OpenCode custom provider</th><td>OpenAI Chat Completions in the live checks</td><td>Tool calls/results and usage; other providers depend on the selected wire format</td></tr>
+          <tr><th>Aider base URL</th><td>OpenAI or Anthropic</td><td>The selected provider wire has automated coverage; not part of the five-harness live walkthrough</td></tr>
           <tr><th>Antigravity / Code Assist</th><td>Gemini Code Assist</td><td>Wrapper data, signed parts, cache facts, stream framing, and auxiliary pass-through</td></tr>
         </tbody>
       </table>
@@ -56,7 +57,7 @@ const edgeSource = "https://github.com/torana-edge/torana-edge/blob/60e9fb9362bf
 
     <details>
       <summary>About the live checks and API coverage</summary>
-      <p>The <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/HARNESS_SETUP.md#live-checks-and-what-they-prove">dated harness results</a> record the versions, models, authentication routes, and workflows checked. Resume, login refresh, and long conversations were not part of those runs; they do not establish every tool or provider account.</p>
+      <p>The <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/HARNESS_SETUP.md#live-checks-and-what-they-prove">dated harness results</a> record the versions, models, authentication routes, resume checks, and workflows covered. Cache hits were observed in the five-harness walkthrough; that does not establish perfect prefix preservation for every workflow. These checks do not cover every tool, login refresh, or provider account.</p>
       <p>Automated API fixtures exercise protocol behavior, including the 20 bridge directions. They are separate from credentialed harness checks, not evidence that every real harness/backend combination has been run.</p>
     </details>
     <p>Have a favorite harness or a workflow you want to bring to Torana? <a href="https://github.com/torana-edge/torana-edge/issues">Share your setup or the first rough edge</a>. Working recipes, bug reports, and small plugins all help shape what comes next.</p>

@@ -38,7 +38,7 @@ torana status`}</code></pre>
 done`}</code></pre>
       <p>Do not paste tokens, a full environment dump, or credential-bearing configuration into an issue.</p>
     </details>
-    <h3>Codex, Antigravity, pi, or oh-my-pi</h3>
+    <h3>Codex, pi, oh-my-pi, OpenCode, or Antigravity</h3>
     <p>Keep your usual harness and follow its recipe in the <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/HARNESS_SETUP.md">setup guide</a>. Choose the Codex recipe for your ChatGPT login or API key; for Antigravity, the guide connects your existing Google login through Torana’s local TLS ingress.</p>
     <p>Using Codex with plugins? Follow the guide’s HTTP/SSE configuration (<code>supports_websockets = false</code>) so response hooks and usage logging run. For Antigravity, start interactively to approve tool actions, or follow its guide for a single headless task with explicit permissions.</p>
     <p>Ask your harness to read a small, non-sensitive file. Open the local control plane’s <strong>Live Feed</strong> to see the request, model, and status. Next, add a plugin below: try a local-model check, or start with usage logging or a deterministic guard.</p>
