@@ -1,7 +1,9 @@
 {
-  "date": "2026-09-14",
-  "scope": "protocol-bridge guide and scoped documentation alignment",
-  "base_revision": "6e71e230935dd93f4523b6a25a160c05c289da3e",
+  "date": "2026-10-03",
+  "scope": "install-first homepage, quickstart and plugin catalogue refinement",
+  "base_revision": "c83e445df5c16e128a01638f8b9abfcc7d1a5f58",
+  "audience": "Developers and developer-adjacent readers: product managers, engineering managers and recruiters",
+  "goal": "Understand Torana at a glance, install it and choose a plugin",
   "framework": { "value": "Astro 7", "source": "package.json" },
   "fonts": { "value": "Bricolage Grotesque / Geist / JetBrains Mono", "source": "src/styles/tokens.css" },
   "palette": { "value": "Existing OKLCH teal; system, light and dark", "source": "src/styles/tokens.css" },
@@ -9,5 +11,5 @@
   "motion": { "value": "No library; existing optional CSS reveals; no new motion", "source": "src/styles/global.css" },
   "shell": { "value": "Existing N1b navigation with native mobile disclosure; Ft5 footer", "source": "src/layouts/Layout.astro" },
   "preserve": ["src/styles/tokens.css", "fonts", "palette", "spacing", "theme control", "shared shell", "installation instructions"],
-  "introduce": ["Long Document bridge guide", "contextual navigation destination", "native/bridge content checks", "bridge guide responsive checks"]
+  "introduce": ["Content-height hero", "Install command copy icons and feedback", "Quickstart step links", "Plugin jump index", "Verified prebuilt release catalogue"]
 }

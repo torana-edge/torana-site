@@ -28,9 +28,9 @@ export const product = {
   pluginLanguages: ["Go", "Rust"],
   pluginRuntime: "WebAssembly",
 
-  /** Tagged native binaries; plugins are installed separately from source. */
+  /** Tagged native binaries; maintained plugins have separate verified releases. */
   installation: "release" as const,
-  version: "0.1.0",
+  version: "0.1.1",
 
   /** One sentence, used wherever the project must introduce itself. */
   summary:

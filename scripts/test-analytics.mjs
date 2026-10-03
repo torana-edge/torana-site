@@ -260,7 +260,7 @@ test("copy helper emits once only after clipboard success, preserving feedback o
     let resolveClipboard;
     let rejectClipboard;
     const button = { dataset: { copy: "private clipboard text", copyLabel: "Success" }, textContent: "Copy",
-      addEventListener: (_, fn) => { click = fn; }, setAttribute() {}, removeAttribute() {},
+      addEventListener: (_, fn) => { click = fn; }, getAttribute() { return null; }, setAttribute() {}, removeAttribute() {},
       dispatchEvent(event) { if (failure === "analytics") throw Error("listener failure"); signals.push(event); } };
     const status = { textContent: "" };
     runInNewContext(copySource, {
