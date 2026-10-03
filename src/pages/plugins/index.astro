@@ -23,7 +23,7 @@ const plugins = [...registry.plugins].sort((left, right) => {
     <p>Torana plugins run in the request and response path. With permissions you approve, they can inspect or change traffic, block a request, or call another endpoint such as a local model. Your agent can keep using its hosted model while focused local models take on narrow jobs.</p>
     <p><strong>Already have a local model running?</strong> Start with the contextual <a href="#pii">PII guard</a>.</p>
     <p><strong>Don’t have a local model running?</strong> Start with the zero-model <a href="#pii_guard">deterministic guard</a>. You can later add the contextual guard after it. Each entry includes its source, requested capabilities, and an install command.</p>
-    <p>Run commands from your Torana checkout after the <a href="/quickstart/">quickstart</a>. Installation builds source code; it does not approve or enable the plugin. Review the source first, then approve and enable the built bundle in the local control plane. <a href="/docs/plugin-installation/">How installation and approval work →</a></p>
+    <p>After the <a href="/quickstart/">quickstart</a>, run these commands with <code>torana</code> on your PATH. Install Git and Go 1.26.6+ for these Go plugins. Installation builds source code; it does not approve or enable the plugin. Review the source first, then approve and enable the built bundle in the local control plane. <a href="/docs/plugin-installation/">How installation and approval work →</a></p>
     <p>These are the {plugins.length} plugins maintained in the Torana plugins repository. Your plugin can live in your own repo too. Hack together something useful for your workflow, or move a harness-specific extension into a reusable plugin. <a href="/plugins/submit/">Share it and request a catalogue listing →</a></p>
     <p>Some plugins also offer tools your agent can call through Torana’s local MCP server. <a href="/docs/mcp/">Connect your harness →</a> to inspect usage, ask about decisions or request confirmed changes.</p>
     <div>
@@ -43,8 +43,8 @@ const plugins = [...registry.plugins].sort((left, right) => {
             <p>These are the manifest’s requests, not automatic grants. Review resource bindings and the exact built digest in the control plane.</p>
           </details>
           <div class="command">
-            <pre><code>{`./torana plugin install ${plugin.source}`}</code></pre>
-            <button class="copy" type="button" data-copy={`./torana plugin install ${plugin.source}`} data-copy-label={`${plugin.name} install command copied.`} data-analytics-copy="plugin-install" aria-label={`Copy install command for ${plugin.name}`}>Copy install command</button>
+            <pre><code>{`torana plugin install ${plugin.source}`}</code></pre>
+            <button class="copy" type="button" data-copy={`torana plugin install ${plugin.source}`} data-copy-label={`${plugin.name} install command copied.`} data-analytics-copy="plugin-install" aria-label={`Copy install command for ${plugin.name}`}>Copy install command</button>
           </div>
           <div class="actions"><a class="button" href={copy[plugin.name].guide}>Setup guide ↗</a><a class="button" href={plugin.source}>Source ↗</a><a class="button" href="/docs/plugin-installation/">Installation help →</a></div>
         </article>

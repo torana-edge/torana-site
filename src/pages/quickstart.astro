@@ -1,34 +1,35 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { meta } from "../data/pages";
-import { installCommand } from "../data/install";
+import { installCommand, windowsInstallCommand, releaseVersion, releaseURL } from "../data/install";
 ---
 <Layout {...meta("/quickstart/")}>
   <article class="frame prose">
     <p class="eyebrow">Quickstart · local machine</p>
     <h1 class="display">Your first session through Torana.</h1>
-    <p>Which coding harness do you already use? Start with that. You need Git and Go 1.26.6 or newer to build Torana; a separate provider API key is only needed for the direct API-key path below. Your provider’s normal usage limits and billing still apply.</p>
+    <p>Which coding harness do you already use? Start with that. The released binary needs no Git or Go; a separate provider API key is only needed for the direct API-key path below. Your provider’s normal usage limits and billing still apply.</p>
     <p>Run Torana locally, keep the listener on loopback, and review each plugin’s requested capabilities before enabling it.</p>
     <p>Using a local model server? You can connect it too. If its API differs from your harness’s, use an <a href="/docs/protocol-bridges/">API bridge</a>.</p>
-    <h2>1. Install</h2>
+    <h2>1. Install v{releaseVersion}</h2>
+    <p>macOS or Linux:</p>
     <pre><code>{installCommand}</code></pre>
-    <p>This walkthrough builds from source. To reproduce a particular revision, check out its reviewed commit SHA before building.</p>
+    <details><summary>Windows (PowerShell)</summary><pre><code>{windowsInstallCommand}</code></pre></details>
+    <p>The installer selects your platform and verifies the release checksum. It does not start Torana or edit your shell profile. The PATH command above applies to this terminal; add the install directory to your user PATH for future terminals. <a href={releaseURL}>Release notes and direct downloads</a> · <a href="https://github.com/torana-edge/torana-edge/blob/main/CONTRIBUTING.md#getting-a-build">Build from source</a>.</p>
     <h2>2. Start without plugins</h2>
-    <pre><code>{`export TORANA_DATA_DIR="$PWD/.torana-data"
-./torana --debug start --port 8143
-./torana status`}</code></pre>
-    <p>This keeps evaluation state in <code>.torana-data</code> inside the checkout. On first run Torana imports <code>config.json</code>; later changes belong in the local control plane, not the seed file. This directory can contain credentials and plugin files: keep it private. Run <code>./torana open</code> to inspect activity or edit providers. The listener and control plane default to loopback. The server runs in the background. Verify the live endpoint:</p>
-    <pre><code>curl --fail-with-body --silent "$(./torana endpoint)/health"</code></pre>
+    <pre><code>{`torana --debug start --port 8143
+torana status`}</code></pre>
+    <p>Choose any free port. Torana runs in the background and creates its managed configuration in your platform’s user-config directory. No checkout, seed file, or <code>TORANA_DATA_DIR</code> export is needed. Keep this directory private: it can contain credentials and plugin files. Run <code>torana open</code> to inspect activity or edit providers. The CLI resolves the running instance’s port for later commands. Verify the live endpoint:</p>
+    <pre><code>curl --fail-with-body --silent "$(torana endpoint)/health"</code></pre>
     <p>A healthy process returns <code>{`{"status":"ok"}`}</code>. A failed plugin reload keeps the last known-good pipeline serving but reports a degraded health status.</p>
     <h2>3. Which harness do you use?</h2>
     <p>Pick one route. You do not need to configure every provider.</p>
     <h3>Claude Code</h3>
-    <p>Already signed in? Keep the example’s <code>anthropic</code> provider on <strong>Use harness credentials</strong>, then launch Claude Code with a command-scoped address:</p>
-    <pre><code>ANTHROPIC_BASE_URL="$(./torana endpoint anthropic)" claude</code></pre>
+    <p>Already signed in? Keep the default <code>anthropic</code> provider on <strong>Use harness credentials</strong>, then launch Claude Code with a command-scoped address:</p>
+    <pre><code>ANTHROPIC_BASE_URL="$(torana endpoint anthropic)" claude</code></pre>
     <p>Do not add a DeepSeek key or replace your login. If your shell already sets an Anthropic key/token or your Claude configuration uses a key helper, that credential may take precedence. The <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/HARNESS_SETUP.md#claude-code">Claude Code guide</a> explains the distinction.</p>
     <details>
       <summary>Claude replies, but the Live Feed is empty?</summary>
-      <p>Check <code>./torana status</code> and open that instance’s control plane. Exit Claude Code and start a fresh session with the command above, using your Torana instance’s port and provider name. A session launched normally will not inherit that command-scoped routing setting.</p>
+      <p>Check <code>torana status</code> and open that instance’s control plane. Exit Claude Code and start a fresh session with the command above, using your Torana instance’s port and provider name. A session launched normally will not inherit that command-scoped routing setting.</p>
       <p>Separately, to check for credentials that could override your Claude login, run this in the shell where you launch Claude. It prints variable names only, never their values. Also check whether your Claude configuration uses a key helper. Credential overrides affect authentication and billing; they do not by themselves mean that traffic bypasses Torana.</p>
       <pre><code>{`for name in ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN; do
   if printenv "$name" >/dev/null; then
@@ -47,20 +48,21 @@ done`}</code></pre>
     <pre><code>{`export DEEPSEEK_API_KEY='replace-with-your-deepseek-key'
 
 curl --fail-with-body --silent \\
-  "$(./torana endpoint deepseek)/v1/chat/completions" \\
+  "$(torana endpoint deepseek)/v1/chat/completions" \\
   -H "Authorization: Bearer $DEEPSEEK_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{"model":"deepseek-flash","messages":[{"role":"user","content":"Reply with exactly: Torana works"}]}'`}</code></pre>
     <p>This uses the example configuration’s DeepSeek route and forwards your key to DeepSeek. Choose a model available to your account. You do not need DeepSeek for the harness routes above.</p>
     </details>
-    <pre><code>{`./torana feed
-./torana stats`}</code></pre>
-    <p>Find the matching request in the feed. You can also inspect it in the local UI. <code>./torana status</code> reports the instance and log path.</p>
+    <pre><code>{`torana feed
+torana stats`}</code></pre>
+    <p>Find the matching request in the feed. You can also inspect it in the local UI. <code>torana status</code> reports the instance and log path.</p>
     <h2 id="first-plugin">4. Add your first plugin</h2>
+    <p>Plugins install from source. For these Go plugins, install Git and Go 1.26.6+ before continuing. Neither is needed to run the released proxy binary.</p>
     <p>Torana plugins run in the request and response path. With permissions you approve, they can inspect or change a request or response, block it, or call another endpoint before the workflow continues. That endpoint can be a local model: your coding agent can keep using its hosted model while a focused local model handles a narrow job. Combining the two unlocks useful workflows without moving the whole session to a local model.</p>
     <h3>Have a local model, or comfortable setting up a small one?</h3>
     <p>Try <strong>pii</strong> first. A focused local model working alongside your hosted coding agent is the clearest way to see what Torana plugins unlock. This plugin asks your OpenAI-compatible local model to check new tool output before it reaches the primary model. Detection depends on the scanner you choose; this is an extra check, not a guarantee.</p>
-    <p><strong>Register your local model first.</strong> Run <code>./torana open</code>, open <strong>Settings</strong>, and choose <strong>Add provider</strong>:</p>
+    <p><strong>Register your local model first.</strong> Run <code>torana open</code>, open <strong>Settings</strong>, and choose <strong>Add provider</strong>:</p>
     <ul>
       <li><strong>Provider name:</strong> <code>local-scanner</code>.</li>
       <li><strong>Upstream URL:</strong> your model server's address, such as <code>http://127.0.0.1:8081/v1</code> for an OpenAI-compatible local server or <code>http://127.0.0.1:11434</code> for Ollama. Use your server's actual port.</li>
@@ -68,22 +70,22 @@ curl --fail-with-body --silent \\
       <li><strong>Plugin model defaults → Default model:</strong> enter your loaded model's ID if the server requires one (for Ollama, its model name). Single-model servers that accept requests without a model can leave this blank. Leave <strong>Inference path override</strong> blank.</li>
     </ul>
     <p>Choose <strong>Save settings</strong>, then install the plugin:</p>
-    <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii</code></pre>
-    <p>Open the control plane again with <code>./torana open</code>. Choose <strong>Pipeline</strong>, open the installed <strong>pii</strong> plugin, and find <strong>Resource bindings and limits → scanner → Provider</strong>. Select the <code>local-scanner</code> provider you saved in Settings. Torana derives the normal inference path. If the dropdown is empty, check that you saved the provider with format <code>openai</code> and authentication <strong>No authentication</strong>; plugins make their own model calls and cannot use your harness's login.</p>
+    <pre><code>torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii</code></pre>
+    <p>Open the control plane again with <code>torana open</code>. Choose <strong>Pipeline</strong>, open the installed <strong>pii</strong> plugin, and find <strong>Resource bindings and limits → scanner → Provider</strong>. Select the <code>local-scanner</code> provider you saved in Settings. Torana derives the normal inference path. If the dropdown is empty, check that you saved the provider with format <code>openai</code> and authentication <strong>No authentication</strong>; plugins make their own model calls and cannot use your harness's login.</p>
     <p>The <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii/README.md">model-backed PII guide</a> has the complete CLI configuration and approval document. Eligible tool output goes to the scanner you bind; keep that binding local if you do not want an additional remote model call.</p>
     <h3>Don’t have a local model running?</h3>
     <p>Start with either of these—no local model needed.</p>
     <p><strong>See your usage with usage_logger.</strong> Record content-free request, latency and token-usage data:</p>
-    <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/usage_logger</code></pre>
+    <pre><code>torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/usage_logger</code></pre>
     <p>It does not record prompts or tool output, and it does not block secrets. The <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/usage_logger/README.md">usage logger guide</a> covers its CLI setup and recorded fields.</p>
     <p><strong>Check recognizable secrets with pii_guard.</strong> Use deterministic checks for common secret shapes:</p>
-    <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii_guard</code></pre>
+    <pre><code>torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii_guard</code></pre>
     <p><strong>pii_guard</strong> makes no model or network calls. Review its requested tool-result and state permissions before enabling it. Its <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii_guard/README.md">setup guide</a> also covers the CLI path. You can use either plugin alone; for broader protection, run both with <code>pii_guard</code> first.</p>
     <h3>Enable the plugin</h3>
-    <p>Run <code>./torana open</code>, choose <strong>Pipeline</strong>, and open the plugin you installed. Review its digest and requested permissions. For <strong>pii</strong>, also confirm the <code>scanner</code> binding and model-call limits; for <strong>usage_logger</strong>, review the bounded usage-file storage. Choose <strong>Approve &amp; enable</strong>. Installation alone does not enable a plugin, and a rebuilt bundle needs a new approval.</p>
+    <p>Run <code>torana open</code>, choose <strong>Pipeline</strong>, and open the plugin you installed. Review its digest and requested permissions. For <strong>pii</strong>, also confirm the <code>scanner</code> binding and model-call limits; for <strong>usage_logger</strong>, review the bounded usage-file storage. Choose <strong>Approve &amp; enable</strong>. Installation alone does not enable a plugin, and a rebuilt bundle needs a new approval.</p>
     <h3>Test usage_logger</h3>
     <p>If you chose <strong>usage_logger</strong>, ask your routed harness to read a small, non-sensitive file. Then inspect the latest content-free records using your shell’s <code>tail</code>:</p>
-    <pre><code>tail -n 5 "$(./torana plugin file path usage_logger usage.jsonl)"</code></pre>
+    <pre><code>tail -n 5 "$(torana plugin file path usage_logger usage.jsonl)"</code></pre>
     <p>Torana resolves the file path; your shell reads it. Look for the request’s provider, latency and reported token counts. You can also see the request in <strong>Live Feed</strong>. Continue to <a href="/plugins/">other plugins</a> whenever you like.</p>
     <h3>Test pii or pii_guard</h3>
     <p>For either protection plugin, create a file containing an obviously synthetic credential. Do not use a real key:</p>
@@ -95,7 +97,7 @@ curl --fail-with-body --silent \\
     <pre><code>rm demo-sensitive.txt</code></pre>
     <p>Next, <a href="/plugins/">explore the other plugins</a> or <a href="https://github.com/torana-edge/torana-plugin-sdk">write your own</a>.</p>
     <h2>Switch back whenever you want</h2>
-    <p>Exit the harness and launch it normally. The command-scoped Claude Code example does not change your saved settings or later shell commands. If you edited a harness configuration file, restore its previous settings. Once your agent connects directly again, stop Torana with <code>./torana stop --yes</code>. Use <code>./torana serve</code> if you prefer foreground serving. The evaluation directory remains on disk until you remove it.</p>
+    <p>Exit the harness and launch it normally. The command-scoped Claude Code example does not change your saved settings or later shell commands. If you edited a harness configuration file, restore its previous settings. Once your agent connects directly again, stop Torana with <code>torana stop --yes</code>. Use <code>torana serve</code> if you prefer foreground serving. Your managed settings and plugin state remain available for the next session.</p>
     <h2>Help improve the next release</h2>
     <p><a href="https://github.com/torana-edge/torana-edge/issues">Tell us how your session went</a>: your Torana and harness versions, provider/endpoint, whether streaming and tool calls worked, and the first confusing step. Keep credentials, private source, and sensitive prompts out of your report.</p>
   </article>

@@ -8,21 +8,21 @@ import { meta } from "../../data/pages";
     <p>After the <a href="/quickstart/">quickstart</a>, choose a plugin in the <a href="/plugins/">registry</a>. Open its source and documentation before running the install command.</p>
     <h2>Build, approve, enable.</h2>
     <p>With permissions you approve, plugins can inspect or change requests and responses, block a request, or call another endpoint such as a local model. That lets a focused local model handle one job while your coding agent continues using its hosted model.</p>
-    <p>With the default quickstart setup, run the command from the same Torana checkout you used to start the server. Plugins install into <code>./plugins</code>, relative to your working directory. If you configured a different plugin directory, pass <code>--dir</code> with the absolute path to that directory to the install command. Setting <code>TORANA_DATA_DIR</code> alone does not select the plugin directory.</p>
+    <p>Install Git and Go 1.26.6+ for the maintained Go plugins. The CLI discovers your running instance and installs into its configured plugin directory; you do not need a Torana checkout or to repeat its port. Use <code>--dir</code> only when deliberately targeting another plugin directory. Rust plugins require a local Rust toolchain and must be cloned and reviewed before building.</p>
     <h3>Already have a local model running?</h3>
-    <p>Register it before installing <code>pii</code>: run <code>./torana open</code>, open <strong>Settings → Add provider</strong>, name it <code>local-scanner</code>, enter your local model server's URL, select format <code>openai</code> and <strong>No authentication</strong> for an unauthenticated server. Under <strong>Plugin model defaults</strong>, enter its model ID if required, then choose <strong>Save settings</strong>. The <a href="/quickstart/#first-plugin">quickstart</a> includes example URLs and all setup fields.</p>
-    <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii</code></pre>
+    <p>Register it before installing <code>pii</code>: run <code>torana open</code>, open <strong>Settings → Add provider</strong>, name it <code>local-scanner</code>, enter your local model server's URL, select format <code>openai</code> and <strong>No authentication</strong> for an unauthenticated server. Under <strong>Plugin model defaults</strong>, enter its model ID if required, then choose <strong>Save settings</strong>. The <a href="/quickstart/#first-plugin">quickstart</a> includes example URLs and all setup fields.</p>
+    <pre><code>torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii</code></pre>
     <p>The command builds and installs the bundle. It does not approve its permissions or enable it.</p>
     <h3>Don’t have a local model running?</h3>
     <p>Install <code>pii_guard</code> instead. It performs deterministic checks without a model or network resource:</p>
-    <pre><code>./torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii_guard</code></pre>
+    <pre><code>torana plugin install https://github.com/torana-edge/torana-plugins/tree/main/plugins/pii_guard</code></pre>
     <h3>Enable the plugin</h3>
-    <p>Run <code>./torana open</code> and select the plugin you installed. For <strong>pii</strong>, choose the OpenAI-compatible local provider you already configured for its required scanner service. Review the plugin digest, requested permissions and resource limits, then choose <strong>Approve and enable</strong>.</p>
+    <p>Run <code>torana open</code> and select the plugin you installed. For <strong>pii</strong>, choose the OpenAI-compatible local provider you already configured for its required scanner service. Review the plugin digest, requested permissions and resource limits, then choose <strong>Approve and enable</strong>.</p>
     <p>The <a href="/quickstart/#first-plugin">quickstart</a> walks through the decision and a safe synthetic-credential check. You may use either guard, or place <code>pii_guard</code> before <code>pii</code> so obvious matches avoid a model call. For terminal or agent automation, use the model-backed <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii/README.md">PII guide</a> or the <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii_guard/README.md">deterministic guard guide</a>.</p>
     <h2 id="community">Install from any plugin repository.</h2>
     <p>You do not need a registry listing to install a plugin. For a Go plugin, use its repository URL and plugin path, following the author’s installation instructions. Prefer a tag or commit you have reviewed over a moving branch.</p>
     <p>For a local Go or Rust project, pass its directory instead. This example assumes you have already cloned and reviewed a plugin in <code>../my-plugin</code>:</p>
-    <pre><code>./torana plugin install ../my-plugin</code></pre>
+    <pre><code>torana plugin install ../my-plugin</code></pre>
     <p>The same build, approval, and enablement steps apply to plugins from your own repository and someone else’s. A catalogue entry is not an automatic permission grant. <a href="/plugins/submit/">Want to share a plugin you made? →</a></p>
     <h2>The build is outside the sandbox.</h2>
     <p>WASM isolates the running guest. That does not make building arbitrary source code safe. In particular, Cargo build scripts can execute native code before there is a WASM artifact to approve. Torana refuses remote Rust source builds; clone and review a Rust project before building it locally.</p>
@@ -31,7 +31,7 @@ import { meta } from "../../data/pages";
     <p>Official Go plugin builds are checked for path independence. That is narrower than reproducibility across every toolchain version. Torana uses <code>GOTOOLCHAIN=local</code> when compiling plugin source, so the source cannot silently select and download another Go toolchain.</p>
     <p>The digest identifies what you approved. It is not an independent security review or a reason to skip reading source and permissions.</p>
     <h2>Turn it off when you’re done.</h2>
-    <pre><code>./torana plugin disable pii --yes</code></pre>
+    <pre><code>torana plugin disable pii --yes</code></pre>
     <p>Disabling retains settings, approval and private files. You can also disable it in the UI. Inspect the active pipeline before continuing. To stop using the proxy entirely, restore your coding agent’s previous provider configuration as described in the quickstart.</p>
     <p>For settings, pipeline order, revisions and agent operations, use the <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/CLI.md">full CLI reference</a>.</p>
   </article>

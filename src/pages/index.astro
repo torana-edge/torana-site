@@ -4,6 +4,7 @@ import { meta } from "../data/pages";
 import { plugins } from "../data/plugins";
 import descriptions from "../data/plugin-copy.json";
 const copy: Record<string, { description: string }> = descriptions;
+import { installCommand, windowsInstallCommand, releaseVersion, releaseURL } from "../data/install";
 import RequestFlow from "../components/RequestFlow.astro";
 const featuredPlugins = ["pii", "pii_guard", "tool_governor"]
   .map(name => plugins.find(plugin => plugin.name === name)!);
@@ -24,6 +25,17 @@ const featuredPlugins = ["pii", "pii_guard", "tool_governor"]
       <a class="text-link how-link" href="/how-it-works/">How it works →</a>
     </div>
     <RequestFlow />
+  </section>
+
+  <section class="rule-section compact">
+    <div class="frame prose">
+      <h2>Install Torana v{releaseVersion}.</h2>
+      <p>macOS or Linux · one native binary, no build toolchain needed.</p>
+      <pre><code>{installCommand}</code></pre>
+      <details><summary>Windows (PowerShell)</summary><pre><code>{windowsInstallCommand}</code></pre></details>
+      <p>The installer verifies the release checksum. The PATH command applies to this terminal; add the install directory to your user PATH for future terminals.</p>
+      <p><a href="/quickstart/">Start your first session →</a> · <a href={releaseURL}>Release notes and direct downloads ↗</a></p>
+    </div>
   </section>
 
   <section class="rule-section compact">
@@ -74,14 +86,6 @@ const featuredPlugins = ["pii", "pii_guard", "tool_governor"]
     </div>
   </section>
 
-  <section class="rule-section">
-    <div class="frame story">
-      <h2 class="display">This was supposed to be a compactor.</h2>
-      <p>The idea: compact large tool and MCP outputs with a cheaper or local model before they pile up in a coding agent’s conversation history.</p>
-      <p>In typical side-project fashion, the reverse proxy built for the experiment got over-engineered into a WASM plugin runtime. The compactor didn’t establish reliable savings in the tested setup. The proxy became the project.</p>
-      <a class="text-link" href="/blog/why-torana/">How Torana got here →</a>
-    </div>
-  </section>
   <section class="rule-section compact">
     <div class="frame">
       <div class="section-head"><h2 class="display">Make it part of your workflow.</h2><p>Try Torana on a coding task. Hack together a plugin for your own use case—a context policy, a tool integration, or that bit of glue you keep rebuilding. Share what you make.</p></div>
