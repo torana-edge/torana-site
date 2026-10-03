@@ -4,8 +4,9 @@ import { meta } from "../../data/pages";
 import registry from "../../../public/registry/v1/index.json";
 import descriptions from "../../data/plugin-copy.json";
 import { pluginMCP } from "../../data/mcp";
+import InstallCommand from "../../components/InstallCommand.astro";
 const copy: Record<string, { title: string; description: string; guide: string }> = descriptions;
-const featuredOrder = ["pii", "pii_guard"];
+const featuredOrder = ["pii", "usage_logger", "pii_guard"];
 const plugins = [...registry.plugins].sort((left, right) => {
   const leftPriority = featuredOrder.indexOf(left.name);
   const rightPriority = featuredOrder.indexOf(right.name);
@@ -18,23 +19,27 @@ const plugins = [...registry.plugins].sort((left, right) => {
 });
 ---
 <Layout {...meta("/plugins/")}>
-  <section class="frame prose" style="max-width:var(--page)">
+  <section class="frame prose plugin-catalogue" style="max-width:var(--page)">
     <h1 class="display">Pick a plugin. Make it yours.</h1>
-    <p>Torana plugins run in the request and response path. With permissions you approve, they can inspect or change traffic, block a request, or call another endpoint such as a local model. Your agent can keep using its hosted model while focused local models take on narrow jobs.</p>
-    <p><strong>Already have a local model running?</strong> Start with the contextual <a href="#pii">PII guard</a>.</p>
-    <p><strong>Don’t have a local model running?</strong> Start with the zero-model <a href="#pii_guard">deterministic guard</a>. You can later add the contextual guard after it. Each entry includes its source, requested capabilities, and an install command.</p>
-    <p>After the <a href="/quickstart/">quickstart</a>, run these commands with <code>torana</code> on your PATH. Install Git and Go 1.26.6+ for these Go plugins. Installation builds source code; it does not approve or enable the plugin. Review the source first, then approve and enable the built bundle in the local control plane. <a href="/docs/plugin-installation/">How installation and approval work →</a></p>
-    <p>These are the {plugins.length} plugins maintained in the Torana plugins repository. Your plugin can live in your own repo too. Hack together something useful for your workflow, or move a harness-specific extension into a reusable plugin. <a href="/plugins/submit/">Share it and request a catalogue listing →</a></p>
-    <p>Some plugins also offer tools your agent can call through Torana’s local MCP server. <a href="/docs/mcp/">Connect your harness →</a> to inspect usage, ask about decisions or request confirmed changes.</p>
+    <p>Check tool output, track usage, change routing, or shape context. Install a maintained plugin by name—no Git or Go needed—then review its permissions and enable it in your local control plane.</p>
+    <div class="first-choice">
+      <p><strong>Have a local model?</strong><br />Try <a href="#pii">model-backed PII checks</a> alongside your hosted agent.</p>
+      <p><strong>No local model?</strong><br />Start with <a href="#usage_logger">usage logging</a> or <a href="#pii_guard">deterministic checks</a>.</p>
+    </div>
+    <nav class="plugin-index" aria-label="Jump to a plugin">{plugins.map(plugin => <a href={`#${plugin.name}`}>{plugin.name}</a>)}</nav>
     <div>
       {plugins.map((plugin) => (
         <article class="plugin-detail" id={plugin.name}>
-          <h2><a href={plugin.source}>{plugin.name}</a></h2>
+          <p class="plugin-name"><code>{plugin.name}</code></p>
+          <h2>{copy[plugin.name].title}</h2>
           <p>{copy[plugin.name].description}</p>
-          {pluginMCP[plugin.name] && <div>
+          <InstallCommand command={`torana plugin install ${plugin.name}`} label={`install command for ${plugin.name}`} analyticsCopy="plugin-install" />
+          <div class="actions"><a class="button" href={copy[plugin.name].guide}>Setup guide ↗</a><a class="button" href={plugin.source}>Source ↗</a></div>
+          {pluginMCP[plugin.name] && <details>
+            <summary>Agent tools via MCP</summary>
             <p><strong>Agent tools via MCP</strong> — {pluginMCP[plugin.name].description}</p>
             <p>{pluginMCP[plugin.name].operations.map((operation, index) => <>{index > 0 && " · "}<code>{operation}</code></>)} · <a href="/docs/mcp/#operations">MCP guide →</a></p>
-          </div>}
+          </details>}
           <p class="article-meta">On plugin failure: {plugin.failure_mode === "block" ? "block the request" : "let the request continue"}.</p>
           {plugin.conflicts_with.length > 0 && <p>Use separately from: {plugin.conflicts_with.join(", ")}.</p>}
           <details>
@@ -42,16 +47,26 @@ const plugins = [...registry.plugins].sort((left, right) => {
             <ul class="capabilities">{plugin.capabilities.map(capability => <li>{capability}</li>)}</ul>
             <p>These are the manifest’s requests, not automatic grants. Review resource bindings and the exact built digest in the control plane.</p>
           </details>
-          <div class="command">
-            <pre><code>{`torana plugin install ${plugin.source}`}</code></pre>
-            <button class="copy" type="button" data-copy={`torana plugin install ${plugin.source}`} data-copy-label={`${plugin.name} install command copied.`} data-analytics-copy="plugin-install" aria-label={`Copy install command for ${plugin.name}`}>Copy install command</button>
-          </div>
-          <div class="actions"><a class="button" href={copy[plugin.name].guide}>Setup guide ↗</a><a class="button" href={plugin.source}>Source ↗</a><a class="button" href="/docs/plugin-installation/">Installation help →</a></div>
         </article>
       ))}
     </div>
-    <h2>Registry API</h2>
+    <h2>Make it your own.</h2>
+    <p>Your plugin can live in your own repository. Move a harness-specific extension into a reusable plugin, then <a href="/plugins/submit/">share it for a catalogue listing</a>. For permissions, version pinning and source builds, see the <a href="/docs/plugin-installation/">installation guide</a>. <a href="/docs/mcp/">Connect MCP</a> to let your agent discover plugin tools.</p>
+    <details><summary>Registry API and release verification</summary>
     <pre><code>GET https://torana.sh/registry/v1/index.json</code></pre>
-    <p>This <a href="/registry/v1/index.json">source registry</a> lists discoverable plugins and their manifest declarations. It is a convenience for finding source, not a privileged installation channel, and it does not distribute prebuilt release bundles. <a href="/docs/plugin-installation/#digests">Why approval uses your local build’s digest →</a></p>
+    <p>The <a href="/registry/v1/index.json">registry</a> lists plugin source, manifest declarations and independently published release digests. Torana downloads release bundles from GitHub and checks them against these digests. Installation never grants permissions. <a href="/docs/plugin-installation/#digests">How bundle verification works →</a></p>
+    </details>
   </section>
 </Layout>
+
+<style>
+  .plugin-catalogue > p { max-width: 68ch; }
+  .first-choice { display: grid; gap: var(--space-4); margin-block: var(--space-5); }
+  .first-choice p { margin: 0; padding-inline-start: var(--space-4); border-inline-start: 2px solid var(--accent); }
+  .plugin-index { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); border-block: 1px solid var(--rule); padding-block: var(--space-3); margin-block-end: var(--space-7); }
+  .plugin-index a { display: inline-flex; align-items: center; min-height: 44px; font-family: var(--font-mono); font-size: .85rem; white-space: nowrap; }
+  .plugin-name { margin: 0 0 var(--space-2); font-size: .85rem; }
+  .plugin-detail h2 { max-width: 32ch; font-family: var(--font-display); font-size: clamp(1.7rem, 3vw, 2.25rem); line-height: 1.15; }
+  .plugin-detail .actions { margin-block: var(--space-4); }
+  @media (min-width: 48rem) { .first-choice { grid-template-columns: 1fr 1fr; } }
+</style>

@@ -6,30 +6,29 @@ import descriptions from "../data/plugin-copy.json";
 const copy: Record<string, { description: string }> = descriptions;
 import { installCommand, windowsInstallCommand, releaseURL } from "../data/install";
 import RequestFlow from "../components/RequestFlow.astro";
-const featuredPlugins = ["pii", "pii_guard", "tool_governor"]
+import InstallCommand from "../components/InstallCommand.astro";
+const featuredPlugins = ["pii", "usage_logger", "tool_governor"]
   .map(name => plugins.find(plugin => plugin.name === name)!);
 ---
 
 <Layout {...meta("/")}>
   <section class="frame hero">
     <div>
-      <p class="eyebrow" data-reveal style="--i:0">Local-first · open source · WASM-extensible</p>
+      <p class="eyebrow" data-reveal style="--i:0">Local-first · open source · pluggable · extensible</p>
       <h1 class="display" data-reveal style="--i:1">A programmable proxy for coding agents<span>.</span></h1>
-      <p class="lede" data-reveal style="--i:2">Keep your agent and your model. See request activity locally, apply your own traffic policy, and extend it with Go or Rust plugins. Torana runs between your coding agent and its configured provider.</p>
+      <p class="lede" data-reveal style="--i:2">Torana sits between your AI coding agent and its model. Add plugins to check for secrets, track usage, or let a local model help—without changing your agent.</p>
       <div class="hero-install">
         <p class="muted">Install on macOS or Linux</p>
-        <p class="muted">Adds <code>~/.local/bin</code> to your shell profile if needed. Skip with <code>sh -s -- --no-modify-path</code>.</p>
-        <pre><code>{installCommand}</code></pre>
-        <details><summary>Windows (PowerShell)</summary><p class="muted">Adds Torana to your user PATH. Pass <code>-NoModifyPath</code> to the installer to skip.</p><pre><code>{windowsInstallCommand}</code></pre></details>
-        <p class="muted">Follow the installer’s PATH guidance, then start your first session. <a href={releaseURL}>Direct downloads ↗</a></p>
+        <InstallCommand command={installCommand} />
+        <details><summary>Windows (PowerShell)</summary><InstallCommand command={windowsInstallCommand} /></details>
+        <p class="muted"><a href={releaseURL}>Direct downloads ↗</a></p>
       </div>
       <div class="actions" data-reveal style="--i:3">
         <a class="button primary" href="/quickstart/">Try Torana locally <span aria-hidden="true">→</span></a>
         <a class="button" href="https://github.com/torana-edge/torana-edge">Explore the source ↗</a>
       </div>
       <p class="muted">Runs on your machine. No cloud deployment or Torana account required.</p>
-      <a class="text-link" href="/docs/support/">Supported harnesses →</a>
-      <a class="text-link how-link" href="/how-it-works/">How it works →</a>
+      <nav class="hero-links" aria-label="Explore Torana"><a class="text-link" href="/docs/support/">Supported harnesses →</a><a class="text-link" href="/how-it-works/">How it works →</a></nav>
     </div>
     <RequestFlow />
   </section>
@@ -43,12 +42,12 @@ const featuredPlugins = ["pii", "pii_guard", "tool_governor"]
         </div>
       </div>
       <div class="capability-grid">
-        <article data-capability="harness"><h3>Connect different APIs.</h3><p>Keep a native route, or opt in to a bridge between supported client and model APIs. For example, send Anthropic Messages to an OpenAI-compatible local backend. Your harness still owns tool execution and its approvals.</p><a class="text-link" href="/docs/protocol-bridges/">Set up a bridge →</a></article>
-        <article data-capability="shared-format"><h3>Write the logic once.</h3><p>Work with a shared request format across supported OpenAI, Anthropic, and Gemini APIs. Reuse plugin logic across compatible harnesses without parsing each provider’s JSON yourself.</p><a class="text-link" href="/docs/support/#shared-format">How formats work →</a></article>
+        <article data-capability="harness"><h3>Connect different models.</h3><p>Keep your provider, or connect to a supported model with a different API. Torana translates the requests and responses; your coding agent still runs its own tools and asks for approvals.</p><a class="text-link" href="/docs/protocol-bridges/">Set up a bridge →</a></article>
+        <article data-capability="shared-format"><h3>Write the logic once.</h3><p>Keep your workflow tweaks in a plugin, not in one agent’s setup. Torana gives plugins a shared format across supported OpenAI, Anthropic, and Gemini APIs.</p><a class="text-link" href="/docs/support/#shared-format">How formats work →</a></article>
         <article data-capability="wasm-sdk"><h3>Go or Rust. Compiled to WASM.</h3><p>Build small plugins with the provided SDKs, without modifying Torana itself. Start with an example and make it fit your workflow.</p><a class="text-link" href="https://github.com/torana-edge/torana-plugin-sdk">Explore the SDKs ↗</a></article>
         <article data-capability="permissions"><h3>Choose what plugins can do.</h3><p>Inspect requested permissions, approve access, and control the plugin pipeline running on your machine. Installation alone does not grant access or enable a plugin.</p><a class="text-link" href="/docs/plugin-installation/">Review the lifecycle →</a></article>
-        <article data-capability="mcp"><h3>Let your agent ask Torana.</h3><p>Connect Torana’s local MCP server to inspect this chat’s usage, explain plugin decisions, and request user-confirmed changes. Plugins can add tools your connected harnesses discover through the same interface.</p><a class="text-link" href="/docs/mcp/">Connect MCP tools →</a></article>
-        <article class="community-capability" data-capability="community"><div><h3>Install a plugin. Share yours.</h3><p>Try a plugin from someone else’s repository, or keep your own workflow hacks in yours. Install from source with the CLI, then review and approve the built plugin. No central publishing step required.</p></div><div class="community-links"><a class="text-link" href="/plugins/">Find a plugin →</a><a class="text-link" href="/plugins/submit/">Share your plugin →</a></div></article>
+        <article data-capability="mcp"><h3>Let your agent ask Torana.</h3><p>Your agent can check this chat’s usage, ask why a plugin acted, or request a change for you to approve. Connect it through MCP—the standard interface agents use to discover tools.</p><a class="text-link" href="/docs/mcp/">Connect MCP tools →</a></article>
+        <article class="community-capability" data-capability="community"><div><h3>Install a plugin. Share yours.</h3><p>Install a maintained plugin by name, then review and approve it locally. Your own workflow hacks can live in your own repository too—no central publishing step required.</p></div><div class="community-links"><a class="text-link" href="/plugins/">Find a plugin →</a><a class="text-link" href="/plugins/submit/">Share your plugin →</a></div></article>
       </div>
     </div>
   </section>
@@ -75,7 +74,7 @@ const featuredPlugins = ["pii", "pii_guard", "tool_governor"]
     <div class="frame quick-grid">
       <div>
         <h2 class="display">One binary. One local port.</h2>
-        <p>Start, stop, inspect requests and manage your plugins from the terminal. Plugins can change requests and responses or call a focused local model while your agent keeps using its hosted model. Start with the model-backed PII guard—or its deterministic alternative if you do not run a local model yet.</p>
+        <p>Start, stop, inspect requests and manage your plugins from the terminal. Try a focused local model checking tool output while your agent keeps using its hosted model. No local model yet? Start with usage logging or deterministic checks.</p>
         <a class="button" href="/quickstart/">Open the walkthrough →</a>
       </div>
       <p class="quick-outcome">Send one request through the proxy. See it in the local feed. Then add a plugin.</p>
@@ -92,6 +91,9 @@ const featuredPlugins = ["pii", "pii_guard", "tool_governor"]
 </Layout>
 
 <style>
+  .hero .eyebrow { line-height: 1.6; }
+  .hero h1 { font-size: clamp(2.25rem, 5.2vw, 4.5rem); }
+  @media (max-width: 32rem) { .hero { padding-block-start: var(--space-6); } }
   .hero-install { min-width: 0; margin-block: var(--space-5); }
   .hero-install pre { max-width: 100%; overflow-x: auto; padding: var(--space-4); border: 1px solid var(--rule); background: var(--paper-2); font-size: .8rem; }
   .hero-install p { font-size: .85rem; }
@@ -99,7 +101,8 @@ const featuredPlugins = ["pii", "pii_guard", "tool_governor"]
   .hero-install summary { cursor: pointer; }
 
   .capability-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
-  .how-link { display: flex; align-items: center; min-height: 44px; width: fit-content; white-space: nowrap; }
+  .hero-links { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); }
+  .hero-links a { display: inline-flex; align-items: center; min-height: 44px; white-space: nowrap; }
   .capability-grid article { border: 1px solid var(--rule); padding: var(--space-5); display: flex; flex-direction: column; align-items: flex-start; }
   .capability-grid h3 { font-size: 1.25rem; line-height: 1.25; margin: 0; }
   .capability-grid p { color: var(--ink-2); max-width: 60ch; }
@@ -110,6 +113,7 @@ const featuredPlugins = ["pii", "pii_guard", "tool_governor"]
   .quick-outcome { font-family: var(--font-display); font-size: clamp(1.5rem, 3vw, 2.25rem); line-height: 1.3; margin: 0; max-width: 24ch; }
   @media (min-width: 48rem) {
     .capability-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .capability-grid article[data-capability="mcp"] { grid-column: 1 / -1; }
     .capability-grid .community-capability { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; gap: var(--space-6); background: var(--paper-2); }
     .community-links { flex-shrink: 0; flex-direction: column; }
   }

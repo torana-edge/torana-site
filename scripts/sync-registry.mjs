@@ -57,7 +57,7 @@ for (const name of Object.keys(published)) {
 const rendered = `${JSON.stringify({
   schema_version: 1,
   generated_from: "torana-plugins/plugins/*/plugin.json",
-  status: "source-preview",
+  status: plugins.every(plugin => plugin.bundle_digests?.[plugin.latest]) ? "published-releases" : "source-preview",
   plugins,
 }, null, 2)}\n`;
 const target = path.resolve("public/registry/v1/index.json");

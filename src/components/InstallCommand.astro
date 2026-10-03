@@ -1,0 +1,28 @@
+---
+const { command, label = "install command", analyticsCopy } = Astro.props;
+---
+<div class="install-command">
+  <pre><code>{command}</code></pre>
+  <button type="button" data-copy={command} data-copy-label={`${label} copied.`} data-analytics-copy={analyticsCopy} aria-label={`Copy ${label}`} title={`Copy ${label}`}>
+    <svg class="copy-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" /></svg>
+    <svg class="success-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg>
+    <svg class="error-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v9m0 3v2" /><circle cx="12" cy="12" r="10" /></svg>
+    <span data-copy-text class="copy-label">Copy {label}</span>
+  </button>
+</div>
+<style>
+  .install-command { display: flex; min-width: 0; max-width: 100%; border: 1px solid var(--rule); background: var(--paper-2); }
+  pre { flex: 1; min-width: 0; margin: 0; padding: var(--space-4); overflow-x: auto; border: 0; background: transparent; font-size: .8rem; }
+  code { white-space: pre-wrap; overflow-wrap: anywhere; }
+  button { flex: 0 0 44px; min-height: 44px; display: grid; place-items: center; border: 0; border-left: 1px solid var(--rule); background: transparent; color: var(--accent); cursor: pointer; }
+  @media (hover: hover) { button:hover { background: var(--paper-3); } }
+  button:active { background: var(--paper-3); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+  button:disabled { opacity: .55; cursor: wait; }
+  .success-icon, .error-icon { display: none; }
+  button[data-copy-state="success"] .copy-icon, button[data-copy-state="error"] .copy-icon { display: none; }
+  button[data-copy-state="success"] .success-icon, button[data-copy-state="error"] .error-icon { display: block; }
+  button[data-copy-state="success"] { color: var(--success); opacity: 1; }
+  button[data-copy-state="error"] { color: var(--danger); opacity: 1; }
+  .copy-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+</style>

@@ -1,5 +1,16 @@
 [
   {
+    "date": "2026-10-03",
+    "scope": "install-first-scoped-refinement",
+    "macrostructure": "Workbench / Ecosystem Index retained",
+    "theme": "existing studied-DNA teal; existing fonts and system/light/dark retained",
+    "variation": "Content-height hero, fewer introductory paragraphs, quickstart step links and plugin jump index",
+    "motion": "No added animation; inline copy success/error icons",
+    "verification": "Existing npm tests/build and 29 responsive layout checks pass. Firefox computer-use screenshots inspected at 320x568, 375x812, 414x896 and 768x1024; mobile menu and phone quickstart/catalogue inspected. Physical devices not tested.",
+    "critique": "P4 H4 E4 S5 R4 V4",
+    "preservation": "User requested the existing identity and an approachable explanation for developers and adjacent roles. Structural rotation intentionally suspended."
+  },
+  {
     "date": "2026-10-02",
     "scope": "additive-mcp-guide-and-discovery",
     "macrostructure": "Long Document",

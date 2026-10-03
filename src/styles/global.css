@@ -154,3 +154,10 @@ code, pre, kbd { font-family: var(--font-mono); }
   .plugin-detail .actions { align-items: stretch; }
   .prose { padding-block: var(--section-compact); }
 }
+
+/* Install-first refinement: preserve the existing identity, remove empty folds. */
+.hero { min-height: auto; padding-block: var(--space-7) var(--space-8); }
+.prose { padding-block-start: var(--section-compact); }
+.step-links { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); margin-block: var(--space-5); padding-block: var(--space-2); border-block: 1px solid var(--rule); }
+.step-links a { display: inline-flex; align-items: center; min-height: 44px; white-space: nowrap; font-size: .9rem; }
+.prose [id] { scroll-margin-top: 6rem; }

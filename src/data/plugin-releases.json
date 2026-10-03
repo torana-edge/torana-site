@@ -1,1 +1,38 @@
-{}
+{
+  "cache_warmer": {
+    "0.2.1": "sha256:41884716ef6854a4e812fe8debcdd6c9f55238a7b85a4ff6ed7ccdeff945766a"
+  },
+  "compactor": {
+    "0.6.1": "sha256:861014d6963d1a1269b9f9df0d03aec2f438753999963f6861f4bc8cb234c6fb"
+  },
+  "cache_tier_selector": {
+    "0.1.2": "sha256:13a3c3223b923b61242ec8e3560e14acbdba9010cfc23775ee0e590e2a19537b"
+  },
+  "intent": {
+    "0.2.2": "sha256:62e7f156b11431f347bf9a04e055fc2dfccb84c21db343fe287d8042ab6bfa33"
+  },
+  "decision_router": {
+    "0.6.1": "sha256:92c604ad6f0a9212cc971c9cdf5a7105142742a1944baf394fdb00853153f9c2"
+  },
+  "keyword_compactor": {
+    "0.6.2": "sha256:491b9b456e8e26a7c96aa064931ad1cf79ce78dadfbd3a6cc794fd379e5ebd7c"
+  },
+  "pii": {
+    "0.4.2": "sha256:1bde771f1e026ab17eff1513f7643483f0dcd21f79041129bd224e50efbbeed5"
+  },
+  "otel": {
+    "0.6.0": "sha256:11d4f4e916c0bf0465c3913b4899dd151d78995efdc8da7834015dbfba727142"
+  },
+  "pii_guard": {
+    "0.3.0": "sha256:d0e4542e84686dacafc69ce9ff7cdc34948fb7f36df3054a0afc4838c97acd2f"
+  },
+  "tool_governor": {
+    "0.3.0": "sha256:abab953dd6a47d6fe07bd46985c365666b44e57b2fdd9fb8318bda7a27b6135e"
+  },
+  "schema_translator": {
+    "0.4.1": "sha256:e9e4a5aebb2d8e8b00c11350fb4f10467e1b8f58deffb33fd99711c8d587dd54"
+  },
+  "usage_logger": {
+    "0.3.0": "sha256:0afab8e09e7c04388a74d953bf47578258433f36cc76ce5e25f1571ee973c3b0"
+  }
+}

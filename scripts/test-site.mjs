@@ -50,7 +50,7 @@ test("all registry entries expose source, install commands and capability detail
   for (const plugin of registry.plugins) {
     assert.ok(html.includes(`id="${plugin.name}"`));
     assert.ok(html.includes(`href="${plugin.source}"`));
-    assert.ok(html.includes(`data-copy="torana plugin install ${plugin.source}"`));
+    assert.ok(html.includes(`data-copy="torana plugin install ${plugin.name}"`));
     for (const capability of plugin.capabilities) assert.ok(html.includes(capability));
   }
 });
