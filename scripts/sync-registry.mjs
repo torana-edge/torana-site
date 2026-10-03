@@ -9,6 +9,15 @@ if (!pluginsRoot || !fs.existsSync(pluginsRoot)) {
 }
 
 const pluginRoot = path.join(pluginsRoot, "plugins");
+// Reviewed, independently published digests. Populate only after verifying real
+// release archives/provenance; never derive these from mutable source manifests.
+const published = JSON.parse(fs.readFileSync("src/data/plugin-releases.json", "utf8"));
+for (const [name, versions] of Object.entries(published)) {
+  if (!/^[a-z][a-z0-9_]*$/.test(name) || !versions || typeof versions !== "object" || Array.isArray(versions)) throw new Error("invalid published plugin release entry");
+  for (const [version, digest] of Object.entries(versions)) {
+    if (!/^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z]+([.-][0-9A-Za-z]+)*)?$/.test(version) || typeof digest !== "string" || !/^sha256:[a-f0-9]{64}$/.test(digest)) throw new Error(`invalid published digest: ${name}@${version}`);
+  }
+}
 const manifests = fs.readdirSync(pluginRoot, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
   .map((entry) => {
@@ -30,6 +39,7 @@ const plugins = manifests
     id: manifest.id,
     name: manifest.name,
     latest: manifest.version,
+    ...(published[manifest.name] ? { bundle_digests: published[manifest.name] } : {}),
     description: manifest.description,
     failure_mode: manifest.failure_mode,
     requires_upstream: manifest.requires_upstream === true,
@@ -39,6 +49,10 @@ const plugins = manifests
     source: `https://github.com/torana-edge/torana-plugins/tree/main/plugins/${directory}`,
   }))
   .sort((a, b) => a.id.localeCompare(b.id));
+
+for (const name of Object.keys(published)) {
+  if (!plugins.some(plugin => plugin.name === name)) throw new Error(`published release has no public plugin: ${name}`);
+}
 
 const rendered = `${JSON.stringify({
   schema_version: 1,
