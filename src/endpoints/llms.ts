@@ -12,10 +12,7 @@ const modules = import.meta.glob("../pages/**/*.astro");
 export function GET() {
   const listed = indexedPages(modules);
   const sections = ["Start here", "Documentation", "Plugins", "Background"] as const;
-  const install =
-    product.installation === "source"
-      ? "installed by building from source"
-      : "installed from a published release";
+  const install = `installed from published release v${product.version}`;
 
   const body = `# ${product.name}
 
