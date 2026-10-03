@@ -223,9 +223,10 @@
     {
       "id": "torana/pii",
       "name": "pii",
-      "latest": "0.4.2",
+      "latest": "0.4.3",
       "bundle_digests": {
-        "0.4.2": "sha256:1bde771f1e026ab17eff1513f7643483f0dcd21f79041129bd224e50efbbeed5"
+        "0.4.2": "sha256:1bde771f1e026ab17eff1513f7643483f0dcd21f79041129bd224e50efbbeed5",
+        "0.4.3": "sha256:ca056ef8d5cf31e9bdf52274c93777c8c385d3bafd3f02043ccc36c19f12a99b"
       },
       "description": "Scans new tool results through an operator-bound model and replaces sensitive output with a recoverable tool error",
       "failure_mode": "block",
