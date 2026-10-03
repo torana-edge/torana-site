@@ -12,8 +12,9 @@ import { installCommand, windowsInstallCommand, releaseURL } from "../data/insta
     <p>Using a local model server? You can connect it too. If its API differs from your harness’s, use an <a href="/docs/protocol-bridges/">API bridge</a>.</p>
     <h2>1. Install Torana</h2>
     <p>macOS or Linux:</p>
+    <p>Adds <code>~/.local/bin</code> to your shell profile if needed. Use <code>sh -s -- --no-modify-path</code> instead of <code>sh</code> to skip.</p>
     <pre><code>{installCommand}</code></pre>
-    <details><summary>Windows (PowerShell)</summary><pre><code>{windowsInstallCommand}</code></pre></details>
+    <details><summary>Windows (PowerShell)</summary><p>Adds Torana to your user PATH. Pass <code>-NoModifyPath</code> to the installer to skip.</p><pre><code>{windowsInstallCommand}</code></pre></details>
     <p>The installer selects your platform and verifies the release checksum. It does not start Torana. Follow its PATH guidance before continuing. <a href={releaseURL}>Release notes and direct downloads</a> · <a href="https://github.com/torana-edge/torana-edge/blob/main/CONTRIBUTING.md#getting-a-build">Build from source</a>.</p>
     <h2>2. Start without plugins</h2>
     <pre><code>{`torana --debug start --port 8143

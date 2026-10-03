@@ -18,8 +18,9 @@ const featuredPlugins = ["pii", "pii_guard", "tool_governor"]
       <p class="lede" data-reveal style="--i:2">Keep your agent and your model. See request activity locally, apply your own traffic policy, and extend it with Go or Rust plugins. Torana runs between your coding agent and its configured provider.</p>
       <div class="hero-install">
         <p class="muted">Install on macOS or Linux</p>
+        <p class="muted">Adds <code>~/.local/bin</code> to your shell profile if needed. Skip with <code>sh -s -- --no-modify-path</code>.</p>
         <pre><code>{installCommand}</code></pre>
-        <details><summary>Windows (PowerShell)</summary><pre><code>{windowsInstallCommand}</code></pre></details>
+        <details><summary>Windows (PowerShell)</summary><p class="muted">Adds Torana to your user PATH. Pass <code>-NoModifyPath</code> to the installer to skip.</p><pre><code>{windowsInstallCommand}</code></pre></details>
         <p class="muted">Follow the installer’s PATH guidance, then start your first session. <a href={releaseURL}>Direct downloads ↗</a></p>
       </div>
       <div class="actions" data-reveal style="--i:3">
