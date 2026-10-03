@@ -4,7 +4,7 @@ import { meta } from "../data/pages";
 import { plugins } from "../data/plugins";
 import descriptions from "../data/plugin-copy.json";
 const copy: Record<string, { description: string }> = descriptions;
-import { installCommand, windowsInstallCommand, releaseVersion, releaseURL } from "../data/install";
+import { installCommand, windowsInstallCommand, releaseURL } from "../data/install";
 import RequestFlow from "../components/RequestFlow.astro";
 const featuredPlugins = ["pii", "pii_guard", "tool_governor"]
   .map(name => plugins.find(plugin => plugin.name === name)!);
@@ -16,6 +16,12 @@ const featuredPlugins = ["pii", "pii_guard", "tool_governor"]
       <p class="eyebrow" data-reveal style="--i:0">Local-first · open source · WASM-extensible</p>
       <h1 class="display" data-reveal style="--i:1">A programmable proxy for coding agents<span>.</span></h1>
       <p class="lede" data-reveal style="--i:2">Keep your agent and your model. See request activity locally, apply your own traffic policy, and extend it with Go or Rust plugins. Torana runs between your coding agent and its configured provider.</p>
+      <div class="hero-install">
+        <p class="muted">Install on macOS or Linux</p>
+        <pre><code>{installCommand}</code></pre>
+        <details><summary>Windows (PowerShell)</summary><pre><code>{windowsInstallCommand}</code></pre></details>
+        <p class="muted">Follow the installer’s PATH guidance, then start your first session. <a href={releaseURL}>Direct downloads ↗</a></p>
+      </div>
       <div class="actions" data-reveal style="--i:3">
         <a class="button primary" href="/quickstart/">Try Torana locally <span aria-hidden="true">→</span></a>
         <a class="button" href="https://github.com/torana-edge/torana-edge">Explore the source ↗</a>
@@ -25,17 +31,6 @@ const featuredPlugins = ["pii", "pii_guard", "tool_governor"]
       <a class="text-link how-link" href="/how-it-works/">How it works →</a>
     </div>
     <RequestFlow />
-  </section>
-
-  <section class="rule-section compact">
-    <div class="frame prose">
-      <h2>Install Torana v{releaseVersion}.</h2>
-      <p>macOS or Linux · one native binary, no build toolchain needed.</p>
-      <pre><code>{installCommand}</code></pre>
-      <details><summary>Windows (PowerShell)</summary><pre><code>{windowsInstallCommand}</code></pre></details>
-      <p>The installer verifies the release checksum. The PATH command applies to this terminal; add the install directory to your user PATH for future terminals.</p>
-      <p><a href="/quickstart/">Start your first session →</a> · <a href={releaseURL}>Release notes and direct downloads ↗</a></p>
-    </div>
   </section>
 
   <section class="rule-section compact">
@@ -96,6 +91,12 @@ const featuredPlugins = ["pii", "pii_guard", "tool_governor"]
 </Layout>
 
 <style>
+  .hero-install { min-width: 0; margin-block: var(--space-5); }
+  .hero-install pre { max-width: 100%; overflow-x: auto; padding: var(--space-4); border: 1px solid var(--rule); background: var(--paper-2); font-size: .8rem; }
+  .hero-install p { font-size: .85rem; }
+  .hero-install details { margin-block: var(--space-3); }
+  .hero-install summary { cursor: pointer; }
+
   .capability-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
   .how-link { display: flex; align-items: center; min-height: 44px; width: fit-content; white-space: nowrap; }
   .capability-grid article { border: 1px solid var(--rule); padding: var(--space-5); display: flex; flex-direction: column; align-items: flex-start; }

@@ -1,20 +1,20 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { meta } from "../data/pages";
-import { installCommand, windowsInstallCommand, releaseVersion, releaseURL } from "../data/install";
+import { installCommand, windowsInstallCommand, releaseURL } from "../data/install";
 ---
 <Layout {...meta("/quickstart/")}>
   <article class="frame prose">
     <p class="eyebrow">Quickstart · local machine</p>
     <h1 class="display">Your first session through Torana.</h1>
-    <p>Which coding harness do you already use? Start with that. The released binary needs no Git or Go; a separate provider API key is only needed for the direct API-key path below. Your provider’s normal usage limits and billing still apply.</p>
+    <p>Which coding harness do you already use? Start with that. The binary needs no Git or Go; a separate provider API key is only needed for the direct API-key path below. Your provider’s normal usage limits and billing still apply.</p>
     <p>Run Torana locally, keep the listener on loopback, and review each plugin’s requested capabilities before enabling it.</p>
     <p>Using a local model server? You can connect it too. If its API differs from your harness’s, use an <a href="/docs/protocol-bridges/">API bridge</a>.</p>
-    <h2>1. Install v{releaseVersion}</h2>
+    <h2>1. Install Torana</h2>
     <p>macOS or Linux:</p>
     <pre><code>{installCommand}</code></pre>
     <details><summary>Windows (PowerShell)</summary><pre><code>{windowsInstallCommand}</code></pre></details>
-    <p>The installer selects your platform and verifies the release checksum. It does not start Torana or edit your shell profile. The PATH command above applies to this terminal; add the install directory to your user PATH for future terminals. <a href={releaseURL}>Release notes and direct downloads</a> · <a href="https://github.com/torana-edge/torana-edge/blob/main/CONTRIBUTING.md#getting-a-build">Build from source</a>.</p>
+    <p>The installer selects your platform and verifies the release checksum. It does not start Torana. Follow its PATH guidance before continuing. <a href={releaseURL}>Release notes and direct downloads</a> · <a href="https://github.com/torana-edge/torana-edge/blob/main/CONTRIBUTING.md#getting-a-build">Build from source</a>.</p>
     <h2>2. Start without plugins</h2>
     <pre><code>{`torana --debug start --port 8143
 torana status`}</code></pre>
