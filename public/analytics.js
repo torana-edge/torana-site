@@ -11,6 +11,7 @@
     ["/plugins/", "plugins"], ["/plugins/submit/", "share-plugin"],
     ["/blog/", "blog"], ["/blog/why-torana/", "origin-article"],
     ["/blog/context-compaction-negative-result/", "compaction-article"],
+    ["/blog/local-models-tool-output/", "pii-article"],
     ["/privacy/", "privacy"],
   ]);
   const destinations = new Set([...pages.values(), "github", "sdk", "plugin-source", "feedback", "contribute"]);
@@ -45,12 +46,22 @@
     if (url.protocol === "https:" && !url.username && !url.password && !url.port) referrer = referrers.get(url.hostname);
   } catch { /* Missing or unrecognized sources stay unattributed. */ }
 
+  // Recognize only this published link; never forward arbitrary query values.
+  const query = new URL(window.location.href).searchParams;
+  const launchVisit = page === "/blog/local-models-tool-output/"
+    && query.getAll("utm_source").length === 1 && query.get("utm_source") === "linkedin"
+    && query.getAll("utm_medium").length === 1 && query.get("utm_medium") === "social"
+    && query.getAll("utm_content").length === 1 && query.get("utm_content") === "local-model-pii-01";
+
   // Reconstruct every payload from the fixed vocabulary; never forward the
   // provider's default URL, title, referrer, screen, identity, or arbitrary data.
   window.toranaAnalyticsBeforeSend = (type, payload) => {
     if (!allowed() || type !== "event" || !payload || payload.website !== website || payload.url !== page) return false;
     const safe = { website, hostname: "torana.sh", url: page, ...(referrer && { referrer }) };
     if (payload.name === undefined) return safe;
+    if (payload.name === "launch-visit" && launchVisit) {
+      return { ...safe, name: "launch-visit", data: { source: "linkedin", medium: "social", content: "local-model-pii-01" } };
+    }
     const { destination, placement, action } = payload.data || {};
     if (!placements.has(placement)) return false;
     if (payload.name === "key-link" && destinations.has(destination)) {
@@ -108,9 +119,9 @@
 
   const tracker = document.createElement("script");
   tracker.src = "https://cloud.umami.is/script.js";
-  // Reviewed Cloud bytes, 2026-09-14. A vendor update fails closed until its
+  // Reviewed Cloud bytes, 2026-10-04. A vendor update fails closed until its
   // source and browser behavior are reviewed and this pin is deliberately updated.
-  tracker.integrity = "sha256-+RgiMywqE/kej+KcCusWlJfLHYcNMaCZxezIvqWOo6w=";
+  tracker.integrity = "sha256-kah212dkb9W3cBtvq/l/ipmuU7lOfltY1GW60eXXY+A=";
   tracker.crossOrigin = "anonymous";
   tracker.async = true;
   tracker.referrerPolicy = "no-referrer";
@@ -125,7 +136,10 @@
   tracker.dataset.excludeHash = "true";
   tracker.dataset.fetchCredentials = "omit";
   tracker.dataset.beforeSend = "toranaAnalyticsBeforeSend";
-  tracker.addEventListener("load", () => send(), { once: true });
+  tracker.addEventListener("load", () => {
+    send();
+    if (launchVisit) send("launch-visit");
+  }, { once: true });
   // No queue, retries, proxy fallback, or preconnect: blockers stay effective.
   document.head.append(tracker);
 })();

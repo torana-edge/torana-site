@@ -54,6 +54,24 @@ function setup({ url = "https://torana.sh/", page = "/", id = website, privacy =
   return { scripts, payloads, calls, window, navigator, listeners, document, run, load, emit };
 }
 
+test("launch attribution emits only fixed labels for the exact published link", () => {
+  const page = "/blog/local-models-tool-output/";
+  const query = "?utm_source=linkedin&utm_medium=social&utm_content=local-model-pii-01";
+  const app = setup({ page, url: `https://torana.sh${page}${query}&secret=never-send#private` });
+  app.load();
+  assert.equal(app.payloads.length, 2);
+  assert.deepEqual(app.payloads[1], { website, hostname: "torana.sh", url: page, name: "launch-visit", data: { source: "linkedin", medium: "social", content: "local-model-pii-01" } });
+  assert.doesNotMatch(JSON.stringify(app.payloads), /never-send|private|utm_/);
+  for (const suffix of ["", "?utm_source=private", query + "&utm_content=private", query.replace("linkedin", "unknown")]) {
+    const other = setup({ page, url: `https://torana.sh${page}${suffix}` });
+    other.load();
+    assert.equal(other.payloads.length, 1);
+    assert.equal(other.window.toranaAnalyticsBeforeSend("event", { website, url: page, name: "launch-visit" }), false);
+  }
+  const optedOut = setup({ page, url: `https://torana.sh${page}${query}`, privacy: { globalPrivacyControl: true } });
+  assert.equal(optedOut.scripts.length, 0);
+});
+
 function element({ href = "/quickstart/", placement = "main", copy = false, download = false } = {}) {
   const el = {
     href,
@@ -113,7 +131,7 @@ test("official tracker is explicitly manual, credential-free, and initialized on
   assert.equal(app.listeners.get("click").length, 1);
   const tracker = app.scripts[0];
   assert.equal(tracker.src, "https://cloud.umami.is/script.js");
-  assert.equal(tracker.integrity, "sha256-+RgiMywqE/kej+KcCusWlJfLHYcNMaCZxezIvqWOo6w=");
+  assert.equal(tracker.integrity, "sha256-kah212dkb9W3cBtvq/l/ipmuU7lOfltY1GW60eXXY+A=");
   assert.equal(tracker.crossOrigin, "anonymous");
   assert.equal(tracker.referrerPolicy, "no-referrer");
   assert.equal(tracker.async, true);
