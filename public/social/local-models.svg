@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <title>Small local models. A different job.</title>
+  <desc>A conceptual flow, not a screenshot: tool output is checked by a local model through Torana before it reaches the hosted model.</desc>
+  <rect width="1200" height="630" fill="#09171c"/>
+  <g font-family="Geist, Arial, sans-serif">
+    <text x="64" y="78" font-size="25" fill="#2dd4bf">LOCAL MODELS × HOSTED MODELS</text>
+    <text x="64" y="158" font-size="60" font-weight="700" letter-spacing="-2" fill="#e8f1f2">A second pair of eyes.</text>
+    <text x="64" y="210" font-size="29" fill="#b5c5ca">Not a replacement for your coding model.</text>
+    <rect x="64" y="282" width="220" height="140" rx="12" fill="#13272d" stroke="#384d54"/>
+    <text x="174" y="338" text-anchor="middle" font-size="27" font-weight="700" fill="#e8f1f2">Tool output</text>
+    <text x="174" y="382" text-anchor="middle" font-size="23" fill="#b5c5ca">from your agent</text>
+    <path d="M302 352H350m-12-10 12 10-12 10" fill="none" stroke="#2dd4bf" stroke-width="3"/>
+    <rect x="370" y="282" width="400" height="140" rx="12" fill="#13272d" stroke="#2dd4bf"/>
+    <text x="570" y="338" text-anchor="middle" font-size="27" font-weight="700" fill="#2dd4bf">Local model + Torana</text>
+    <text x="570" y="382" text-anchor="middle" font-size="23" fill="#b5c5ca">Check for sensitive content</text>
+    <path d="M790 352H840m-12-10 12 10-12 10" fill="none" stroke="#2dd4bf" stroke-width="3"/>
+    <rect x="860" y="282" width="276" height="140" rx="12" fill="#13272d" stroke="#384d54"/>
+    <text x="998" y="338" text-anchor="middle" font-size="27" font-weight="700" fill="#e8f1f2">Hosted model</text>
+    <text x="998" y="382" text-anchor="middle" font-size="23" fill="#b5c5ca">Keep your main model</text>
+    <text x="64" y="482" font-size="26" fill="#e8f1f2">Flagged output becomes an explanation, not the original content.</text>
+    <path d="M64 529H1136" stroke="#384d54"/>
+    <text x="64" y="581" font-size="24" fill="#2dd4bf">torana.sh</text>
+    <text x="1136" y="581" text-anchor="end" font-size="23" fill="#b5c5ca">An extra check. Models can still miss things.</text>
+  </g>
+</svg>

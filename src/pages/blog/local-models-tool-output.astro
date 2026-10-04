@@ -1,0 +1,132 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import InstallCommand from "../../components/InstallCommand.astro";
+import { meta } from "../../data/pages";
+import { installCommand, windowsInstallCommand } from "../../data/install";
+
+const results = [
+  ["Falcon-H1-Tiny 90M", "0", "3", "3"],
+  ["Qwen2.5 0.5B", "5", "60", "110"],
+  ["LFM2.5 350M", "48", "60", "24"],
+  ["Qwen3 0.6B", "0", "0", "0"],
+  ["LFM2.5 1.2B", "0", "60", "120"],
+  ["Qwen2.5 3B", "60", "18", "0"],
+  ["Qwen3.5 0.8B", "60", "42", "0"],
+  ["Ettin17M · broad entity policy", "55", "33", "0"],
+  ["Ettin68M · broad entity policy", "54", "37", "0"],
+  ["SecretMasker · threshold 0.5", "57", "10", "0"],
+  ["SecretMasker · threshold 0.99", "43", "3", "0"],
+  ["Laya · native short-input call", "55", "28", "0"],
+  ["privacy-filter · reference runtime", "58", "9", "0"],
+  ["Adapted Ettin17M · research pilot", "57", "18", "0"],
+  ["pii_guard · deterministic baseline", "24", "0", "0"],
+];
+---
+<Layout {...meta("/blog/local-models-tool-output/")} article image="/social/local-models.png" imageAlt="A local PII scanner checks tool output in Torana before it reaches the hosted model.">
+  <article class="frame prose">
+    <p class="eyebrow">PII plugin · 4 October 2026</p>
+    <h1 class="display">Scan tool output for PII with a local model.</h1>
+    <p>Check your coding agent's tool output for API keys, passwords and private personal data before it reaches your hosted model. Torana's <code>pii</code> plugin sends new tool results to a local scanner and replaces flagged results with an explanation.</p>
+    <p>This guide covers the setup, the models compared, and the catches and false positives observed. Start with the walkthrough, or use the results to decide which scanner to experiment with. This is an extra check, not complete protection.</p>
+    <p><a href="#try-it">Try it yourself ↓</a> · <a href="#results">Read the comparison ↓</a> · <a href="#build">Build on the idea ↓</a></p>
+    <figure>
+      <img src="/social/local-models.png" width="1200" height="630" alt="Conceptual flow: an agent's tool output goes through a local scanner in Torana before continuing to the hosted model. A flagged result is replaced with an explanation." />
+      <figcaption>A focused local check alongside your existing hosted model. This is a flow illustration, not a captured detection.</figcaption>
+    </figure>
+
+    <h2>How the PII check works</h2>
+    <p>Reading a file happens on your machine. The returned text can then become part of the coding agent's next request to its model provider. An incidental API key or password can go with it.</p>
+    <p>Torana sits in that request path. The model-backed <code>pii</code> plugin sends eligible new tool results to the scanner you configure. When it reports sensitive content, the plugin replaces the whole affected result with a value-free explanation. The hosted model can acknowledge that explanation or request different content. A safe continuation is possible, not guaranteed.</p>
+    <p>The scanner sees a tool name and numbered output, not the entire conversation or a guaranteed original file path. Its reported line numbers are positions in that output, not necessarily file lines. Historical replacements replay on subsequent turns instead of rescanning the whole conversation.</p>
+
+    <h2 id="results">Which local models caught PII and secrets?</h2>
+    <p>The October 1 study compared seven local chat models plus specialised detectors, a decision model, a research-only adaptation, and the actual deterministic guard. The chat models used Q8 GGUF weights on an Apple arm64 Mac with 24 GiB unified memory. These are historical measurements of the study's prompt and parser, not a fresh benchmark of every later plugin release.</p>
+    <p>The frozen primary set contained 48 development cases, 120 test cases, 12 policy-ambiguous cases and 19 stress cases. The test split below has 60 sensitive and 60 benign examples. They are investigator-authored and correlated within families, not an independent real-world benchmark.</p>
+    <div class="results-scroll" tabindex="0" role="region" aria-label="Model comparison, scroll horizontally on small screens">
+      <table>
+        <caption>Primary test split. Chat-model rows use the full JSON verdict contract.</caption>
+        <thead><tr><th scope="col">Model / configuration</th><th scope="col">Detected / 60 sensitive</th><th scope="col">Withheld / 60 benign</th><th scope="col">Invalid / 120 total</th></tr></thead>
+        <tbody>{results.map(row => <tr><th scope="row">{row[0]}</th><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td></tr>)}</tbody>
+      </table>
+    </div>
+    <p><strong>Withholding is not the same as detecting.</strong> Invalid scans defaulted to withholding. They count in the benign-withheld column, but never as correct detections. For example, Qwen2.5 0.5B returned 110 invalid answers out of 120, making it unusable in that configuration despite keeping output back.</p>
+    <p>Qwen2.5 3B found all 60 sensitive examples in this split, but also flagged 18 of the 60 benign ones. That is a real usability cost, not a rounding error. Qwen3 0.6B produced valid answers yet missed all 60 sensitive cases. Structured JSON made answers parsable; it did not make them correct.</p>
+    <figure>
+      <img src="/social/local-model-results.png" width="1200" height="1500" loading="lazy" alt="Seven selected scanner setups: correct detections, benign results withheld, and invalid answers side by side. Synthetic test cases, not a general accuracy ranking. The complete data table is above." />
+      <figcaption>Selected results, not a ranking. Benign withholds include failures; invalid scans are never counted as successful detections. The complete table is above.</figcaption>
+    </figure>
+    <h3>Real-code-shaped inputs changed the picture</h3>
+    <p>A separate frozen reserve used public source chunks with injected synthetic credentials, single-line values and opaque non-secret hashes: 52 positive and 26 benign cases. Qwen2.5 3B's full contract detected 50 positives, with one additional invalid positive, and withheld three benign cases: two findings and one invalid scan. Two binary paraphrases landed at 37/52 and 49/52 detections, both withholding none of the 26 benign cases. Prompt wording moved results in both directions.</p>
+    <p>SecretMasker at threshold 0.5 detected 52/52 reserve positives but withheld 12/26 benign results. The adapted Ettin17M pilot detected something in 51/52 positives, but overlapped the actual injected value in only 49, and withheld 5/26 benign results. A correct yes/no answer is not necessarily a correct location.</p>
+    <p>Laya's complete-window path detected 17/52 reserve positives. Putting a classifier in front of another scanner cannot rescue the secrets the first stage decides never to send onward. Complete input coverage and correct classification are separate problems.</p>
+    <h3>Why there isn't a winner badge</h3>
+    <ul>
+      <li>The policy distinguishes public contact information, code identifiers and redacted placeholders from private data and credential values. Not every model was trained for those distinctions.</li>
+      <li>Primary fixtures contain conspicuous synthetic markers; reserve fixtures remove that cue but remain investigator-authored. Password hashes were originally labelled benign under a non-plaintext policy; that is an acknowledged ambiguous label, not universal safe-handling advice.</li>
+      <li>Prompts, thresholds and input size changed outcomes. After exploration, these sets are no longer untouched evidence for choosing the next model.</li>
+      <li>The deterministic guard intentionally covers fewer formats than this combined secret-and-PII dataset. Its 24/60 is not a recall estimate for its documented supported patterns.</li>
+      <li>No evaluated default met all the study's detection, false-withhold, validity and latency targets. Windows and Linux performance was not measured.</li>
+    </ul>
+    <p>Specialised encoders were promising for speed, but timing boundaries differed across runtimes. Qwen3B's binary-prompt short-input median was about 478 ms; that is not a latency promise for the plugin's full JSON scan. Sequential 10K-character window experiments took roughly 9.6–16.7 seconds and did not solve the quality problem.</p>
+    <details>
+      <summary>Runtime and integration notes</summary>
+      <p>The study used llama.cpp build 10964 (<code>b29c606e2</code>), context 8192, one slot, four CPU threads, GPU offload, no context shift and no prompt-cache reuse. Encoder runs used CPU with four threads, PyTorch 2.14.0 and Transformers 5.17.0. Some phases overlapped, so timings are not a hardware leaderboard.</p>
+      <p>Controlled Torana tests covered Anthropic Messages, OpenAI Chat Completions and Responses: positive replacements, identical-result replay, new-result scanning and restart persistence. Matching historical prefixes in those fixtures is not a measurement of provider cache-hit rates.</p>
+      <p>Two real Claude Code Haiku sessions used synthetic files and an adapted encoder. One acknowledged withheld content without recovering safe lines. Another recovered safe lines after explicit read-range instructions. Narrower reads get fresh decisions and can still leak if classified incorrectly. Fragmentation resistance was not established.</p>
+      <p>The adapted encoder was a research-only six-epoch pilot on 900 independently generated synthetic training examples. It is not a shipped checkpoint or an independent validation result. Different prompts and later plugin changes require fresh evaluation.</p>
+    </details>
+
+    <h2 id="try-it">Set up the PII plugin</h2>
+    <p>This walkthrough uses <strong>Qwen2.5 3B Instruct Q8</strong> as a starting experiment, not a recommended security boundary. The download is about 3.29 GB, with additional memory needed at runtime. It has a <a href="https://huggingface.co/Qwen/Qwen2.5-3B-Instruct/blob/main/LICENSE">Qwen research license</a>; check its terms before using it at work or commercially. Torana's open-source license is separate.</p>
+    <p>Allow time for the first model download. You need a supported local runtime and a signed-in coding harness. If you already run an OpenAI-compatible model server with JSON Schema output, you can use that instead and skip to registering it.</p>
+    <p>Start with small tool results to try the check. Scanning adds latency; with the default block-on-error setting, an unavailable scanner, an input beyond its context, or an exhausted model-call budget withholds the result as a scan failure, not a confirmed PII finding. Evaluate those limits before leaving it enabled for a long session.</p>
+    <h3>1. Start the local scanner</h3>
+    <p>Install <a href="https://github.com/ggml-org/llama.cpp/blob/master/docs/install.md">llama.cpp</a>. With Homebrew on macOS or Linux:</p>
+    <InstallCommand command="brew install llama.cpp" />
+    <details><summary>Windows or another Linux setup</summary>
+      <p>On Windows, run <code>winget install llama.cpp</code>. For Linux without Homebrew, use the project's <a href="https://github.com/ggml-org/llama.cpp/releases">release binaries</a> for your platform/backend or its installation guide. The runtime supports these platforms; the study's performance numbers are Mac-only.</p>
+    </details>
+    <p>In a terminal, download and serve the <a href="https://huggingface.co/bartowski/Qwen2.5-3B-Instruct-GGUF">Q8 model</a>. Keep this process running:</p>
+    <InstallCommand command="llama-server -hf bartowski/Qwen2.5-3B-Instruct-GGUF:Q8_0 --alias local-pii --host 127.0.0.1 --port 8081 -c 8192 -np 1 --jinja --no-context-shift" />
+    <p>If using extracted binaries, run <code>./llama-server</code> on macOS/Linux or <code>.\llama-server.exe</code> on Windows from that directory. Wait for the model to load. If port 8081 is busy, choose a free port and use the same one in the provider settings below. Do not expose this unauthenticated server to the network.</p>
+    <h3>2. Install Torana and add the plugin</h3>
+    <p>In another terminal on macOS or Linux:</p>
+    <InstallCommand command={installCommand} />
+    <details><summary>Windows installer</summary><InstallCommand command={windowsInstallCommand} /></details>
+    <InstallCommand command={`torana start --port 8143\ntorana plugin install pii\ntorana open`} />
+    <p>Use another free port if needed. The browser opens the running instance; later CLI commands discover its address.</p>
+    <h3>3. Register the model, then enable PII</h3>
+    <ol>
+      <li>In the control plane, open <strong>Settings → Add provider</strong>. Name it <code>local-scanner</code>.</li>
+      <li>Set <strong>Upstream URL</strong> to <code>http://127.0.0.1:8081/v1</code>, format to <code>openai</code>, and authentication to <strong>No authentication</strong>.</li>
+      <li>Under <strong>Plugin model defaults</strong>, set <strong>Default model</strong> to <code>local-pii</code>, matching the server alias. Leave the inference-path override blank. Click <strong>Save settings</strong>.</li>
+      <li>Open <strong>Pipeline → pii → Resource bindings and limits → scanner</strong>. Choose <code>local-scanner</code> in <strong>Provider</strong>.</li>
+      <li>Review the requested permissions and model-call limits, then choose <strong>Approve &amp; enable</strong>. Installation alone does not enable the plugin.</li>
+    </ol>
+    <p>Use only <code>pii</code> for this experiment if you want to observe the model's decisions. Adding <code>pii_guard</code> first is a separate deterministic check, and changes what the model sees. The <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/pii/README.md">plugin guide</a> covers CLI configuration and scanner limits.</p>
+    <h3>4. Connect your agent and try both kinds of input</h3>
+    <p>For a signed-in Claude Code session, run this in your test directory on macOS/Linux:</p>
+    <InstallCommand command={'ANTHROPIC_BASE_URL="$(torana endpoint anthropic)" claude'} />
+    <p>Keep the <code>anthropic</code> provider on <strong>Use harness credentials</strong>. For Windows, Codex, pi, oh-my-pi, OpenCode or Antigravity, use the matching <a href="https://github.com/torana-edge/torana-edge/blob/main/docs/HARNESS_SETUP.md">harness recipe</a>. Your hosted provider's normal limits and billing still apply.</p>
+    <p>In a separate terminal, create a synthetic test file in the same directory. Never use a real secret:</p>
+    <InstallCommand command={`echo 'PAYMENT_API_KEY=sk_test_torana_demo_not_a_real_key_123' > demo-sensitive.txt\necho 'RETRY_COUNT=3' > demo-safe.txt`} />
+    <p>Ask the routed agent: <strong>Read demo-sensitive.txt and tell me what it contains.</strong> Then separately ask it to read <code>demo-safe.txt</code>. Inspect <strong>Live Feed</strong> in Torana as well as the agent's reply.</p>
+    <p>A detection should become <strong>Tool output withheld</strong>, with a value-free explanation. A scanner failure is not a detection. A harmless result should remain readable. If the agent quotes the synthetic value, the check missed it; don't substitute a successful run and call that an accuracy result. Try a single-line read too: success on a whole file does not prove success on a narrower result.</p>
+    <p>For a failure or a long delay, inspect <code>torana plugin status</code>, <code>torana feed</code> and the log path in <code>torana status</code>. Check that the local server is ready, the selected model alias matches, and the result fits its context and configured scan limits. Avoid repeatedly retrying a large scan.</p>
+    <p>When finished, exit the harness and launch it normally to connect directly again. Run <code>torana stop --yes</code> once no routed sessions need it, and press Ctrl+C in the scanner terminal. Remove the two synthetic files when you no longer need them.</p>
+
+    <h2 id="build">Help improve PII scanning</h2>
+    <p>Have a detector or a better evaluation case? <a href="https://github.com/torana-edge/torana-plugins/issues">Share a synthetic example and your setup</a>. Useful contributions include benign code that gets blocked, secrets that get missed, and clearer setup instructions. Include the model, prompt or plugin version, and whether the input was a whole result or a narrower read. Please don't attach real credentials or private source.</p>
+    <p>Want to try a different scanning approach? The <a href="/docs/plugin-authoring/">plugin-authoring guide</a> shows how to build on Torana's request path and reuse a plugin across supported coding tools.</p>
+    <p>Other model sources: <a href="https://huggingface.co/tiiuae/Falcon-H1-Tiny-90M-Instruct">Falcon</a>, <a href="https://huggingface.co/kalyan-ks/ettin-17m-nemotron-pii">Ettin PII</a>, <a href="https://huggingface.co/AndrewAndrewsen/distilbert-secret-masker-v3.3a-rs">SecretMasker</a>, <a href="https://huggingface.co/convaiinnovations/laya">Laya</a>, and <a href="https://github.com/openai/privacy-filter">privacy-filter</a>. These use different interfaces and are not all drop-in scanner endpoints.</p>
+  </article>
+</Layout>
+
+<style>
+  figure { margin: var(--space-6) 0; }
+  figure img { display: block; width: 100%; height: auto; border-radius: var(--radius); }
+  figcaption, caption { color: var(--muted); font-size: .9rem; margin-top: var(--space-3); text-align: left; }
+  .results-scroll { max-width: 100%; overflow-x: auto; }
+  .results-scroll table { min-width: 36rem; }
+  .results-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+</style>

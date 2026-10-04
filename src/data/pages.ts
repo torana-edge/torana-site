@@ -127,6 +127,13 @@ export const pages: SitePage[] = [
     section: "Background",
   },
   {
+    path: "/blog/local-models-tool-output/",
+    label: "Local PII scanning for tool output",
+    title: "Scan tool output for PII with a local model — Torana",
+    description: "Set up Torana's PII plugin to check tool output for API keys, passwords and private data using a local model. Includes model comparisons, misses and false positives.",
+    section: "Background",
+  },
+  {
     path: "/blog/context-compaction-negative-result/",
     label: "The context compaction negative result",
     title: "The context compaction negative result — Torana",
