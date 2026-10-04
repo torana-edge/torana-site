@@ -203,6 +203,7 @@ test("referrers are reduced to known fixed origins and never retain private path
     ["https://www.linkedin.com/feed/update/private?secret=value#sensitive", "https://www.linkedin.com/"],
     ["https://github.com/private-org/private-repo", "https://github.com/"],
     ["https://www.google.com/search?q=private", "https://www.google.com/"],
+    ["https://dev.to/projectescape/private-draft?preview=secret", "https://dev.to/"], ["https://dev.to.evil.example/", undefined],
     ["https://unknown.example/private", undefined], ["https://www.linkedin.com.evil.example/", undefined],
     ["https://secret@github.com/private", undefined], ["http://github.com/private", undefined], ["", undefined],
   ]) {

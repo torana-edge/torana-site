@@ -39,6 +39,7 @@
     ["google.com", "https://www.google.com/"], ["www.google.com", "https://www.google.com/"],
     ["www.bing.com", "https://www.bing.com/"], ["bing.com", "https://www.bing.com/"],
     ["duckduckgo.com", "https://duckduckgo.com/"],
+    ["dev.to", "https://dev.to/"],
   ]);
   let referrer;
   try {
