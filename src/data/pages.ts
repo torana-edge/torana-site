@@ -128,9 +128,9 @@ export const pages: SitePage[] = [
   },
   {
     path: "/blog/local-models-tool-output/",
-    label: "Small local models. A different job.",
-    title: "Small local models. A different job. — Torana",
-    description: "Small local models checking tool output alongside hosted coding agents: measured catches, misses, false positives, and a complete Torana PII setup guide.",
+    label: "Local PII scanning for tool output",
+    title: "Scan tool output for PII with a local model — Torana",
+    description: "Set up Torana's PII plugin to check tool output for API keys, passwords and private data using a local model. Includes model comparisons, misses and false positives.",
     section: "Background",
   },
   {

@@ -22,24 +22,24 @@ const results = [
   ["pii_guard · deterministic baseline", "24", "0", "0"],
 ];
 ---
-<Layout {...meta("/blog/local-models-tool-output/")} article image="/social/local-models.png" imageAlt="Small local models. A different job. Check tool output before a hosted model sees it.">
+<Layout {...meta("/blog/local-models-tool-output/")} article image="/social/local-models.png" imageAlt="A local PII scanner checks tool output in Torana before it reaches the hosted model.">
   <article class="frame prose">
-    <p class="eyebrow">Local-model experiments · 4 October 2026</p>
-    <h1 class="display">Small local models. A different job.</h1>
-    <p>A small model doesn't need to replace your main coding model to be useful. It can do a focused job alongside it. This experiment asks a local model to check tool output for exposed credentials and private data before that output reaches a hosted model.</p>
-    <p>There were useful catches, misses, and harmless code getting flagged. Here is what the comparison found, what it did not establish, and how to try the idea with Torana's <code>pii</code> plugin.</p>
+    <p class="eyebrow">PII plugin · 4 October 2026</p>
+    <h1 class="display">Scan tool output for PII with a local model.</h1>
+    <p>Check your coding agent's tool output for API keys, passwords and private personal data before it reaches your hosted model. Torana's <code>pii</code> plugin sends new tool results to a local scanner and replaces flagged results with an explanation.</p>
+    <p>This guide covers the setup, the models compared, and the catches and false positives observed. Start with the walkthrough, or use the results to decide which scanner to experiment with. This is an extra check, not complete protection.</p>
     <p><a href="#try-it">Try it yourself ↓</a> · <a href="#results">Read the comparison ↓</a> · <a href="#build">Build on the idea ↓</a></p>
     <figure>
       <img src="/social/local-models.png" width="1200" height="630" alt="Conceptual flow: an agent's tool output goes through a local scanner in Torana before continuing to the hosted model. A flagged result is replaced with an explanation." />
       <figcaption>A focused local check alongside your existing hosted model. This is a flow illustration, not a captured detection.</figcaption>
     </figure>
 
-    <h2>One useful job, not the whole workflow</h2>
+    <h2>How the PII check works</h2>
     <p>Reading a file happens on your machine. The returned text can then become part of the coding agent's next request to its model provider. An incidental API key or password can go with it.</p>
     <p>Torana sits in that request path. The model-backed <code>pii</code> plugin sends eligible new tool results to the scanner you configure. When it reports sensitive content, the plugin replaces the whole affected result with a value-free explanation. The hosted model can acknowledge that explanation or request different content. A safe continuation is possible, not guaranteed.</p>
     <p>The scanner sees a tool name and numbered output, not the entire conversation or a guaranteed original file path. Its reported line numbers are positions in that output, not necessarily file lines. Historical replacements replay on subsequent turns instead of rescanning the whole conversation.</p>
 
-    <h2 id="results">What the comparison found</h2>
+    <h2 id="results">Which local models caught PII and secrets?</h2>
     <p>The October 1 study compared seven local chat models plus specialised detectors, a decision model, a research-only adaptation, and the actual deterministic guard. The chat models used Q8 GGUF weights on an Apple arm64 Mac with 24 GiB unified memory. These are historical measurements of the study's prompt and parser, not a fresh benchmark of every later plugin release.</p>
     <p>The frozen primary set contained 48 development cases, 120 test cases, 12 policy-ambiguous cases and 19 stress cases. The test split below has 60 sensitive and 60 benign examples. They are investigator-authored and correlated within families, not an independent real-world benchmark.</p>
     <div class="results-scroll" tabindex="0" role="region" aria-label="Model comparison, scroll horizontally on small screens">
@@ -76,7 +76,7 @@ const results = [
       <p>The adapted encoder was a research-only six-epoch pilot on 900 independently generated synthetic training examples. It is not a shipped checkpoint or an independent validation result. Different prompts and later plugin changes require fresh evaluation.</p>
     </details>
 
-    <h2 id="try-it">Try it in your own workflow</h2>
+    <h2 id="try-it">Set up the PII plugin</h2>
     <p>This walkthrough uses <strong>Qwen2.5 3B Instruct Q8</strong> as a starting experiment, not a recommended security boundary. The download is about 3.29 GB, with additional memory needed at runtime. It has a <a href="https://huggingface.co/Qwen/Qwen2.5-3B-Instruct/blob/main/LICENSE">Qwen research license</a>; check its terms before using it at work or commercially. Torana's open-source license is separate.</p>
     <p>Allow time for the first model download. You need a supported local runtime and a signed-in coding harness. If you already run an OpenAI-compatible model server with JSON Schema output, you can use that instead and skip to registering it.</p>
     <h3>1. Start the local scanner</h3>
@@ -114,9 +114,9 @@ const results = [
     <p>For a failure or a long delay, inspect <code>torana plugin status</code>, <code>torana feed</code> and the log path in <code>torana status</code>. Check that the local server is ready, the selected model alias matches, and the result fits its context and configured scan limits. Avoid repeatedly retrying a large scan.</p>
     <p>When finished, exit the harness and launch it normally to connect directly again. Run <code>torana stop --yes</code> once no routed sessions need it, and press Ctrl+C in the scanner terminal. Remove the two synthetic files when you no longer need them.</p>
 
-    <h2 id="build">A place to try your own idea</h2>
-    <p>The PII experiment is one plugin, not the whole platform. Torana provides the local request path, a permissioned plugin runtime, and a shared interface across supported API formats. That leaves room for focused local-model jobs without rebuilding each coding harness.</p>
-    <p>Have a harness-specific workflow hack? <a href="/docs/plugin-authoring/">Turn it into a plugin</a>. Have a detector or a better evaluation case? <a href="https://github.com/torana-edge/torana-plugins/issues">Share a synthetic example and your setup</a>. Useful contributions include benign code that gets blocked, secrets that get missed, and clearer setup instructions. Please don't attach real credentials or private source.</p>
+    <h2 id="build">Help improve PII scanning</h2>
+    <p>Have a detector or a better evaluation case? <a href="https://github.com/torana-edge/torana-plugins/issues">Share a synthetic example and your setup</a>. Useful contributions include benign code that gets blocked, secrets that get missed, and clearer setup instructions. Include the model, prompt or plugin version, and whether the input was a whole result or a narrower read. Please don't attach real credentials or private source.</p>
+    <p>Want to try a different scanning approach? The <a href="/docs/plugin-authoring/">plugin-authoring guide</a> shows how to build on Torana's request path and reuse a plugin across supported coding tools.</p>
     <p>Other model sources: <a href="https://huggingface.co/tiiuae/Falcon-H1-Tiny-90M-Instruct">Falcon</a>, <a href="https://huggingface.co/kalyan-ks/ettin-17m-nemotron-pii">Ettin PII</a>, <a href="https://huggingface.co/AndrewAndrewsen/distilbert-secret-masker-v3.3a-rs">SecretMasker</a>, <a href="https://huggingface.co/convaiinnovations/laya">Laya</a>, and <a href="https://github.com/openai/privacy-filter">privacy-filter</a>. These use different interfaces and are not all drop-in scanner endpoints.</p>
   </article>
 </Layout>
