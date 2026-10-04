@@ -61,6 +61,7 @@ torana stats`}</code></pre>
     <p>Install a maintained plugin by name—no Git or Go needed. Torana downloads and verifies its release bundle; you choose its permissions before enabling it.</p>
     <p>Torana plugins run in the request and response path. With permissions you approve, they can inspect or change a request or response, block it, or call another endpoint before the workflow continues. That endpoint can be a local model: your coding agent can keep using its hosted model while a focused local model handles a narrow job. Combining the two unlocks useful workflows without moving the whole session to a local model.</p>
     <h3>Have a local model, or comfortable setting up a small one?</h3>
+    <p>Starting from scratch? Follow the <a href="/blog/local-models-tool-output/#try-it">local-model PII walkthrough</a> for a model download, setup steps and the measured trade-offs.</p>
     <p>Try <strong>pii</strong> first. A focused local model working alongside your hosted coding agent is the clearest way to see what Torana plugins unlock. This plugin asks your OpenAI-compatible local model to check new tool output before it reaches the primary model. Detection depends on the scanner you choose; this is an extra check, not a guarantee.</p>
     <p><strong>Register your local model first.</strong> Run <code>torana open</code>, open <strong>Settings</strong>, and choose <strong>Add provider</strong>:</p>
     <ul>

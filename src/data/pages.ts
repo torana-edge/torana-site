@@ -127,6 +127,13 @@ export const pages: SitePage[] = [
     section: "Background",
   },
   {
+    path: "/blog/local-models-tool-output/",
+    label: "Small local models. A different job.",
+    title: "Small local models. A different job. — Torana",
+    description: "Small local models checking tool output alongside hosted coding agents: measured catches, misses, false positives, and a complete Torana PII setup guide.",
+    section: "Background",
+  },
+  {
     path: "/blog/context-compaction-negative-result/",
     label: "The context compaction negative result",
     title: "The context compaction negative result — Torana",

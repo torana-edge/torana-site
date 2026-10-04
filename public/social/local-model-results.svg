@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <title>Useful catches. Real trade-offs.</title>
+  <desc>October 1 synthetic primary test, Qwen2.5 3B Q8 with the full JSON prompt: 60 of 60 sensitive examples detected, 18 of 60 benign examples also flagged.</desc>
+  <rect width="1200" height="630" fill="#09171c"/>
+  <g font-family="Geist, Arial, sans-serif">
+    <text x="64" y="78" font-size="25" fill="#2dd4bf">LOCAL PII SCANNING · FIELD NOTES</text>
+    <text x="64" y="158" font-size="59" font-weight="700" letter-spacing="-2" fill="#e8f1f2">Useful catches. Real trade-offs.</text>
+    <text x="64" y="212" font-size="27" fill="#b5c5ca">Qwen2.5 3B Q8 · full JSON prompt · October 1 study</text>
+    <path d="M600 275V440" stroke="#384d54"/>
+    <text x="64" y="362" font-size="88" font-weight="700" fill="#2dd4bf">60 / 60</text>
+    <text x="64" y="411" font-size="28" fill="#e8f1f2">sensitive examples detected</text>
+    <text x="658" y="362" font-size="88" font-weight="700" fill="#efb46b">18 / 60</text>
+    <text x="658" y="411" font-size="28" fill="#e8f1f2">benign examples also flagged</text>
+    <text x="64" y="484" font-size="26" fill="#b5c5ca">One synthetic split, one prompt. Not a general accuracy claim.</text>
+    <path d="M64 529H1136" stroke="#384d54"/>
+    <text x="64" y="581" font-size="24" fill="#2dd4bf">torana.sh</text>
+    <text x="1136" y="581" text-anchor="end" font-size="23" fill="#b5c5ca">The comparison + a setup you can try</text>
+  </g>
+</svg>
