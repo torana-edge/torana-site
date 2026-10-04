@@ -57,6 +57,10 @@ test("fresh renders match, stale text or raster bytes fail, and check mode never
   const originalPNG = await readFile(pngFile);
   await syncCards({ ...settings, checkOnly: true });
   assert.deepEqual(originalPNG, await renderCard(source, fontBuffers));
+  const portrait = await renderCard(source.replaceAll('height="630"', 'height="1500"'), fontBuffers);
+  assert.equal(portrait.readUInt32BE(16), 1200);
+  assert.equal(portrait.readUInt32BE(20), 1500);
+  await assert.rejects(renderCard(source.replaceAll('height="630"', 'height="700"'), fontBuffers), /630px or 1500px high/);
   await writeFile(svgFile, source.replace("Original text", "Changed text"));
   await assert.rejects(syncCards({ ...settings, checkOnly: true }), /Stale or missing social PNGs: card.png/);
   assert.deepEqual(await readFile(pngFile), originalPNG);

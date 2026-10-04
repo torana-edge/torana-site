@@ -52,11 +52,11 @@ const results = [
     <p><strong>Withholding is not the same as detecting.</strong> Invalid scans defaulted to withholding. They count in the benign-withheld column, but never as correct detections. For example, Qwen2.5 0.5B returned 110 invalid answers out of 120, making it unusable in that configuration despite keeping output back.</p>
     <p>Qwen2.5 3B found all 60 sensitive examples in this split, but also flagged 18 of the 60 benign ones. That is a real usability cost, not a rounding error. Qwen3 0.6B produced valid answers yet missed all 60 sensitive cases. Structured JSON made answers parsable; it did not make them correct.</p>
     <figure>
-      <img src="/social/local-model-results.png" width="1200" height="630" loading="lazy" alt="Qwen2.5 3B on the October 1 synthetic primary test: 60 of 60 sensitive examples detected, 18 of 60 benign examples also flagged. One model and one prompt, not a guarantee." />
-      <figcaption>A useful catch rate on this small split came with false positives. Do not read this as a general accuracy claim.</figcaption>
+      <img src="/social/local-model-results.png" width="1200" height="1500" loading="lazy" alt="Seven selected scanner setups: correct detections, benign results withheld, and invalid answers side by side. Synthetic test cases, not a general accuracy ranking. The complete data table is above." />
+      <figcaption>Selected results, not a ranking. Benign withholds include failures; invalid scans are never counted as successful detections. The complete table is above.</figcaption>
     </figure>
     <h3>Real-code-shaped inputs changed the picture</h3>
-    <p>A separate frozen reserve used public source chunks with injected synthetic credentials, single-line values and opaque non-secret hashes: 52 positive and 26 benign cases. Qwen2.5 3B's full contract detected 50 positives, with one additional invalid positive, and withheld three benign cases: two findings and one invalid scan. Changing to one binary prompt reduced detections to 37/52 while withholding none of the benign cases.</p>
+    <p>A separate frozen reserve used public source chunks with injected synthetic credentials, single-line values and opaque non-secret hashes: 52 positive and 26 benign cases. Qwen2.5 3B's full contract detected 50 positives, with one additional invalid positive, and withheld three benign cases: two findings and one invalid scan. Two binary paraphrases landed at 37/52 and 49/52 detections, both withholding none of the 26 benign cases. Prompt wording moved results in both directions.</p>
     <p>SecretMasker at threshold 0.5 detected 52/52 reserve positives but withheld 12/26 benign results. The adapted Ettin17M pilot detected something in 51/52 positives, but overlapped the actual injected value in only 49, and withheld 5/26 benign results. A correct yes/no answer is not necessarily a correct location.</p>
     <p>Laya's complete-window path detected 17/52 reserve positives. Putting a classifier in front of another scanner cannot rescue the secrets the first stage decides never to send onward. Complete input coverage and correct classification are separate problems.</p>
     <h3>Why there isn't a winner badge</h3>
@@ -79,6 +79,7 @@ const results = [
     <h2 id="try-it">Set up the PII plugin</h2>
     <p>This walkthrough uses <strong>Qwen2.5 3B Instruct Q8</strong> as a starting experiment, not a recommended security boundary. The download is about 3.29 GB, with additional memory needed at runtime. It has a <a href="https://huggingface.co/Qwen/Qwen2.5-3B-Instruct/blob/main/LICENSE">Qwen research license</a>; check its terms before using it at work or commercially. Torana's open-source license is separate.</p>
     <p>Allow time for the first model download. You need a supported local runtime and a signed-in coding harness. If you already run an OpenAI-compatible model server with JSON Schema output, you can use that instead and skip to registering it.</p>
+    <p>Start with small tool results to try the check. Scanning adds latency; with the default block-on-error setting, an unavailable scanner, an input beyond its context, or an exhausted model-call budget withholds the result as a scan failure, not a confirmed PII finding. Evaluate those limits before leaving it enabled for a long session.</p>
     <h3>1. Start the local scanner</h3>
     <p>Install <a href="https://github.com/ggml-org/llama.cpp/blob/master/docs/install.md">llama.cpp</a>. With Homebrew on macOS or Linux:</p>
     <InstallCommand command="brew install llama.cpp" />

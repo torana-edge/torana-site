@@ -1,19 +1,68 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <title>Useful catches. Real trade-offs.</title>
-  <desc>October 1 synthetic primary test, Qwen2.5 3B Q8 with the full JSON prompt: 60 of 60 sensitive examples detected, 18 of 60 benign examples also flagged.</desc>
-  <rect width="1200" height="630" fill="#09171c"/>
-  <g font-family="Geist, Arial, sans-serif">
-    <text x="64" y="78" font-size="25" fill="#2dd4bf">LOCAL PII SCANNING · FIELD NOTES</text>
-    <text x="64" y="158" font-size="59" font-weight="700" letter-spacing="-2" fill="#e8f1f2">Useful catches. Real trade-offs.</text>
-    <text x="64" y="212" font-size="27" fill="#b5c5ca">Qwen2.5 3B Q8 · full JSON prompt · October 1 study</text>
-    <path d="M600 275V440" stroke="#384d54"/>
-    <text x="64" y="362" font-size="88" font-weight="700" fill="#2dd4bf">60 / 60</text>
-    <text x="64" y="411" font-size="28" fill="#e8f1f2">sensitive examples detected</text>
-    <text x="658" y="362" font-size="88" font-weight="700" fill="#efb46b">18 / 60</text>
-    <text x="658" y="411" font-size="28" fill="#e8f1f2">benign examples also flagged</text>
-    <text x="64" y="484" font-size="26" fill="#b5c5ca">One synthetic split, one prompt. Not a general accuracy claim.</text>
-    <path d="M64 529H1136" stroke="#384d54"/>
-    <text x="64" y="581" font-size="24" fill="#2dd4bf">torana.sh</text>
-    <text x="1136" y="581" text-anchor="end" font-size="23" fill="#b5c5ca">The comparison + a setup you can try</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1500" viewBox="0 0 1200 1500">
+  <title>Can a local model catch secrets?</title>
+  <desc>Seven selected setups from the October 1 synthetic study. Correct detections, benign withholds and invalid scans are shown separately. Not a general accuracy ranking.</desc>
+  <rect width="1200" height="1500" fill="#09171c"/>
+  <g font-family="Geist, Arial, sans-serif" fill="#e8f1f2">
+    <text x="64" y="78" font-size="29" fill="#2dd4bf">LOCAL PII SCANNING · SELECTED RESULTS</text>
+    <g font-size="64" font-weight="700" letter-spacing="-2">
+      <text x="64" y="170">Can a local model</text>
+      <text x="64" y="244">catch secrets?</text>
+    </g>
+    <text x="64" y="305" font-size="32" fill="#b5c5ca">60 sensitive + 60 benign synthetic examples</text>
+    <path d="M64 352H1136" stroke="#384d54"/>
+    <g font-size="29" fill="#b5c5ca">
+      <text x="64" y="403">Model / setup</text>
+      <g text-anchor="middle">
+        <text x="615" y="392">Detected</text><text x="615" y="429">of 60</text>
+        <text x="825" y="392">Benign blocked</text><text x="825" y="429">of 60</text>
+        <text x="1060" y="392">Invalid</text><text x="1060" y="429">of 120</text>
+      </g>
+    </g>
+    <path d="M64 456H1136" stroke="#384d54"/>
+    <text x="64" y="518" font-size="35">Falcon-H1-Tiny 90M</text>
+    <g font-size="43" font-weight="700" text-anchor="middle">
+      <text x="615" y="522">0</text><text x="825" y="522">3</text><text x="1060" y="522">3</text>
+    </g>
+    <path d="M64 564H1136" stroke="#384d54"/>
+    <text x="64" y="626" font-size="35">Qwen2.5 0.5B</text>
+    <g font-size="43" font-weight="700" text-anchor="middle">
+      <text x="615" y="630">5</text><text x="825" y="630">60</text><text x="1060" y="630">110</text>
+    </g>
+    <path d="M64 672H1136" stroke="#384d54"/>
+    <text x="64" y="734" font-size="35">Qwen3 0.6B</text>
+    <g font-size="43" font-weight="700" text-anchor="middle">
+      <text x="615" y="738">0</text><text x="825" y="738">0</text><text x="1060" y="738">0</text>
+    </g>
+    <path d="M64 780H1136" stroke="#384d54"/>
+    <text x="64" y="842" font-size="35">Qwen2.5 3B</text>
+    <g font-size="43" font-weight="700" text-anchor="middle">
+      <text x="615" y="846">60</text><text x="825" y="846">18</text><text x="1060" y="846">0</text>
+    </g>
+    <path d="M64 888H1136" stroke="#384d54"/>
+    <text x="64" y="950" font-size="35">Qwen3.5 0.8B</text>
+    <g font-size="43" font-weight="700" text-anchor="middle">
+      <text x="615" y="954">60</text><text x="825" y="954">42</text><text x="1060" y="954">0</text>
+    </g>
+    <path d="M64 996H1136" stroke="#384d54"/>
+    <text x="64" y="1046" font-size="35">SecretMasker</text>
+    <text x="64" y="1080" font-size="26" fill="#b5c5ca">threshold 0.5</text>
+    <g font-size="43" font-weight="700" text-anchor="middle">
+      <text x="615" y="1062">57</text><text x="825" y="1062">10</text><text x="1060" y="1062">0</text>
+    </g>
+    <path d="M64 1104H1136" stroke="#384d54"/>
+    <text x="64" y="1154" font-size="35">privacy-filter</text>
+    <text x="64" y="1188" font-size="26" fill="#b5c5ca">reference runtime · 1024</text>
+    <g font-size="43" font-weight="700" text-anchor="middle">
+      <text x="615" y="1170">58</text><text x="825" y="1170">9</text><text x="1060" y="1170">0</text>
+    </g>
+    <path d="M64 1212H1136" stroke="#384d54"/>
+    <g font-size="27" fill="#b5c5ca">
+      <text x="64" y="1262">Benign blocked includes failures. Failures aren't detections.</text>
+      <text x="64" y="1305">Chat models: Q8, full JSON prompt. Detector policies differ.</text>
+      <text x="64" y="1348">Synthetic cases. Results depend on model and prompt.</text>
+    </g>
+    <path d="M64 1390H1136" stroke="#384d54"/>
+    <text x="64" y="1452" font-size="30" fill="#2dd4bf">torana.sh</text>
+    <text x="1136" y="1452" text-anchor="end" font-size="27" fill="#b5c5ca">October 1 study · full comparison on the blog</text>
   </g>
 </svg>

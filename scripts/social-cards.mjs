@@ -50,7 +50,7 @@ export async function renderCard(svg, fontBuffers) {
   });
   try {
     assert.equal(renderer.width, 1200, "Social SVG must be 1200px wide");
-    assert.equal(renderer.height, 630, "Social SVG must be 630px high");
+    assert.ok([630, 1500].includes(renderer.height), "Social SVG must be 630px or 1500px high");
     assert.equal(renderer.imagesToResolve().length, 0, "Social SVG cannot depend on external images");
     const rendered = renderer.render();
     try { return Buffer.from(rendered.asPng()); } finally { rendered.free(); }
