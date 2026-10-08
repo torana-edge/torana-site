@@ -138,7 +138,7 @@ export const pages: SitePage[] = [
     label: "The context compaction negative result",
     title: "Does compacting tool output lower a coding agent's API bill? — Torana",
     description:
-      "A paired DeepSeek V4 Pro experiment on compacting coding-agent tool output: design, full reproduction setup, results, prompt-cache economics and next steps.",
+      "A paired DeepSeek V4 Pro experiment on compacting coding-agent tool output: design, methodology, results, prompt-cache economics and next steps.",
     section: "Background",
   },
   {
