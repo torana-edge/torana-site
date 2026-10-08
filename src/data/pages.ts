@@ -136,9 +136,9 @@ export const pages: SitePage[] = [
   {
     path: "/blog/context-compaction-negative-result/",
     label: "The context compaction negative result",
-    title: "I removed 4.8 MB from my coding agent's requests. The bill barely moved. — Torana",
+    title: "Does compacting tool output lower a coding agent's API bill? — Torana",
     description:
-      "Compacting coding-agent tool output on DeepSeek V4 Pro: what broke, 75 sessions of paired results, why prompt caching made it nearly free, and what's next.",
+      "A paired DeepSeek V4 Pro experiment on compacting coding-agent tool output: design, full reproduction setup, results, prompt-cache economics and next steps.",
     section: "Background",
   },
   {
