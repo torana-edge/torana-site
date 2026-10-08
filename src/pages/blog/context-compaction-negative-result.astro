@@ -1,28 +1,113 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import { meta } from "../../data/pages";
+
+const arms = [
+  ["No compaction (control)", "23/25", "$0.02482", "450,810", "92.23%", "none"],
+  ["Simple (deterministic) compaction", "24/25", "$0.02670", "479,087", "91.68%", "34 rewrites, 365 reuses"],
+  ["Model-gated summaries", "24/25", "$0.02247", "444,625", "92.75%", "6 deterministic rewrites, 79 reuses, 0 summaries"],
+];
 ---
 <Layout {...meta("/blog/context-compaction-negative-result/")} article image="/social/compaction.png" imageAlt="Fewer tokens. A smaller bill? Torana's compaction experiment.">
   <article class="frame prose">
-    <p class="eyebrow">Negative result · 26 July 2026</p>
-    <h1 class="display">I built a context compactor. I couldn’t establish reliable savings.</h1>
-    <p>Many coding-agent workflows resend visible conversation history on successive requests. A large tool result can remain in that history long after its useful moment, so replacing it with a smaller representation looks like an obvious saving. Provider-managed history and native compaction are different cases.</p>
-    <p>I built that transformation as a Torana plugin. Then I measured it.</p>
-    <h2>The result</h2>
-    <p>The 21 July 2026 experiment used OMP with DeepSeek V4 Pro: five tasks, five repetitions, and three randomized arms per repetition, for 75 sessions. Costs were calculated from provider-reported usage and the historical prices used for that run.</p>
-    <p>The deterministic arm removed 4.81 MB from repeated history. Its paired median cost reduction was $0.000524 per session, with a bootstrap 95% interval of −$0.003714 to +$0.003725. Mean savings were slightly negative. The result did not establish reliable savings.</p>
-    <p>The separate model-gated arm had a paired median reduction of $0.000478, with a 95% interval of −$0.000998 to +$0.004973. It made zero paid summarizer calls; its few transformations used deterministic policy. These are not measurements of paid-summary savings.</p>
-    <h2>Why the obvious model is wrong</h2>
-    <p>A rewrite changes more than the removed tokens. It can invalidate a byte-identical prompt-cache prefix, it has its own summarizer cost, and it can erase information a harness expects to recover later. “Fewer tokens” and “lower bill” are not interchangeable claims.</p>
+    <p class="eyebrow">Research · negative result · 26 July 2026 · updated 8 October 2026</p>
+    <h1 class="display">I removed 4.8 MB from my coding agent's requests. The bill barely moved.</h1>
+    <p>I built a compactor to stop coding agents from paying for the same tool output over and over. It removed 4.81 MB of repeated history across the experiment, and saved about 2% per session: less than ordinary run-to-run variation. On DeepSeek V4 Pro, prompt caching had already made that repeated output nearly free.</p>
+    <p>This is the full loop: the idea, the version that broke, the version I measured, why the numbers came out flat, and what I'm trying next.</p>
+    <p><a href="#results">Jump to the results ↓</a> · <a href="#why">Why it didn't pay ↓</a> · <a href="#next">What's next ↓</a></p>
+
+    <h2>How coding agents resend tool output</h2>
+    <p>The model behind a coding agent can't read your files or run commands itself. It asks for a tool call, like "read this file" or "run the tests". The agent runs it on your machine and appends the output to the conversation. On the next turn, the whole visible conversation goes back to the model, including every earlier tool result.</p>
+    <p>So a large test log from turn 5 is still sent at turn 6, 7 and turn 40. It occupies context and is billed as input on every request. Replacing old output with something smaller looks like an obvious saving.</p>
+    <p>This applies to harnesses that resend visible history, typically over Chat Completions or Messages-style APIs. When a provider owns the history (for example OpenAI Responses with <code>previous_response_id</code>), Torana can't rewrite earlier items; native provider compaction is a separate mechanism.</p>
+
+    <h2>The idea: a cheaper assistant for the brain</h2>
+    <p>If the hosted model is the brain doing the real work, give it a cheaper assistant: a smaller model that summarises tool output before the brain reads it.</p>
+    <p>A summary is only useful if it knows what matters. Torana's <a href="https://github.com/torana-edge/torana-plugins/tree/main/plugins/intent"><code>intent</code></a> plugin changes the tool definitions the model sees, asking it to include a short reason with each tool call, then strips that field before the harness sees the call. The compactor can use that captured intent to decide what to keep.</p>
+
+    <h2>Attempt 1: summarise every large output</h2>
+    <p>The first compactor summarised any tool output over 2,000 characters. It broke coding agents immediately (<a href="https://github.com/torana-edge/torana-edge/issues/166">issue #166</a>).</p>
+    <p>Coding agents edit files with exact search and replace. When a file read came back as a natural-language summary, edits stopped matching. The agent re-read the file, failed again, and looped, burning tokens instead of saving them.</p>
+
+    <h2>Attempt 2: keep fresh output exact, compact old output later</h2>
+    <p>The second design leaves everything exact when it first appears and only considers older results. Policies are ordered, first-match and exact by default:</p>
+    <ul>
+      <li><strong>exact:</strong> never altered. The default for unknown tools, and always used for edits, diffs, errors, stack traces, failed commands and non-zero exits.</li>
+      <li><strong>deterministic:</strong> a bounded head and tail, size, SHA-256 and a rerun instruction, for explicitly recoverable output.</li>
+      <li><strong>model:</strong> an intent-guided summary, only after one exact exposure and only when an economic gate says it pays.</li>
+      <li><strong>source</strong> (file reads): kept exact. See what broke, below.</li>
+    </ul>
+    <p>Rewriting an older message changes the prompt prefix, which can turn cached input into an expensive cache miss. Both gates estimate that rewrite cost, plus any summariser cost, before allowing a change. Rewritten bytes are cached and reused so later requests stay byte-identical.</p>
+
+    <h2>The experiment</h2>
+    <ul>
+      <li><strong>Date:</strong> 21 July 2026.</li>
+      <li><strong>Setup:</strong> the OMP coding agent with DeepSeek V4 Pro through <code>https://api.deepseek.com/beta</code>; DeepSeek V4 Flash as the summariser candidate.</li>
+      <li><strong>Design:</strong> five repository tasks × five repetitions × three randomised arms = 75 sessions, compared in pairs within each repetition.</li>
+      <li><strong>Guardrails:</strong> a 25-request cap, 150 seconds without progress, repeated-intent detection and a $15 spend ceiling.</li>
+      <li><strong>Cost:</strong> calculated from provider-reported cache-miss, cache-hit and output tokens at the prices active for the run, including any summariser usage.</li>
+      <li><strong>Safety:</strong> edits, errors, diffs, failed commands and source reads stayed exact. Safety-task answers were reviewed manually.</li>
+    </ul>
+
+    <h2 id="results">Results</h2>
+    <div class="results-scroll" tabindex="0" role="region" aria-label="Compaction results, scroll horizontally on small screens">
+      <table>
+        <caption>Medians per session, DeepSeek V4 Pro, July 2026 prices.</caption>
+        <thead><tr><th scope="col">Arm</th><th scope="col">Runs complete</th><th scope="col">Median cost</th><th scope="col">Median input tokens</th><th scope="col">Cache-hit ratio</th><th scope="col">Compaction activity</th></tr></thead>
+        <tbody>{arms.map(row => <tr><th scope="row">{row[0]}</th><td>{row[1]}</td><td>{row[2]}</td><td>{row[3]}</td><td>{row[4]}</td><td>{row[5]}</td></tr>)}</tbody>
+      </table>
+    </div>
+    <p><strong>Simple compaction</strong> removed 4.81 MB from repeated history. Its paired median cost reduction was $0.000524 per session (about 2.1%), with a bootstrap 95% interval of −$0.003714 to +$0.003725. Mean savings were slightly negative. The median paired input-token reduction was 29,117 tokens, with an interval from −57,989 to +60,161. This does not establish a saving.</p>
+    <p><strong>Model-gated summaries</strong> had a paired median reduction of $0.000478 (about 1.9%), with an interval of −$0.000998 to +$0.004973. Only four runs transformed anything, all through the deterministic policy. The gate made <strong>zero</strong> paid summariser calls: with six expected replays and DeepSeek's cache-hit price, a rewritten prefix could never repay its cache miss. So this is not evidence for or against model-written summaries.</p>
+    <p>Request-cap terminations also occurred in the control arm and in runs with zero rewrites, so they reflect agent variance rather than compaction-induced loops.</p>
+
+    <h2 id="why">Why it didn't pay: prompt-cache economics</h2>
+    <div class="results-scroll" tabindex="0" role="region" aria-label="DeepSeek prices used in the experiment">
+      <table>
+        <caption>Test prices per million tokens, July 2026. Historical; not current guidance.</caption>
+        <thead><tr><th scope="col">Model</th><th scope="col">Cache miss</th><th scope="col">Cache hit</th><th scope="col">Output</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">DeepSeek V4 Pro</th><td>$0.435</td><td>$0.003625</td><td>$0.87</td></tr>
+          <tr><th scope="row">DeepSeek V4 Flash</th><td>$0.14</td><td>$0.0028</td><td>$0.28</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>A cache hit on V4 Pro cost about <strong>120× less</strong> than a cache miss, and about 92% of input tokens were cache hits in every arm. The repeated tool output being removed was already nearly free. Each rewrite changed the prompt prefix, turning cheap cache hits into expensive misses for everything after it. Removing bytes and lowering the bill are different things.</p>
+    <p>That is a property of DeepSeek's pricing. Providers that charge more for cached input, or that don't cache at all, could change the result. Testing that is the next experiment (<a href="https://github.com/torana-edge/torana-edge/issues/193">issue #193</a>).</p>
+
     <h2>The break-even condition</h2>
-    <p>Let <code>N</code> be future turns, <code>R</code> the rewritten cached span, <code>W</code> the provider’s write/input rate, <code>C</code> its cache-read rate, <code>D</code> tokens removed per future turn, and <code>S</code> the summarizer cost. Compaction needs:</p>
+    <p>Let <code>N</code> be future turns, <code>R</code> the rewritten cached span, <code>W</code> the provider's write/input rate, <code>C</code> its cache-read rate, <code>D</code> tokens removed per future turn, and <code>S</code> the summariser cost. Compaction needs:</p>
     <pre><code>N &gt; (R × max(0, W − C) + S) / (D × C)</code></pre>
-    <p>This simplified model assumes positive <code>D × C</code> and matching units: rates per token when <code>S</code> is in dollars. It does not model every provider’s caching rules or changes in agent behavior. Missing economic inputs or non-positive expected net prevents economically gated compaction.</p>
-    <h2>What happened next</h2>
-    <p>I stopped treating savings as the product promise. By then, the infrastructure around the experiment had become a local proxy with a shared request model and a WASM plugin runtime. I shifted the project toward that reusable layer.</p>
-    <p>Compaction is still an opt-in experiment inside Torana. It is no longer the reason the whole project exists. You can use the proxy to observe request activity, change model-facing tool definitions, or try your own plugin without enabling compaction at all.</p>
-    <p><a href="/blog/why-torana/">Read the story of the pivot →</a></p>
-    <p>This was one provider and workload. Completion varied across arms; safety-task outputs were manually reviewed, and the quality evaluation does not establish general non-inferiority. Historical prices are not current price guidance.</p>
-    <p><a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/compactor/DEEPSEEK_RESULTS.md">Read the published method and results ↗</a></p>
+    <p>This simplified model assumes positive <code>D × C</code> and matching units: rates per token when <code>S</code> is in dollars. It does not model every provider's caching rules or changes in agent behaviour. When economic inputs are missing or the expected net is not positive, the gate does nothing. That is a correct outcome, not a failure.</p>
+
+    <h2>What broke along the way</h2>
+    <ol>
+      <li><strong>File-read markers caused re-read loops.</strong> An earlier, excluded pilot replaced an old file read with a "reread" marker. The agent fetched different line ranges of the same file until it hit the request cap; deduplicating identical arguments didn't help because the offsets kept changing. Source reads are now always exact.</li>
+      <li><strong>The gate missed a cost.</strong> An uncached summary candidate was mislabelled as cache reuse, so the preflight left out the prefix-rewrite premium. Torana paid for Flash summaries that the final gate then rejected. Uncached candidates are now treated as rewrites, and the corrected run made zero uneconomic summariser calls.</li>
+      <li><strong>Cache hits were invisible.</strong> DeepSeek reports cache usage as <code>prompt_cache_hit_tokens</code>, not the OpenAI-style <code>prompt_tokens_details.cached_tokens</code>. Torana now reads both in streaming, JSON and model-service responses, and reports summariser token usage.</li>
+    </ol>
+
+    <h2>Limitations</h2>
+    <ul>
+      <li>One provider, one agent, five tasks and July 2026 prices. A workload result, not a general claim about compaction.</li>
+      <li>Completion varied across arms. Quality checks were manual and don't establish general non-inferiority.</li>
+      <li>The measurements describe the July experiment, not every later plugin revision.</li>
+      <li>Compaction can still matter where caching is expensive or absent, or when an agent is running out of context.</li>
+    </ul>
+
+    <h2 id="next">What's next</h2>
+    <p><strong>Providers with expensive cache reads.</strong> The same paired design on a provider whose cache pricing doesn't make history nearly free (<a href="https://github.com/torana-edge/torana-edge/issues/193">#193</a>). Source-file compaction with bounded recovery is a separate open experiment (<a href="https://github.com/torana-edge/torana-edge/issues/178">#178</a>).</p>
+    <p><strong>Decide per tool call, not per size.</strong> The trigger was wrong. Some output must stay exact: file reads, edits, errors. Some never needed to sit in the conversation: <code>npm install</code> logs, build output, script runs. Small local decision models such as Jev and Laya can classify a tool call into a fixed set of choices quickly. I'm building a version where one decides, per tool call, whether its output stays exact or can be compacted. That is in progress, not a measured result.</p>
+
+    <h2>Try it or build on it</h2>
+    <p>The compactor, <code>keyword_compactor</code> and <code>intent</code> are Torana plugins. Install them by name, review their permissions and bind a summariser model following the <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/compactor/README.md">compactor guide</a>. Measure with paired runs on your own tool mix and provider prices, using provider-reported tokens and including summariser cost.</p>
+    <p>The same plugin SDK powers the <a href="/blog/local-models-tool-output/">local PII check</a>. If you have a workflow idea for your coding agent, the <a href="/docs/plugin-authoring/">plugin-authoring guide</a> shows how to build it once and run it across supported harnesses. Results from other providers, especially on #193, are very welcome.</p>
+    <p>Full method and data: <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/compactor/DEEPSEEK_RESULTS.md">DEEPSEEK_RESULTS.md ↗</a> · How this experiment became Torana: <a href="/blog/why-torana/">the pivot story →</a></p>
   </article>
 </Layout>
+
+<style>
+  .results-scroll { max-width: 100%; overflow-x: auto; }
+  .results-scroll table { min-width: 40rem; }
+  .results-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+</style>
