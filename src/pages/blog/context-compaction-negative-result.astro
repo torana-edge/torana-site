@@ -171,24 +171,28 @@ const modelConfig = `{
     <h3>Arms</h3>
     <ul>
       <li><strong>Control:</strong> Torana in the request path with no compaction plugin.</li>
-      <li><strong>Deterministic:</strong> <code>schema_translator → intent → keyword_compactor</code>, summariser disabled. This is the committed <code>config.dogfood.json</code>. The run itself used the <code>https://api.deepseek.com/beta</code> endpoint for the target model:</li>
+      <li><strong>Deterministic:</strong> <code>schema_translator → intent → keyword_compactor</code>, summariser disabled. This is the committed <code>config.dogfood.json</code>. The run itself used the <code>https://api.deepseek.com/beta</code> endpoint for the target model.</li>
     </ul>
-    <pre><code>{deterministicConfig}</code></pre>
+    <details class="fold"><summary>Deterministic arm configuration (JSON)</summary><pre><code>{deterministicConfig}</code></pre></details>
     <ul>
-      <li><strong>Model-gated:</strong> <code>schema_translator → intent → compactor</code>, with explicit prices, <code>expected_applications: 6</code> and V4 Flash as the summariser. Grep-like output was eligible for model summaries; the same exact and first-pass rules applied otherwise. Reconstructed from the run record in the shape of the committed example (the committed file covers only the deterministic arm):</li>
+      <li><strong>Model-gated:</strong> <code>schema_translator → intent → compactor</code>, with explicit prices, <code>expected_applications: 6</code> and V4 Flash as the summariser. Grep-like output was eligible for model summaries; the same exact and first-pass rules applied otherwise. Reconstructed from the run record in the shape of the committed example (the committed file covers only the deterministic arm).</li>
     </ul>
-    <pre><code>{modelConfig}</code></pre>
-    <p>DeepSeek has no separate cache-write charge, so the cache-write rate is set equal to the input rate: a rewritten span is billed as cache misses.</p>
+    <details class="fold"><summary>Model-gated arm configuration (JSON)</summary><pre><code>{modelConfig}</code></pre>
+    <p>DeepSeek has no separate cache-write charge, so the cache-write rate is set equal to the input rate: a rewritten span is billed as cache misses.</p></details>
     <h3>Protocol</h3>
     <ul>
       <li><strong>Tasks:</strong> five repository tasks run with OMP: architecture, economics, regression review, safety (exercising mutations, patches, errors and non-zero exits), and a stress task.</li>
       <li><strong>Design:</strong> five repetitions × three arms = 75 sessions. Within each paired block (task × repetition), the order of the three arms was randomised.</li>
+    </ul>
+    <details class="fold"><summary>Guards, cost accounting, statistics and what isn't published</summary>
+    <ul>
       <li><strong>Guards:</strong> stop above 25 requests, after 150 seconds without progress, after the same semantic tool intent three times, or at a $15 total spend ceiling. Total spend: $1.90.</li>
       <li><strong>Cost:</strong> computed from provider-reported cache-miss, cache-hit and output tokens at the prices above, plus any summariser usage. DeepSeek reports cache hits as <code>prompt_cache_hit_tokens</code>.</li>
       <li><strong>Statistics:</strong> paired saving = control cost − treatment cost for the same task and repetition, over all 25 pairs. 95% intervals are percentile intervals from 10,000 bootstrap resamples with a fixed seed of 166.</li>
       <li><strong>Quality:</strong> a keyword heuristic for triage, plus manual review of all 15 safety-task answers.</li>
       <li><strong>Not published:</strong> the exact task prompts and raw per-session transcripts, which were held back pending a privacy review. Aggregates are in <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/compactor/DEEPSEEK_RESULTS.md">DEEPSEEK_RESULTS.md</a>.</li>
     </ul>
+    </details>
 
     <h2 id="results">Results</h2>
     <div class="results-scroll" tabindex="0" role="region" aria-label="Results by arm">
@@ -201,6 +205,7 @@ const modelConfig = `{
     <p><strong>Deterministic arm:</strong> 15 of 25 treatment runs transformed something; 399 applications (34 new transformations, 365 cache reuses) removed 4,809,164 bytes in total. Median paired saving <strong>$0.000524 (~2.1%)</strong>, 95% interval −$0.003714 to +$0.003725. Mean saving −$0.0000559; cheaper in 13 of 25 pairs. Median paired input-token saving 29,117 (interval −57,989 to +60,161). Transformed-only runs had a median change of −$0.000262, a small increase.</p>
     <p><strong>Model-gated arm:</strong> only four runs transformed output, all through the deterministic rule (6 transformations, 79 reuses). Median paired saving $0.000478 (~1.9%), interval −$0.000998 to +$0.004973; mean $0.001569, cheaper in 15 of 25 pairs. The preflight made <strong>zero</strong> Flash calls: with six expected applications at DeepSeek's cache-hit price, no rewritten prefix could repay its cache misses. This measures the gate, not model-written summaries.</p>
     <p>Loop stops (request-cap terminations) happened in the control arm and in treatment runs with no transformations, so they reflect agent variance rather than compaction.</p>
+    <details class="fold"><summary>Median cost by task</summary>
     <div class="results-scroll" tabindex="0" role="region" aria-label="Median cost by task">
       <table>
         <caption>Median cost per task. Differences in tool calls and answer length outweighed the value of the removed cached tokens.</caption>
@@ -208,6 +213,7 @@ const modelConfig = `{
         <tbody>{tasks.map(r => <tr><th scope="row">{r[0]}</th><td>{r[1]}</td><td>{r[2]}</td><td>{r[3]}</td></tr>)}</tbody>
       </table>
     </div>
+    </details>
 
     <h2 id="why">Why it didn't pay: prompt-cache economics</h2>
     <p>About 92% of input tokens were cache hits in every arm, and a cache hit on V4 Pro cost 0.83% of a miss: about 120× cheaper. The repeated tool output being removed was already nearly free. A rewrite changes the prompt from that point on, so everything after it is billed as new input until the cache is rebuilt.</p>
@@ -260,6 +266,14 @@ const modelConfig = `{
 </Layout>
 
 <style>
+  .fold { margin: var(--space-5) 0; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--paper-2); }
+  .fold > summary { cursor: pointer; padding: var(--space-3) var(--space-4); font-weight: 600; color: var(--ink); list-style: none; display: flex; align-items: center; gap: var(--space-3); }
+  .fold > summary::-webkit-details-marker { display: none; }
+  .fold > summary::before { content: "▸"; color: var(--accent); transition: transform .2s var(--ease); }
+  .fold[open] > summary::before { transform: rotate(90deg); }
+  .fold > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .fold > :not(summary) { margin-inline: var(--space-4); }
+  .fold > pre { margin-block: 0 var(--space-4); }
   .lede { font-size: 1.15rem; color: var(--ink-2); }
   .results-scroll { max-width: 100%; overflow-x: auto; }
   .results-scroll table { min-width: 40rem; }
