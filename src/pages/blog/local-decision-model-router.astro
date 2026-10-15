@@ -100,7 +100,7 @@ const shadowConfig = `{
 <Layout {...meta("/blog/local-decision-model-router/")} article image="/social/decision-router.png" imageAlt="Cheap model or bigger model? A small local model tried to decide.">
   <article class="frame prose">
     <p class="eyebrow">Research · experiment · 15 October 2026</p>
-    <h1 class="display">Can a small local model pick your agent's model?</h1>
+    <h1 class="display">Can decision models like Jev and Laya route a coding agent?</h1>
     <p class="lede">We plugged Laya, a 421M-parameter decision model, into our coding agents as a model router. The plumbing worked in about 112 ms. Deciding when a bigger model actually helps turned out to be the hard part.</p>
     <p>Small decision models aren't new, but they're getting a lot more attention lately, with Jev (hosted, by TypeSafe) and Laya (open source). They don't generate text: you give them a question and a fixed set of options, and they pick one. We wanted to see whether one could earn a place in a real coding workflow.</p>
     <p>The obvious first job was replacing the classifier a harness's auto mode uses to decide whether an action is safe. That classifier is part of the harness, so it isn't something we can swap. So we gave it a different job: pick the model for each turn. Cheap model for easy turns, expensive one for hard ones. Our agents already run through Torana, a local proxy, so the router went in there as a plugin. We used Laya, because it's open source and runs on our own machine.</p>

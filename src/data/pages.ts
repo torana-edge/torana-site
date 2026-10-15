@@ -136,7 +136,7 @@ export const pages: SitePage[] = [
   {
     path: "/blog/local-decision-model-router/",
     label: "A small local model as a model router",
-    title: "Can a small local model pick your agent's model? — Torana",
+    title: "Can decision models like Jev and Laya route a coding agent? — Torana",
     description: "Laya, a 421M local decision model, as a model router for coding agents: setup, harness checks, classifier results, a cheap-vs-expensive comparison and what's changing.",
     section: "Background",
   },
