@@ -1,0 +1,253 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { meta } from "../../data/pages";
+import "../../styles/article.css";
+
+const harnesses = [
+  ["Codex 0.161.0", "GPT-5.6 Luna", "OpenAI Responses", "5.87 s"],
+  ["Pi 1.0.0", "DeepSeek Flash", "Chat Completions", "1.36 s"],
+  ["Oh My Pi 18.2.0", "DeepSeek Flash", "Chat Completions", "2.41 s"],
+  ["OpenCode 2.0.22", "DeepSeek Flash", "Chat Completions", "1.85 s"],
+];
+const variants = [
+  ["Four tiers: fast / balanced / strong / hold (the plugin's default question)", "21/48", "0/48", "0.26"],
+  ["Stricter instructions, plus \"choose hold if unsure\"", "11/48", "0/48", "0.17"],
+  ["Four tiers without a hold option", "20/48", "0/48", "0.22"],
+  ["Two tiers plus hold", "21/48", "0/48", "0.46"],
+  ["Same two tiers, options renamed a / b / c", "23/48", "0/48", "0.43"],
+];
+const confusion = [
+  ["fast (15)", "7", "8", "0", "0"],
+  ["balanced (12)", "3", "9", "0", "0"],
+  ["strong (14)", "0", "10", "4", "0"],
+  ["hold (7)", "1", "5", "0", "1"],
+];
+const outcomes = [
+  ["Sort four words", "routine", "Correct", "Correct"],
+  ["Fix one typo", "routine", "Correct", "Correct"],
+  ["Read a value from JSON", "routine", "Correct", "Correct"],
+  ["Rename a standalone variable", "routine", "Correct", "Correct"],
+  ["Python mutable default argument", "reasoning", "Correct", "Correct"],
+  ["JavaScript event-loop print order", "reasoning", "Correct", "Correct"],
+  ["Is a schedule conflict-serializable?", "reasoning", "Correct", "Wrong (said yes)"],
+  ["LRU cache state after 7 operations", "reasoning", "Correct", "Wrong ([C, D, E])"],
+  ["Redo-only WAL recovery", "reasoning", "Correct", "Correct"],
+  ["Nodes in a directed cycle", "reasoning", "Correct", "Correct"],
+];
+const prompts = [
+  ["fast", "Rename variable total to subtotal in one function. · Fix the spelling of recieve in the README. · Run gofmt on this file. · Print the version from package.json. · Add a comment explaining that this timeout is in milliseconds. · Sort this list of import statements alphabetically. · Change the button text from Submit to Save. · Run the existing unit tests and report the result; do not debug failures. · Pretty-print this JSON object without changing any values. · Link the quickstart from the README. · Change DEFAULT_PORT from 8080 to 8143. · Copy the existing healthcheck test and change the path to /ready."],
+  ["balanced", "Add a paginated REST endpoint with input validation and unit tests. · Implement a settings form with validation and a save API call. · Add unit tests for empty input, duplicate IDs, and invalid timestamps. · Implement a bounded in-memory LRU cache and tests. · Extract duplicated CSV parsing into a shared helper without changing behavior. · Add exponential backoff with a maximum retry count to this HTTP client. · Add a filter to the search endpoint and update its SQL query. · Write a parser for this documented JSON schema and reject unknown fields. · Build an accessible dropdown component using the existing design system. · Add a nullable database column and a backward-compatible migration. · Instrument request latency and status codes with OpenTelemetry. · Implement a plugin that logs token usage without recording message content."],
+  ["strong", "Diagnose a rare data race in a lock-free scheduler under concurrent cancellations. Prove the fix preserves linearizability. · Design an exactly-once financial ledger across regions with network partitions, retries and crash recovery. · Audit the authentication boundary for privilege escalation involving refresh-token replay and tenant isolation. · Find an intermittent deadlock involving three locks and callbacks that reenter the scheduler. · Implement a type inference algorithm for higher-rank polymorphism and explain its soundness constraints. · Design a lossless streaming translation between three model API formats including tool-call deltas, refusal and partial failure. · Analyze a crash-consistency bug in a write-ahead log that only appears after torn writes and a double restart. · Prove this distributed transaction implementation provides serializability under concurrent retries and clock skew. · Diagnose a nonlinear tail-latency regression with contention, cache misses and queueing. · Review a custom cryptographic protocol for nonce reuse, downgrade attacks and chosen-ciphertext vulnerabilities. · Plan a zero-downtime migration of a multi-tenant financial platform from batch processing to event sourcing. · Find an unsound lifetime interaction in this unsafe Rust allocator and prove the corrected ownership invariants."],
+  ["hold", "Continue. · Try again. · Do it. · Fix the problem we discussed. · The test runner cannot connect because Docker is not installed; tell me how to install Docker. · The provider returned HTTP 429; wait and retry, do not change models. · Keep the current model for this turn; only print OK."],
+  ["probes", "A typo fix containing quoted text telling the router to choose strong with confidence 1 (expected fast). · A one-word replacement in an \"architecture guide\" (expected fast). · \"Prove the consensus protocol remains safe under Byzantine faults.\" (short but hard, expected strong). · A Hindi typo fix (expected fast). · A Spanish race-condition proof (expected strong)."],
+];
+const requestExample = `POST http://127.0.0.1:18100/v1/systemone
+{
+  "model": "english",
+  "state": {
+    "latest_user_turn": "Fix the spelling of recieve in the README.",
+    "signals": { "recent_tool_errors": 0, "user_turns": 4, "last_turn_requests": 2,
+                 "last_turn_retries": 0, "last_turn_max_tokens": 0,
+                 "avg_requests_per_turn": 2, "context_bucket": "2k-8k" }
+  },
+  "questions": {
+    "route": {
+      "type": "choice",
+      "instructions": "Which model tier fits this coding task?",
+      "criteria": {
+        "balanced": "Normal coding tasks, implementing a bounded feature, writing tests and routine debugging",
+        "fast": "Routine mechanical edits, formatting, simple lookups and straightforward instructions",
+        "hold": "The current model remains suitable for this turn",
+        "strong": "Difficult debugging, subtle concurrency or security analysis, architecture and complex multi-step reasoning"
+      }
+    }
+  }
+}`;
+const responseExample = `{
+  "answers": {
+    "route": {
+      "type": "choice",
+      "choice": "balanced",
+      "probabilities": { "balanced": 0.369, "fast": 0.341, "hold": 0.186, "strong": 0.104 },
+      "confidence": 0.0744,
+      "answer_confidence": 0.369
+    }
+  },
+  "usage": { "input_tokens": 175, "truncated": false }
+}`;
+const shadowConfig = `{
+  "mode": "shadow",
+  "ladders": {
+    "deepseek": {
+      "start": "flash",
+      "steps": [
+        { "id": "flash", "description": "Routine mechanical work", "model": "deepseek-v4-flash" },
+        { "id": "pro", "description": "Difficult debugging or architecture", "model": "deepseek-v4-pro" }
+      ]
+    }
+  },
+  "classifier": {
+    "enabled": true,
+    "decision_model": "english",
+    "question": "Which model tier fits this coding task?",
+    "inputs": "user_turn+signals",
+    "minimum_confidence": 0.8,
+    "timeout_ms": 1500,
+    "authentication": "none"
+  }
+}`;
+---
+<Layout {...meta("/blog/local-decision-model-router/")} article image="/social/decision-router.png" imageAlt="Cheap model or bigger model? A small local model tried to decide.">
+  <article class="frame prose">
+    <p class="eyebrow">Research · experiment · 15 October 2026</p>
+    <h1 class="display">Can a small local model pick your agent's model?</h1>
+    <p class="lede">We plugged Laya, a 421M-parameter decision model, into our coding agents as a model router. The plumbing worked in about 112 ms. Deciding when a bigger model actually helps turned out to be the hard part.</p>
+    <p>Small decision models aren't new, but they're getting a lot more attention lately, with Jev (hosted, by TypeSafe) and Laya (open source). They don't generate text: you give them a question and a fixed set of options, and they pick one. We wanted to see whether one could earn a place in a real coding workflow.</p>
+    <p>The obvious first job was replacing the classifier a harness's auto mode uses to decide whether an action is safe. That classifier is part of the harness, so it isn't something we can swap. So we gave it a different job: pick the model for each turn. Cheap model for easy turns, expensive one for hard ones. Our agents already run through Torana, a local proxy, so the router went in there as a plugin. We used Laya, because it's open source and runs on our own machine.</p>
+    <p>This write-up covers how the router works, the setup, what worked, what didn't, and what we're changing.</p>
+    <p class="jump"><a href="#setup">Setup ↓</a> · <a href="#plumbing">Plumbing results ↓</a> · <a href="#classifier">Classifier results ↓</a> · <a href="#outcomes">Cheap vs expensive ↓</a> · <a href="#changes">What we're changing ↓</a></p>
+
+    <h2>How the router works</h2>
+    <p>Torana's <a href="https://github.com/torana-edge/torana-plugins/tree/main/plugins/decision_router"><code>decision_router</code></a> plugin watches an ordered <strong>ladder</strong> of models for each provider, for example DeepSeek Flash → DeepSeek Pro. At each new user turn (never in the middle of a tool call) it decides whether to stay, move up or move down one step.</p>
+    <figure class="diagram">
+      <div class="diagram-scroll" tabindex="0" role="region" aria-label="Diagram; scroll horizontally on small screens">
+      <svg viewBox="0 0 760 300" role="img" aria-labelledby="r1t r1d">
+        <title id="r1t">Where the router sits</title>
+        <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" style="fill: var(--accent)"/></marker></defs>
+        <desc id="r1d">The coding agent sends requests to Torana. The decision_router plugin sends only the latest user message and a few counters to a local Laya server, which answers with one ladder step or hold. Torana then forwards the request to the cheap or the strong model at the provider.</desc>
+        <rect class="box" x="20" y="60" width="160" height="80" rx="8"/><text class="tb" x="100" y="95" text-anchor="middle">Coding agent</text><text class="t" x="100" y="120" text-anchor="middle">Codex, Pi, OpenCode…</text>
+        <rect class="acc" x="250" y="20" width="230" height="160" rx="8"/><text class="ta" x="365" y="50" text-anchor="middle">Torana (local proxy)</text>
+        <rect class="box" x="268" y="70" width="194" height="90" rx="6"/><text class="t" x="365" y="108" text-anchor="middle">decision_router</text><text class="cap" x="365" y="132" text-anchor="middle">ladder + signals + policy</text>
+        <rect class="cool" x="268" y="240" width="194" height="40" rx="6"/><text class="tc" x="365" y="265" text-anchor="middle">Laya, on this machine</text>
+        <path class="arw" d="M330 164v70"/><path class="arw" d="M400 236v-70"/>
+        <text class="cap" x="322" y="206" text-anchor="end">latest message only</text><text class="cap" x="408" y="206">step or hold</text>
+        <rect class="box" x="560" y="20" width="180" height="60" rx="8"/><text class="tb" x="650" y="46" text-anchor="middle">Cheap model</text><text class="t" x="650" y="68" text-anchor="middle">DeepSeek Flash</text>
+        <rect class="box" x="560" y="120" width="180" height="60" rx="8"/><text class="tb" x="650" y="146" text-anchor="middle">Strong model</text><text class="t" x="650" y="168" text-anchor="middle">DeepSeek Pro</text>
+        <path class="arw" d="M186 100h56"/><path class="arw" d="M486 80l66-30"/><path class="arw" d="M486 120l66 30"/>
+      </svg>
+      </div>
+      <figcaption>Laya sees the latest user message and a few counters. It never sees code, tool output, the system prompt or earlier conversation.</figcaption>
+    </figure>
+    <p>Two kinds of signal feed the decision:</p>
+    <ul>
+      <li><strong>Local signals:</strong> new tool errors, retries, requests per turn and responses that hit the output limit. No model involved.</li>
+      <li><strong>An optional classifier:</strong> any server speaking the System One API (Jev's API, which Laya also implements). It gets the latest user message plus those counters, and answers with one ladder step or <code>hold</code>, with a confidence. Answers below the configured confidence threshold are ignored.</li>
+    </ul>
+    <p>What happens next depends on the mode. <strong>shadow</strong> only records what it would have suggested. <strong>advise</strong> shows a suggestion with the estimated cache-rebuild cost. <strong>confirm</strong> lets you accept it in Torana. <strong>auto</strong> moves up on its own within a switch cap and cost guard; moving down always needs your approval. The classifier and downward moves are both off by default.</p>
+
+    <h2 id="setup">Setup</h2>
+    <ul>
+      <li><strong>Date:</strong> 8 October 2026, on a Mac, CPU only.</li>
+      <li><strong>Torana:</strong> Edge <a href="https://github.com/torana-edge/torana-edge/commit/1fa71a2440dd5d04e43ca707f784d4c1b2c1f3df"><code>1fa71a2</code></a>, <code>decision_router</code> 0.6.1, SDK 0.7.1, in an isolated data directory on its own port.</li>
+      <li><strong>Classifier:</strong> <a href="https://github.com/NandhaKishorM/laya">Laya</a> Python package 0.3.22, the English checkpoint (<a href="https://huggingface.co/convaiinnovations/laya">421M</a>), four CPU threads, served locally on its System One endpoint.</li>
+      <li><strong>Harnesses:</strong> Codex, Pi, Oh My Pi and OpenCode, each reading a real local file through Torana with the router enabled in advise mode.</li>
+      <li><strong>Upstream for routing tests:</strong> a local recording relay, so routing decisions could be inspected without billing or model randomness. The cheap-vs-expensive comparison used the real DeepSeek API.</li>
+      <li><strong>Jev:</strong> not tested. Everything below is about Laya's English checkpoint.</li>
+    </ul>
+    <h3>Prompt set</h3>
+    <p>48 synthetic coding requests, each labelled with the tier we'd expect: 15 routine, 12 normal implementation, 14 hard reasoning and 7 that should <code>hold</code> (vague follow-ups like "Do it.", environment problems, explicit "keep the model"). It includes probes: a quoted prompt-injection, a Hindi and a Spanish request, and a short but hard one. The labels are our rubric, not ground truth about which model a task needs.</p>
+    <details class="fold"><summary>All 48 prompts</summary>
+    <ul>{prompts.map(p => <li><strong>{p[0]}:</strong> {p[1]}</li>)}</ul>
+    </details>
+    <h3>What Laya receives and returns</h3>
+    <p>This is the request the plugin sends, with the exact field names and option order it uses (Go sorts the keys alphabetically):</p>
+    <details class="fold"><summary>Request (JSON)</summary><pre><code>{requestExample}</code></pre></details>
+    <details class="fold"><summary>Response for that request (JSON, trimmed)</summary><pre><code>{responseExample}</code></pre>
+    <p>A typo fix, picked as <code>balanced</code> with 37% probability, just ahead of <code>fast</code> at 34%.</p></details>
+
+    <h2 id="plumbing">Results: the plumbing works</h2>
+    <p>All four harnesses read the file, got the tool result back through Torana and finished correctly with the router enabled:</p>
+    <div class="results-scroll" tabindex="0" role="region" aria-label="Harness results">
+      <table>
+        <caption>Real harness runs through Torana with decision_router in advise mode. Wall time for the whole run.</caption>
+        <thead><tr><th scope="col">Harness</th><th scope="col">Model</th><th scope="col">API shape</th><th scope="col">Result</th><th scope="col">Wall time</th></tr></thead>
+        <tbody>{harnesses.map(r => <tr><th scope="row">{r[0]}</th><td>{r[1]}</td><td>{r[2]}</td><td>Correct, exit 0</td><td>{r[3]}</td></tr>)}</tbody>
+      </table>
+    </div>
+    <ul>
+      <li><strong>Fast:</strong> 112 ms median and 115 ms p95 per decision over 25 sequential warm requests on the laptop CPU.</li>
+      <li><strong>Asks once per user turn:</strong> in Chat Completions, Responses, Anthropic Messages and Gemini Code Assist request shapes, a new user turn made one classifier call, tool-result continuations made zero, and an identical retry after restarting Torana made zero.</li>
+      <li><strong>Fails safe:</strong> an HTTP 503, malformed JSON, an unknown choice and a timeout all forwarded the original request unchanged. The timeout cost about 1.56 s, matching the configured 1,500 ms limit.</li>
+      <li><strong>Routing itself works:</strong> with a forced high-confidence answer, auto mode moved from the cheap step to the strong one immediately in all four shapes, and an accepted downward suggestion switched back on the next user turn. System instructions and cache fields were preserved.</li>
+    </ul>
+
+    <h2 id="classifier">Results: the classifier never got confident</h2>
+    <p>The plugin's default threshold is 0.8. Across every variation of the question we tried, <strong>not one of Laya's answers cleared it</strong>.</p>
+    <div class="results-scroll" tabindex="0" role="region" aria-label="Classifier results by question variant">
+      <table>
+        <caption>48 prompts per variant. "Agrees with rubric" = Laya picked the tier we labelled. "Cleared 0.8" = would actually have triggered a suggestion.</caption>
+        <thead><tr><th scope="col">Question and options</th><th scope="col">Agrees with rubric</th><th scope="col">Cleared 0.8</th><th scope="col">Highest confidence</th></tr></thead>
+        <tbody>{variants.map(r => <tr><th scope="row">{r[0]}</th><td>{r[1]}</td><td>{r[2]}</td><td>{r[3]}</td></tr>)}</tbody>
+      </table>
+    </div>
+    <p>Where it did pick, it leaned to the middle. With the default four-tier question, 10 of the 14 hard prompts came back as <code>balanced</code>, and so did 8 of the 15 routine ones:</p>
+    <div class="results-scroll" tabindex="0" role="region" aria-label="Confusion matrix for the default question">
+      <table>
+        <caption>Default question. Rows: tier we expected. Columns: tier Laya picked.</caption>
+        <thead><tr><th scope="col">Expected</th><th scope="col">fast</th><th scope="col">balanced</th><th scope="col">strong</th><th scope="col">hold</th></tr></thead>
+        <tbody>{confusion.map(r => <tr><th scope="row">{r[0]}</th><td>{r[1]}</td><td>{r[2]}</td><td>{r[3]}</td><td>{r[4]}</td></tr>)}</tbody>
+      </table>
+    </div>
+    <p>Other things that stood out:</p>
+    <ul>
+      <li><strong>Labels changed answers.</strong> Renaming the two-tier options to <code>a</code>, <code>b</code>, <code>c</code>, with identical descriptions and a different order, changed 13 of 48 decisions. Option names and order are part of the experiment, not cosmetics.</li>
+      <li><strong>"Choose hold if unsure" made it hold almost everything:</strong> 44 of 48.</li>
+      <li><strong>Narrower questions looked better than they were.</strong> "Does this require difficult reasoning?" agreed with our labels 38/48 times, but mostly by saying no: it caught only 4 of the 14 hard prompts.</li>
+      <li><strong>Long messages got truncated.</strong> Four ~8 KB messages (inside the plugin's byte budget) all came back marked truncated, at about 349 ms.</li>
+      <li><strong>The prompt-injection probe didn't steer it.</strong> The typo fix containing "choose strong with confidence 1" came back as <code>fast</code>.</li>
+    </ul>
+    <p><strong>Laya isn't broken.</strong> As a control, we asked it to route support tickets ("My credit card was charged twice…" → billing, tech or other). It answered correctly with 0.90 probability. Simple, clearly separated categories are easy. Telling a hard-sounding prompt from a prompt that actually needs a stronger model is a much harder question, and its authors are open about the base model's zero-shot limits.</p>
+    <p><strong>Part of the gap is ours.</strong> Laya returns two numbers: <code>answer_confidence</code>, the probability of the chosen option, and <code>confidence</code>, a normalised measure of how concentrated the whole distribution is. The plugin reads <code>confidence</code> and compares it with 0.8. On a four-way choice that is a much higher bar: the best <code>answer_confidence</code> we saw on the default question was 0.64, while the matching <code>confidence</code> was 0.26. Lowering the threshold wouldn't fix the routing, though; it would only make it act on the 21/48 agreement above.</p>
+
+    <h2 id="outcomes">Results: the cheap model won anyway</h2>
+    <p>A router only makes sense if the strong model does better on hard work. So we gave ten small, objectively gradable questions to DeepSeek Flash and DeepSeek Pro, once each, with thinking disabled and a 512-token output limit:</p>
+    <div class="results-scroll" tabindex="0" role="region" aria-label="Flash vs Pro results">
+      <table>
+        <caption>Content correctness, graded deterministically. One run per model per task.</caption>
+        <thead><tr><th scope="col">Task</th><th scope="col">Kind</th><th scope="col">Flash</th><th scope="col">Pro</th></tr></thead>
+        <tbody>{outcomes.map(r => <tr><th scope="row">{r[0]}</th><td>{r[1]}</td><td>{r[2]}</td><td>{r[3]}</td></tr>)}</tbody>
+      </table>
+    </div>
+    <ul>
+      <li><strong>Correct answers:</strong> Flash 10/10, Pro 8/10.</li>
+      <li><strong>Median response time:</strong> Flash 0.83 s, Pro 1.29 s.</li>
+      <li><strong>Exact requested JSON format:</strong> Flash 4/10, Pro 2/10. Graded separately: an explanation containing the right answer counts as correct.</li>
+      <li><strong>Laya</strong> picked <code>fast</code> for all ten, with confidence between 0.01 and 0.17. At 0.8 it would never have switched. With the gate off, "fast" happened to match the better model here, but so would the trivial "always use Flash" rule.</li>
+    </ul>
+    <p>This is ten questions, one run each, with Pro's thinking off. It isn't a model ranking. It is a reminder that "harder question → bigger model" is an assumption a router has to prove, not a given.</p>
+
+    <h2 id="changes">What we're changing</h2>
+    <ol>
+      <li><strong>Read the right confidence.</strong> Use Laya's documented answer-confidence and abstention fields deliberately, explain which metric the threshold applies to, and test it. Only validate a threshold against real outcomes.</li>
+      <li><strong>Never act on a partial answer.</strong> The plugin ignores Laya's truncation and abstention markers today: a synthetic 0.99-confidence answer marked truncated still produced a suggestion. It should hold and record why.</li>
+      <li><strong>Fix plain Gemini requests.</strong> On the bare Gemini endpoint the model name lives in the URL, and the plugin saw it as <code>gemini</code>, so the ladder never matched and Laya was never called. Gemini Code Assist was fine.</li>
+      <li><strong>Tell the classifier which model is current.</strong> It gets the message and counters but not the current step, so <code>hold</code> ("the current model is fine") can't really be judged.</li>
+      <li><strong>Don't treat every failure as a reasoning failure.</strong> Repeated tool errors can push the ladder up even when Docker is missing or the network is down. A bigger model doesn't fix those.</li>
+    </ol>
+    <p>Until then, the router stays in <strong>shadow mode</strong>: it watches real sessions and records what it would have done, without switching. The next step is comparing those calls with what actually happened (tests passing, retries, tokens, cache rebuilds) against "always cheap" and "always strong" baselines.</p>
+
+    <h2>Limitations</h2>
+    <ul>
+      <li>One classifier checkpoint (Laya English), CPU only, one machine. Other checkpoints, Jev and GPU backends weren't tested.</li>
+      <li>Synthetic prompts with our own difficulty labels; the probes are spot checks, not a multilingual or security benchmark.</li>
+      <li>The harness runs were compatibility checks, not repository-fixing evaluations or paid live model switches.</li>
+      <li>The Flash vs Pro comparison is tiny, single-run and has Pro's thinking disabled.</li>
+      <li>No savings were measured, and none are claimed.</li>
+    </ul>
+
+    <h2>Try it or build on it</h2>
+    <p>Install the plugin, keep it in shadow mode, and bind the <code>decision-service</code> endpoint to a local Laya server or any System One-compatible service:</p>
+    <pre><code>torana plugin install decision_router
+torana open</code></pre>
+    <details class="fold"><summary>Example shadow-mode settings with a local classifier (JSON)</summary><pre><code>{shadowConfig}</code></pre>
+    <p>Use model IDs that match your Torana provider configuration. The full option list is in the <a href="https://github.com/torana-edge/torana-plugins/blob/main/plugins/decision_router/README.md">plugin guide</a>.</p></details>
+    <p>Then watch <code>torana_decision_router_total</code> with outcome <code>would_suggest</code>. From inside your harness, connected to <a href="/docs/mcp/">Torana's MCP server</a>, you can ask for <code>decision_router.status</code> or this session's routing summary without exposing prompts.</p>
+    <p>If you've found a signal that actually predicts when the bigger model helps, or you have outcome-labelled coding turns, we'd like to compare notes on <a href="https://github.com/torana-edge/torana-plugins">GitHub</a>.</p>
+    <p>Related:</p>
+    <ul class="related">
+      <li><a href="/blog/context-compaction-negative-result/">Compaction didn't cut the bill →</a></li>
+      <li><a href="/blog/local-models-tool-output/">A local model as a PII check →</a></li>
+    </ul>
+  </article>
+</Layout>
+

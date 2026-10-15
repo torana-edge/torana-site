@@ -1,0 +1,38 @@
+/* Shared layout for long-form research articles. */
+.fold { margin: var(--space-5) 0; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--paper-2); }
+.fold > summary { cursor: pointer; padding: var(--space-3) var(--space-4); font-weight: 600; color: var(--ink); list-style: none; display: flex; align-items: center; gap: var(--space-3); }
+.fold > summary::-webkit-details-marker { display: none; }
+.fold > summary::before { content: "▸"; color: var(--accent); transition: transform .2s var(--ease); }
+.fold[open] > summary::before { transform: rotate(90deg); }
+.fold > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.fold > :not(summary) { margin-inline: var(--space-4); }
+.fold > pre { margin-block: 0 var(--space-4); }
+.lede { font-size: 1.15rem; color: var(--ink-2); }
+.results-scroll { max-width: 100%; overflow-x: auto; }
+.results-scroll table { min-width: 40rem; }
+.results-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+pre { overflow-x: auto; font-size: .82rem; }
+.diagram { width: min(94vw, 54rem); max-width: none; max-inline-size: none; margin: var(--space-6) 0 var(--space-6) 50%; transform: translateX(-50%); padding: var(--space-4); border: 1px solid var(--rule); border-radius: var(--radius); background: var(--paper-2); }
+.diagram-scroll { overflow-x: auto; }
+.diagram-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.diagram svg { display: block; width: 100%; min-width: 760px; height: auto; font-family: var(--font-body); }
+.diagram figcaption { margin-top: var(--space-3); font-size: .9rem; color: var(--muted); }
+.diagram .box { fill: var(--paper-3); stroke: var(--rule-strong); }
+.diagram .acc { fill: var(--accent-dim); stroke: var(--accent); }
+.diagram .hot { fill: var(--danger); fill-opacity: .18; stroke: var(--danger); }
+.diagram .cool { fill: var(--accent-dim); stroke: var(--accent); }
+.diagram .t { fill: var(--ink-2); font-size: 15px; }
+.diagram .tb { fill: var(--ink); font-size: 17px; font-weight: 600; }
+.diagram .ta { fill: var(--accent); font-size: 16px; font-weight: 600; }
+.diagram .th { fill: var(--ink); font-size: 15px; font-weight: 600; }
+.diagram .tc { fill: var(--ink); font-size: 15px; font-weight: 600; }
+.diagram .lbl text { fill: var(--muted); font-size: 15px; }
+.diagram .lbl.sm text { font-size: 14px; }
+.diagram .cap { fill: var(--muted); font-size: 14px; }
+.diagram .dots circle { fill: var(--muted); }
+.diagram .arw { stroke: var(--accent); stroke-width: 2; fill: none; marker-end: url(#arr); }
+.jump a { white-space: nowrap; }
+.results-scroll td { font-variant-numeric: tabular-nums; }
+.related { padding-left: 0; list-style: none; }
+.related li { margin-block: var(--space-2); }
+.prose :not(pre) > code { overflow-wrap: anywhere; }

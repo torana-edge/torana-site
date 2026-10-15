@@ -1,6 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import { meta } from "../../data/pages";
+import "../../styles/article.css";
 
 const arms = [
   ["Control (no compaction)", "23/25", "2", "$0.024820", "450,810", "16", "92.23%"],
@@ -74,7 +75,7 @@ const modelConfig = `{
     <p class="lede">A paired experiment on DeepSeek V4 Pro: 75 sessions, 4.81 MB of repeated tool output removed, and no measurable saving.</p>
     <p>Coding agents resend old tool output on every turn, so replacing it with something smaller looks like an obvious saving. I built that as a Torana plugin, broke it once, rebuilt it, and measured it. On DeepSeek V4 Pro the saving was about 2% per session, smaller than ordinary run-to-run variation, because prompt caching had already made the repeated output nearly free.</p>
     <p>This write-up covers the idea, what broke, the final design, the experiment setup and methodology, the results, and what's next.</p>
-    <p><a href="#reproduce">Experiment setup ↓</a> · <a href="#results">Results ↓</a> · <a href="#why">Why it didn't pay ↓</a> · <a href="#next">What's next ↓</a></p>
+    <p class="jump"><a href="#reproduce">Experiment setup ↓</a> · <a href="#results">Results ↓</a> · <a href="#why">Why it didn't pay ↓</a> · <a href="#next">What's next ↓</a></p>
 
     <h2>How coding agents resend tool output</h2>
     <p>The model behind a coding agent can't read files or run commands itself. It asks for a tool call, the agent runs it locally, and the output is appended to the conversation. On every following turn, the agent sends the whole visible conversation back to the model, including every earlier tool result.</p>
@@ -270,37 +271,3 @@ const modelConfig = `{
   </article>
 </Layout>
 
-<style>
-  .fold { margin: var(--space-5) 0; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--paper-2); }
-  .fold > summary { cursor: pointer; padding: var(--space-3) var(--space-4); font-weight: 600; color: var(--ink); list-style: none; display: flex; align-items: center; gap: var(--space-3); }
-  .fold > summary::-webkit-details-marker { display: none; }
-  .fold > summary::before { content: "▸"; color: var(--accent); transition: transform .2s var(--ease); }
-  .fold[open] > summary::before { transform: rotate(90deg); }
-  .fold > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .fold > :not(summary) { margin-inline: var(--space-4); }
-  .fold > pre { margin-block: 0 var(--space-4); }
-  .lede { font-size: 1.15rem; color: var(--ink-2); }
-  .results-scroll { max-width: 100%; overflow-x: auto; }
-  .results-scroll table { min-width: 40rem; }
-  .results-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
-  pre { overflow-x: auto; font-size: .82rem; }
-  .diagram { width: min(94vw, 54rem); max-width: none; max-inline-size: none; margin: var(--space-6) 0 var(--space-6) 50%; transform: translateX(-50%); padding: var(--space-4); border: 1px solid var(--rule); border-radius: var(--radius); background: var(--paper-2); }
-  .diagram-scroll { overflow-x: auto; }
-  .diagram-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
-  .diagram svg { display: block; width: 100%; min-width: 760px; height: auto; font-family: var(--font-body); }
-  .diagram figcaption { margin-top: var(--space-3); font-size: .9rem; color: var(--muted); }
-  .diagram .box { fill: var(--paper-3); stroke: var(--rule-strong); }
-  .diagram .acc { fill: var(--accent-dim); stroke: var(--accent); }
-  .diagram .hot { fill: var(--danger); fill-opacity: .18; stroke: var(--danger); }
-  .diagram .cool { fill: var(--accent-dim); stroke: var(--accent); }
-  .diagram .t { fill: var(--ink-2); font-size: 15px; }
-  .diagram .tb { fill: var(--ink); font-size: 17px; font-weight: 600; }
-  .diagram .ta { fill: var(--accent); font-size: 16px; font-weight: 600; }
-  .diagram .th { fill: var(--ink); font-size: 15px; font-weight: 600; }
-  .diagram .tc { fill: var(--ink); font-size: 15px; font-weight: 600; }
-  .diagram .lbl text { fill: var(--muted); font-size: 15px; }
-  .diagram .lbl.sm text { font-size: 14px; }
-  .diagram .cap { fill: var(--muted); font-size: 14px; }
-  .diagram .dots circle { fill: var(--muted); }
-  .diagram .arw { stroke: var(--accent); stroke-width: 2; fill: none; marker-end: url(#arr); }
-</style>
