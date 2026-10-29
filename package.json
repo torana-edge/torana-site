@@ -33,7 +33,7 @@
     "node-html-markdown": "2.0.0",
     "node-html-parser": "6.1.13",
     "playwright-core": "1.63.0",
-    "wrangler": "^4.123.0",
+    "wrangler": "^4.155.0",
     "yaml": "2.9.1"
   },
   "overrides": {
